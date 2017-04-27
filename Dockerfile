@@ -30,13 +30,17 @@ RUN pip install cffi --upgrade \
 
 WORKDIR /kb/module
 RUN \
-  curl https://www.ebi.ac.uk/~zerbino/velvet/velvet_latest.tgz && \ 
+  wget https://www.ebi.ac.uk/~zerbino/velvet/velvet_latest.tgz && \ 
   tar -zvxf velvet_latest.tgz && \
   rm -f velvet_latest.tgz && \
   cd velvet_1.2.10 && \
+  #ln -s velvet_1.2.10 velvet && \
   #./update_velvet.sh && \
   make && \
-  cp velvet* /kb/deployment/bin/velveti*  
+  cp velvet* /kb/deployment/bin/.  
+
+RUN mkdir -p /data && \
+  cp -R velvet_1.2.10/* /data/.
 
 # -----------------------------------------
 

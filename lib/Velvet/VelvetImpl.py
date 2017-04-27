@@ -26,8 +26,8 @@ This sample module contains one small method - filter_contigs.
     # the latter method is running.
     ######################################### noqa
     VERSION = "0.0.1"
-    GIT_URL = ""
-    GIT_COMMIT_HASH = ""
+    GIT_URL = "https://github.com/kbaseapps/Velvet.git"
+    GIT_COMMIT_HASH = "ee91a04035f1ab475085acfe2d25a5634c40c394"
 
     #BEGIN_CLASS_HEADER
     # Class variables and functions can be defined in this block

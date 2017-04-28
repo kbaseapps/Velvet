@@ -17,7 +17,11 @@ import us.kbase.common.service.UnauthorizedException;
  * <p>Original spec-file module name: Velvet</p>
  * <pre>
  * A KBase module: Velvet
- * This sample module contains one small method - filter_contigs.
+ * This is a KBase module that wraps the open source package "Short read de novo assembler using de Bruijn graphs"
+ * Version 1.2.10
+ * References:
+ * https://github.com/dzerbino/velvet
+ * https://github.com/dzerbino/velvet/blob/master/Columbus_manual.pdf
  * </pre>
  */
 public class VelvetClient {
@@ -164,23 +168,38 @@ public class VelvetClient {
     }
 
     /**
-     * <p>Original spec-file function name: filter_contigs</p>
+     * <p>Original spec-file function name: run_velveth</p>
      * <pre>
-     * The actual function is declared using 'funcdef' to specify the name
-     * and input/return arguments to the function.  For all typical KBase
-     * Apps that run in the Narrative, your function should have the 
-     * 'authentication required' modifier.
+     * Definition of run_velveth
      * </pre>
-     * @param   params   instance of type {@link us.kbase.velvet.FilterContigsParams FilterContigsParams}
-     * @return   parameter "output" of type {@link us.kbase.velvet.FilterContigsResults FilterContigsResults}
+     * @param   params   instance of type {@link us.kbase.velvet.VelvethParams VelvethParams}
+     * @return   parameter "output" of type {@link us.kbase.velvet.VelvethResults VelvethResults}
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public FilterContigsResults filterContigs(FilterContigsParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+    public VelvethResults runVelveth(VelvethParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
-        TypeReference<List<FilterContigsResults>> retType = new TypeReference<List<FilterContigsResults>>() {};
-        List<FilterContigsResults> res = caller.jsonrpcCall("Velvet.filter_contigs", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        TypeReference<List<VelvethResults>> retType = new TypeReference<List<VelvethResults>>() {};
+        List<VelvethResults> res = caller.jsonrpcCall("Velvet.run_velveth", args, retType, true, true, jsonRpcContext, this.serviceVersion);
+        return res.get(0);
+    }
+
+    /**
+     * <p>Original spec-file function name: run_velvetg</p>
+     * <pre>
+     * Definition of run_velvetg
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.velvet.VelvetgParams VelvetgParams}
+     * @return   parameter "output" of type {@link us.kbase.velvet.VelvetgResults VelvetgResults}
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public VelvetgResults runVelvetg(VelvetgParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<VelvetgResults>> retType = new TypeReference<List<VelvetgResults>>() {};
+        List<VelvetgResults> res = caller.jsonrpcCall("Velvet.run_velvetg", args, retType, true, true, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 

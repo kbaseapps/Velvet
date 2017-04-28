@@ -333,10 +333,14 @@ class Application(object):
         self.serverlog.set_log_level(6)
         self.rpc_service = JSONRPCServiceCustom()
         self.method_authentication = dict()
-        self.rpc_service.add(impl_Velvet.filter_contigs,
-                             name='Velvet.filter_contigs',
+        self.rpc_service.add(impl_Velvet.run_velveth,
+                             name='Velvet.run_velveth',
                              types=[dict])
-        self.method_authentication['Velvet.filter_contigs'] = 'required'  # noqa
+        self.method_authentication['Velvet.run_velveth'] = 'required'  # noqa
+        self.rpc_service.add(impl_Velvet.run_velvetg,
+                             name='Velvet.run_velvetg',
+                             types=[dict])
+        self.method_authentication['Velvet.run_velvetg'] = 'required'  # noqa
         self.rpc_service.add(impl_Velvet.status,
                              name='Velvet.status',
                              types=[dict])

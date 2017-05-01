@@ -28,13 +28,14 @@ WORKDIR /kb/module
 RUN \
   wget https://www.ebi.ac.uk/~zerbino/velvet/velvet_latest.tgz && \ 
   tar -zvxf velvet_latest.tgz && \
+  ln -s velvet_1.2.10 velvet && \
   rm -f velvet_latest.tgz && \
-  cd velvet_1.2.10 && \
+  cd velvet && \
   #./update_velvet.sh && \
   make && \
   cp velvet* /kb/deployment/bin/.  
 
-# For the testing data that comes with the software package
+# For the testing data that comes with the software package, may not need the copying line
 RUN mkdir /velvet_data && \
   cp -R velvet_1.2.10/data/* /velvet_data/.
 

@@ -11,18 +11,18 @@
     },
     "parameters": [ 
         {
-            "id": "assembly_input_ref",
+            "id": "out_folder",
             "optional": false,
             "advanced": false,
             "allow_multiple": false,
             "default_values": [ "" ],
             "field_type": "text",
             "text_options": {
-                "valid_ws_types": [ "KBaseGenomeAnnotations.Assembly", "KBaseGenomes.ContigSet" ]
+                "validate_as": "text"
             }
         },
         {
-            "id": "min_length",
+            "id": "hash_length",
             "optional": false,
             "advanced": false,
             "allow_multiple": false,
@@ -38,20 +38,19 @@
         "service-mapping": {
             "url": "",
             "name":"Velvet",
-            "method": "filter_contigs",
+            "method": "run_velveth",
             "input_mapping": [
                 {
                     "narrative_system_variable": "workspace",
                     "target_property": "workspace_name"
                 },
                 {
-                    "input_parameter": "assembly_input_ref",
-                    "target_property": "assembly_input_ref",
-                    "target_type_transform": "resolved-ref"
+                    "input_parameter": "out_folder",
+                    "target_property": "out_folder"
                 },
                 {
-                    "input_parameter": "min_length",
-                    "target_property": "min_length"
+                    "input_parameter": "hash_length",
+                    "target_property": "hash_length"
                 }
             ],
             "output_mapping": [

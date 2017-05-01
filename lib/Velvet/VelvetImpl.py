@@ -6,6 +6,10 @@ from Bio import SeqIO
 from pprint import pprint, pformat
 from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
 from KBaseReport.KBaseReportClient import KBaseReport
+
+from pprint import pformat, pprint
+import time
+
 #END_HEADER
 
 
@@ -33,21 +37,51 @@ https://github.com/dzerbino/velvet/blob/master/Columbus_manual.pdf
     ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "https://github.com/kbaseapps/Velvet.git"
-    GIT_COMMIT_HASH = "4b4ae0e9168a1893fb0caf0fabfe3a7d01755034"
+    GIT_COMMIT_HASH = "f9dd477aaf7d370fb238d63483ed4dd3e6856f64"
 
     #BEGIN_CLASS_HEADER
     # Class variables and functions can be defined in this block
+    #/kb/deployment/bin/velveth or velvetg
+    VELVETH = '/kb/module/velvet/velveth'
+    VELVETG = '/kb/module/velvet/velvetg'
+
+    def log(self, message, prefix_newline=False):
+            print(('\n' if prefix_newline else '') +
+                          str(time.time()) + ': ' + str(message))
+
+    def process_params(self, params):
+        if 'workspace_name' not in params:
+            raise ValueError('a string reprsenting workspace_name parameter is required')
+        if 'out_folder' not in params:
+            raise ValueError('a string reprsenting out_folder parameter is required')
+        if 'hash_length' not in params:
+            raise ValueError('an integerreprsenting  hash_length parameter is required')
+        if 'hash_length' in params:
+            if not isinstance(params['hash_length'], int):
+                raise ValueError('hash_length must be of type int')
+        if 'reads_channels' not in params:
+            raise ValueError('key-val pairs representing the reads_channels parameter is required')
+        if type(params['reads_channels']) != list:
+            raise ValueError('reads_channels must be a list')
+        for rc in params['reads_channels']:
+            self.log('Read file channel info :\n' + pformat(rc))
+
     #END_CLASS_HEADER
 
     # config contains contents of config file in a hash or None if it couldn't
     # be found
     def __init__(self, config):
         #BEGIN_CONSTRUCTOR
-        
+
         # Any configuration parameters that are important should be parsed and
         # saved in the constructor.
-        self.callback_url = os.environ['SDK_CALLBACK_URL']
-        self.shared_folder = config['scratch']
+        self.cfg = config
+        self.callbackURL = os.environ['SDK_CALLBACK_URL']
+        self.log('Callback URL: ' + self.callbackURL)
+        self.workspaceURL = config['workspace-url']
+        self.scratch = os.path.abspath(config['scratch'])
+        if not os.path.exists(self.scratch):
+            os.makedirs(self.scratch)
 
         #END_CONSTRUCTOR
         pass
@@ -56,77 +90,125 @@ https://github.com/dzerbino/velvet/blob/master/Columbus_manual.pdf
     def run_velveth(self, ctx, params):
         """
         Definition of run_velveth
-        :param params: instance of type "VelvethParams" (Arguments for
-           run_velveth velveth, help Compilation settings: CATEGORIES = 2
-           MAXKMERLENGTH = 31 Usage: ./velveth directory hash_length
-           {[-file_format][-read_type][-separate|-interleaved] filename1
-           [filename2 ...]} {...} [options] directory       : directory name
-           for output files hash_length     : EITHER an odd integer (if even,
-           it will be decremented) <= 31 (if above, will be reduced) : OR:
-           m,M,s where m and M are odd integers (if not, they will be
-           decremented) with m < M <= 31 (if above, will be reduced) and s is
-           a step (even number). Velvet will then hash from k=m to k=M with a
-           step of s filename        : path to sequence file or - for
-           standard input File format options: -fasta  -fastq  -raw   
-           -fasta.gz       -fastq.gz       -raw.gz -sam    -bam    -fmtAuto
-           (Note: -fmtAuto will detect fasta or fastq, and will try the
-           following programs for decompression : gunzip, pbunzip2, bunzip2
-           File layout options for paired reads (only for fasta and fastq
-           formats): -interleaved    : File contains paired reads interleaved
-           in the one file (default) -separate       : Read 2 separate files
-           for paired reads Read type options: -short  -shortPaired -short2
-           -shortPaired2 -long   -longPaired -reference Options:
-           -strand_specific        : for strand specific transcriptome
-           sequencing data (default: off) -reuse_Sequences        : reuse
-           Sequences file (or link) already in directory (no need to provide
-           original filenames in this case (default: off) -reuse_binary   :
-           reuse binary sequences file (or link) already in directory (no
-           need to provide original filenames in this case (default: off)
-           -noHash                 : simply prepare Sequences file, do not
-           hash reads or prepare Roadmaps file (default: off) -create_binary 
-           : create binary CnyUnifiedSeq file (default: off) Synopsis: -
-           Short single end reads: velveth Assem 29 -short -fastq
-           s_1_sequence.txt - Paired-end short reads (remember to interleave
-           paired reads): velveth Assem 31 -shortPaired -fasta
-           interleaved.fna - Paired-end short reads (using separate files for
-           the paired reads) velveth Assem 31 -shortPaired -fasta -separate
-           left.fa right.fa - Two channels and some long reads: velveth Assem
-           43 -short -fastq unmapped.fna -longPaired -fasta SangerReads.fasta
-           - Three channels: velveth Assem 35 -shortPaired -fasta
-           pe_lib1.fasta -shortPaired2 pe_lib2.fasta -short3 se_lib1.fa
-           Output: out_folder/Roadmaps out_folder/Sequences [Both files are
-           picked up by graph, so please leave them there] Here is the test
-           examples and their stdout printouts: root@c50eaaa56231:/kb/module#
-           ls /data __READY__  velvet_data root@c50eaaa56231:/kb/module# cd
-           /velvet_data/ root@c50eaaa56231:/velvet_data# ls test_long.fa 
-           test_reads.fa  test_reads.sam  test_reference.fa
-           root@c50eaaa56231:/velvet_data# sort test_reads.sam >
-           mySortedReads.sam root@c50eaaa56231:/velvet_data# velveth test_dir
-           21 -reference test_reference.fa -shortPaired -sam
-           mySortedReads.sam [0.000000] Reading FastA file test_reference.fa;
-           [0.006270] 1 sequences found [0.006299] Done [0.006331] Reading
-           SAM file mySortedReads.sam [0.246146] 142858 reads found.
-           [0.246170] Done [0.246172] Reference mapping counters [0.246173]
-           Name Read mappings [0.246174] SEQUENCE     142858 [0.246222]
-           Reading read set file test_dir/Sequences; [0.259455] 142859
-           sequences found [0.259559] Read 1 of length 32773, longer than
-           limit 32767 [0.259575] You should modify recompile with the
-           LONGSEQUENCES option (cf. manual) string out_folder; #folder name
-           for output files int hash_length; #EITHER an odd integer (if even,
-           it will be decremented) <= 31 (if above, will be reduced)L string
-           filename; #path to sequence file or - for standard input string
-           file_format; #e.g., -fasta, -fastq, -raw,-fasta.gz, -fastq.gz,
-           -raw.gz, -sam, -bam, -fmtAuto string read_type; #e.g., -short
-           (-shortPaired), -long(-longPaired), or -reference) -> structure:
-           parameter "out_folder" of String, parameter "hash_length" of Long,
-           parameter "filename" of String, parameter "file_format" of String,
-           parameter "read_type" of String
-        :returns: instance of type "VelvethResults" -> structure: parameter
-           "out_folder" of String
+        :param params: instance of type "VelvethParams" -> structure:
+           parameter "out_folder" of String, parameter "workspace_name" of
+           String, parameter "hash_length" of Long, parameter
+           "reads_channels" of list of type "ReadsChannel" -> structure:
+           parameter "read_type" of String, parameter "file_format" of
+           String, parameter "read_file_info" of type "ReadFileInfo" (Define
+           a structure that holds the read file name and its use. Note: only
+           read_file_name is required, the rest are optional. e.g.,
+           {"reference_file" => "test_reference.fa", "read_file_name" =>
+           "mySortedReads.sam", "left_file" => "left.fa", "right_file" =>
+           "right.fa"}) -> structure: parameter "read_file" of String,
+           parameter "reference_file" of String, parameter "left_file" of
+           String, parameter "right_file" of String, parameter "file_layout"
+           of String
+        :returns: instance of type "VelvetResults" (Output parameter(s) for
+           run_velveth and run_velvetg report_name - the name of the
+           KBaseReport.Report workspace object. report_ref - the workspace
+           reference of the report.) -> structure: parameter "report_name" of
+           String, parameter "report_ref" of String
         """
         # ctx is the context object
         # return variables are: output
         #BEGIN run_velveth
+        self.log('Running run_velveth with params:\n' + pformat(params))
+
+        token = ctx['token']
+
+        # STEP 1: basic parameter checks + parsing
+        self.process_params(params)
+
+        # STEP 2: get the reads channels as reads file info
+        out_folder = params['out_fodler']
+        hash_length = params['hash_length']
+        wsname = params['workspace_name']
+        reads_channels = params['reads_channels']
+
+        #print('Input reads file:' + file_name + '\nwith file format of ' + file_format + '\nand read type of ' + read_type)
+
+        # STEP 3: run velveth
+        # construct the command
+        velveth_cmd = [self.MEGAHITH]
+
+        # set the output location
+        timestamp = int((datetime.utcnow() - datetime.utcfromtimestamp(0)).total_seconds() * 1000)
+        output_dir = os.path.join(self.scratch, out_folder)
+        #velveth_cmd.append('-o')
+        velveth_cmd.append(output_dir)
+        velveth_cmd.append(hash_length)
+
+        velveth_cmd.append(out_folder)
+        for rc in reads_channels:
+            velveth_cmd.append('-' + rc[file_format])
+            read_type = rc['read_type']
+            velveth_cmd.append('-' + read_type)
+            if(read_type == 'reference'):
+                velveth_cmd.append(rc['read_file_info']['reference_file'])
+
+            if(rc['file_layout'] == 'separate'):
+                velveth_cmd.append('-' + rc['file_layout'])
+                velveth_cmd.append(rc['read_file_info']['left_file'])
+                velveth_cmd.append(rc['read_file_info']['right_file'])
+            else:
+                velveth_cmd.append(rc['read_file_info']['read_file'])
+
+
+        # run velveth
+        print('running velveth:')
+        print('    ' + ' '.join(velveth_cmd))
+        p = subprocess.Popen(velveth_cmd, cwd=self.scratch, shell=False)
+        retcode = p.wait()
+
+        print('Return code: ' + str(retcode))
+        if p.returncode != 0:
+            raise ValueError('Error running VELVETH, return code: ' + str(retcode) + '\n')
+
+        output_contigs = os.path.join(output_dir, 'final.contigs.fa')
+
+        # STEP 4: save the resulting assembly
+        assemblyUtil = AssemblyUtil(self.callbackURL)
+        output_data_ref = assemblyUtil.save_assembly_from_fasta({
+                'file': {'path': output_contigs},
+                'workspace_name': params['workspace_name'],
+                'assembly_name': params['output_contigset_name']
+                })
+
+        # STEP 5: generate and save the report
+        # compute a simple contig length distribution for the report
+        lengths = []
+        for seq_record in SeqIO.parse(output_contigs, 'fasta'):
+            lengths.append(len(seq_record.seq))
+
+        report = ''
+        report += 'ContigSet saved to: ' + params['workspace_name'] + '/' + params['output_contigset_name'] + '\n'
+        report += 'Assembled into ' + str(len(lengths)) + ' contigs.\n'
+        report += 'Avg Length: ' + str(sum(lengths) / float(len(lengths))) + ' bp.\n'
+
+
+        print('Saving report')
+        kbr = KBaseReport(self.callbackURL)
+        try:
+            report_info = kbr.create_extended_report(
+                {'message': report,
+                 'objects_created': [{'ref': output_data_ref, 'description': 'Assembled contigs'}],
+                 'direct_html_link_index': 0,
+                 'html_links': [{'shock_id': quastret['shock_id'],
+                                 'name': 'report.html',
+                                 'label': 'VELVETH report'}
+                                ],
+                 'report_object_name': 'kb_velveth_report_' + str(uuid.uuid4()),
+                 'workspace_name': params['workspace_name']
+                 })
+        except _RepError as re:
+            # not really any way to test this, all inputs have been checked earlier and should be ok 
+            print('Logging exception from creating report object')
+            print(str(re))
+            raise
+
+        # STEP 6: contruct the output to send back
+        output = {'report_name': report_info['name'], 'report_ref': report_info['ref']}
         #END run_velveth
 
         # At some point might do deeper type checking...
@@ -209,13 +291,16 @@ https://github.com/dzerbino/velvet/blob/master/Columbus_manual.pdf
            (default: no long or paired-end read resolution) float
            long_cov_cutoff; #removal of nodes with low long-read coverage
            AFTER tour bus(default: no removal)) -> structure: parameter
-           "wk_folder" of String, parameter "cov_cutoff" of Double, parameter
-           "ins_length" of Long, parameter "read_trkg" of Long, parameter
-           "min_contig_length" of Long, parameter "amos_file" of Long,
-           parameter "exp_cov" of Double, parameter "long_cov_cutoff" of
-           Double
-        :returns: instance of type "VelvetgResults" -> structure: parameter
-           "wk_folder" of String
+           "workspace_name" of String, parameter "wk_folder" of String,
+           parameter "cov_cutoff" of Double, parameter "ins_length" of Long,
+           parameter "read_trkg" of Long, parameter "min_contig_length" of
+           Long, parameter "amos_file" of Long, parameter "exp_cov" of
+           Double, parameter "long_cov_cutoff" of Double
+        :returns: instance of type "VelvetResults" (Output parameter(s) for
+           run_velveth and run_velvetg report_name - the name of the
+           KBaseReport.Report workspace object. report_ref - the workspace
+           reference of the report.) -> structure: parameter "report_name" of
+           String, parameter "report_ref" of String
         """
         # ctx is the context object
         # return variables are: output

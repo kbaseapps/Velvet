@@ -17,8 +17,9 @@ module Velvet {
         a string that should be set to a KBase ID reference to an
         Assembly data object.
     */
-    typedef string report_ref;
 
+    /* A boolean. 0 = false, anything else = true. */
+    typedef int bool;
 
     /* Arguments for run_velveth
 velveth, help
@@ -28,13 +29,13 @@ CATEGORIES = 2
 MAXKMERLENGTH = 31
 
 Usage:
-./velveth directory hash_length {[-file_format][-read_type][-separate|-interleaved] filename1 [filename2 ...]} {...} [options]
+./velveth out_folder hash_length {[-file_format][-read_type][-separate|-interleaved] filename1 [filename2 ...]} {...} [options]
 
-        directory       : directory name for output files
+        out_folder       : directory name for output files
         hash_length     : EITHER an odd integer (if even, it will be decremented) <= 31 (if above, will be reduced)
                         : OR: m,M,s where m and M are odd integers (if not, they will be decremented) with m < M <= 31 (if above, will be reduced)
                                 and s is a step (even number). Velvet will then hash from k=m to k=M with a step of s
-        filename        : path to sequence file or - for standard input
+        file_name        : path to sequence file or - for standard input
 
 File format options:
         -fasta  -fastq  -raw    -fasta.gz       -fastq.gz       -raw.gz -sam    -bam    -fmtAuto
@@ -100,27 +101,55 @@ root@c50eaaa56231:/velvet_data# velveth test_dir 21 -reference test_reference.fa
 [0.259455] 142859 sequences found
 [0.259559] Read 1 of length 32773, longer than limit 32767
 [0.259575] You should modify recompile with the LONGSEQUENCES option (cf. manual)
+        string workspace_name - the name of the workspace for input/output
         string out_folder; #folder name for output files
         int hash_length; #EITHER an odd integer (if even, it will be decremented) <= 31 (if above, will be reduced)L
         string filename; #path to sequence file or - for standard input
         string file_format; #e.g., -fasta, -fastq, -raw,-fasta.gz, -fastq.gz, -raw.gz, -sam, -bam, -fmtAuto
-        string read_type; #e.g., -short (-shortPaired), -long(-longPaired), or -reference
+        string file_layout; #e.g., -interleaved or -separate 
+        string read_type; #e.g., -short, -shortPaired, short2, shortPaired2, -long, -longPaired, or -reference
     */
+    /*
+        Define a structure that holds the read file name and its use.
+        Note: only read_file_name is required, the rest are optional.
+        e.g., {"reference_file" => "test_reference.fa", "read_file_name" => "mySortedReads.sam", "left_file" => "left.fa", "right_file" => "right.fa"}
+    */ 
+    typedef structure { 
+        string read_file;
+        string reference_file;
+        string left_file;
+        string right_file;
+    } ReadFileInfo;
+
+
+    typedef structure {
+        string read_type; 
+        string file_format; 
+        ReadFileInfo read_file_info;
+        string file_layout; 
+    } ReadsChannel;
+
     typedef structure {
         string out_folder; 
+        string workspace_name;
         int hash_length; 
-        string filename; 
-        string file_format; 
-        string read_type; 
+        list<ReadsChannel> reads_channels; 
     } VelvethParams;
     
+    /* Output parameter(s) for run_velveth and run_velvetg
+
+    report_name - the name of the KBaseReport.Report workspace object.
+    report_ref - the workspace reference of the report.
+
+    */
     typedef structure {
-        string out_folder; 
-    } VelvethResults;
+        string report_name;
+        string report_ref;
+    } VelvetResults;
     
     /* Definition of run_velveth
      */
-    funcdef run_velveth(VelvethParams params) returns (VelvethResults output) authentication required;
+    funcdef run_velveth(VelvethParams params) returns (VelvetResults output) authentication required;
 
 
     /* Arguments for run_velvetg
@@ -179,6 +208,7 @@ Example:
      */
 
     typedef structure {
+        string workspace_name;
         string wk_folder; 
         float cov_cutoff; 
         int ins_length; 
@@ -188,12 +218,8 @@ Example:
         float exp_cov; 
         float long_cov_cutoff; 
     } VelvetgParams;
-    
-    typedef structure {
-        string wk_folder; 
-    } VelvetgResults;
-
+   
     /* Definition of run_velvetg
      */
-    funcdef run_velvetg(VelvetgParams params) returns (VelvetgResults output) authentication required;
+    funcdef run_velvetg(VelvetgParams params) returns (VelvetResults output) authentication required;
 };

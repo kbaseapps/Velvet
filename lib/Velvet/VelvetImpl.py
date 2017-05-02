@@ -139,12 +139,11 @@ https://github.com/dzerbino/velvet/blob/master/Columbus_manual.pdf
         velveth_cmd.append(output_dir)
         velveth_cmd.append(hash_length)
 
-        velveth_cmd.append(out_folder)
         for rc in reads_channels:
             velveth_cmd.append('-' + rc[file_format])
             read_type = rc['read_type']
             velveth_cmd.append('-' + read_type)
-            if(read_type == 'reference'):
+            if(rc[read_reference] == 1):
                 velveth_cmd.append(rc['read_file_info']['reference_file'])
 
             if(rc['file_layout'] == 'separate'):
@@ -154,45 +153,26 @@ https://github.com/dzerbino/velvet/blob/master/Columbus_manual.pdf
             else:
                 velveth_cmd.append(rc['read_file_info']['read_file'])
 
-
         # run velveth
         print('running velveth:')
         print('    ' + ' '.join(velveth_cmd))
-        p = subprocess.Popen(velveth_cmd, cwd=self.scratch, shell=False)
-        retcode = p.wait()
+        #p = subprocess.Popen(velveth_cmd, cwd=self.scratch, shell=False)
+        #retcode = p.wait()
 
-        print('Return code: ' + str(retcode))
-        if p.returncode != 0:
-            raise ValueError('Error running VELVETH, return code: ' + str(retcode) + '\n')
+        #print('Return code: ' + str(retcode))
+        #if p.returncode != 0:
+            #raise ValueError('Error running VELVETH, return code: ' + str(retcode) + '\n')
 
-        output_contigs = os.path.join(output_dir, 'final.contigs.fa')
-
-        # STEP 4: save the resulting assembly
-        assemblyUtil = AssemblyUtil(self.callbackURL)
-        output_data_ref = assemblyUtil.save_assembly_from_fasta({
-                'file': {'path': output_contigs},
-                'workspace_name': params['workspace_name'],
-                'assembly_name': params['output_contigset_name']
-                })
-
-        # STEP 5: generate and save the report
+        # STEP 4: generate and save the report
         # compute a simple contig length distribution for the report
-        lengths = []
-        for seq_record in SeqIO.parse(output_contigs, 'fasta'):
-            lengths.append(len(seq_record.seq))
-
         report = ''
-        report += 'ContigSet saved to: ' + params['workspace_name'] + '/' + params['output_contigset_name'] + '\n'
-        report += 'Assembled into ' + str(len(lengths)) + ' contigs.\n'
-        report += 'Avg Length: ' + str(sum(lengths) / float(len(lengths))) + ' bp.\n'
-
+        report += 'Velveth results saved to: ' + params['workspace_name'] + '/' + params['out_folder'] + '\n'
 
         print('Saving report')
         kbr = KBaseReport(self.callbackURL)
         try:
             report_info = kbr.create_extended_report(
                 {'message': report,
-                 'objects_created': [{'ref': output_data_ref, 'description': 'Assembled contigs'}],
                  'direct_html_link_index': 0,
                  'html_links': [{'shock_id': quastret['shock_id'],
                                  'name': 'report.html',
@@ -207,7 +187,7 @@ https://github.com/dzerbino/velvet/blob/master/Columbus_manual.pdf
             print(str(re))
             raise
 
-        # STEP 6: contruct the output to send back
+        # STEP 5: contruct the output to send back
         output = {'report_name': report_info['name'], 'report_ref': report_info['ref']}
         #END run_velveth
 

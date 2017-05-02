@@ -25,16 +25,14 @@ class VelvetTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         token = environ.get('KB_AUTH_TOKEN', None)
+        cls.token = token
         config_file = environ.get('KB_DEPLOYMENT_CONFIG', None)
         cls.cfg = {}
         config = ConfigParser()
         config.read(config_file)
         for nameval in config.items('Velvet'):
+            print(nameval[0] + '=' + nameval[1])
             cls.cfg[nameval[0]] = nameval[1]
-        # Getting username from Auth profile for token
-        authServiceUrl = cls.cfg['auth-service-url']
-        auth_client = _KBaseAuth(authServiceUrl)
-        user_id = auth_client.get_user(token)
         # WARNING: don't call any logging methods on the context object,
         # it'll result in a NoneType error
         cls.ctx = MethodContext(None)
@@ -47,10 +45,18 @@ class VelvetTest(unittest.TestCase):
                              }],
                         'authenticated': 1})
         cls.wsURL = cls.cfg['workspace-url']
-        cls.wsClient = workspaceService(cls.wsURL)
+        cls.wsClient = workspaceService(cls.wsURL, token=token)
         cls.serviceImpl = Velvet(cls.cfg)
         cls.scratch = cls.cfg['scratch']
         cls.callback_url = os.environ['SDK_CALLBACK_URL']
+
+        cls.shockURL = cls.cfg['shock-url']
+        cls.handleURL = cls.cfg['handle-service-url']
+
+        # Getting username from Auth profile for token
+        authServiceUrl = cls.cfg['auth-service-url']
+        auth_client = _KBaseAuth(authServiceUrl)
+        user_id = auth_client.get_user(token)
 
     @classmethod
     def tearDownClass(cls):
@@ -76,57 +82,43 @@ class VelvetTest(unittest.TestCase):
     def getContext(self):
         return self.__class__.ctx
 
-    # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
-    def load_fasta_file(self, filename, obj_name, contents):
-        f = open(filename, 'w')
-        f.write(contents)
-        f.close()
-        assemblyUtil = AssemblyUtil(self.callback_url)
-        assembly_ref = assemblyUtil.save_assembly_from_fasta({'file': {'path': filename},
-                                                              'workspace_name': self.getWsName(),
-                                                              'assembly_name': obj_name
-                                                              })
-        return assembly_ref
+    def test_run_velveth(self):
+        # run velveth
+        rc = {
+            'read_type': 'short',
+            'file_format': 'fasta',
+            'file_layout': 'interleaved',
+            'read_file_info' : {
+                                'read_file': 'mySortedReads.sam',
+                                'reference_file': 'test_reference.fa',
+                                'left_file': '',
+                                'right_file': ''
+                               }
+        }
+        params = {
+            'workspace_name': self.getWsName(),
+            'out_folder': 'velvelh_outfolder',
+            'hash_length': 21,
+            'reads_channels': [rc]
+        }
 
-    # NOTE: According to Python unittest naming rules test method names should start from 'test'. # noqa
-    def test_filter_contigs_ok(self):
+        result = self.getImpl().run_velveth(self.getContext(), params)
+        print('RESULT:')
+        pprint(result)
 
-        # First load a test FASTA file as an KBase Assembly
-        fasta_content = '>seq1 something soemthing asdf\n' \
-                        'agcttttcat\n' \
-                        '>seq2\n' \
-                        'agctt\n' \
-                        '>seq3\n' \
-                        'agcttttcatgg'
+        # check the output
 
-        assembly_ref = self.load_fasta_file(os.path.join(self.scratch, 'test1.fasta'),
-                                            'TestAssembly',
-                                            fasta_content)
+        # check the report. We assume that kb_quast and KBaseReport do what they're supposed to do
+        rep = self.ws.get_objects2({'objects': [{'ref': result[0]['report_ref']}]})['data'][0]
+        print('REPORT object:')
+        pprint(rep)
 
-        # Second, call your implementation
-        ret = self.getImpl().filter_contigs(self.getContext(),
-                                            {'workspace_name': self.getWsName(),
-                                             'assembly_input_ref': assembly_ref,
-                                             'min_length': 10
-                                             })
-
-        # Validate the returned data
-        self.assertEqual(ret[0]['n_initial_contigs'], 3)
-        self.assertEqual(ret[0]['n_contigs_removed'], 1)
-        self.assertEqual(ret[0]['n_contigs_remaining'], 2)
-
-    def test_filter_contigs_err1(self):
-        with self.assertRaises(ValueError) as errorContext:
-            self.getImpl().filter_contigs(self.getContext(),
-                                          {'workspace_name': self.getWsName(),
-                                           'assembly_input_ref': '1/fake/3',
-                                           'min_length': '-10'})
-        self.assertIn('min_length parameter cannot be negative', str(errorContext.exception))
-
-    def test_filter_contigs_err2(self):
-        with self.assertRaises(ValueError) as errorContext:
-            self.getImpl().filter_contigs(self.getContext(),
-                                          {'workspace_name': self.getWsName(),
-                                           'assembly_input_ref': '1/fake/3',
-                                           'min_length': 'ten'})
-        self.assertIn('Cannot parse integer from min_length parameter', str(errorContext.exception))
+        self.assertEqual(rep['info'][1].rsplit('_', 1)[0], 'kb_velveth_report')
+        self.assertEqual(rep['info'][2].split('-', 1)[0], 'KBaseReport.Report')
+        d = rep['data']
+        self.assertEqual(d['direct_html_link_index'], 0)
+        self.assertEqual(len(d['html_links']), 1)
+        ht = d['html_links'][0]
+        self.assertEqual(ht['URL'].split('/node')[0], self.shockURL)
+        self.assertEqual(ht['handle'].split('_', 1)[0], 'KBH')
+        self.assertEqual(ht['name'], 'report.html')

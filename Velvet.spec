@@ -127,6 +127,7 @@ root@c50eaaa56231:/velvet_data# velveth test_dir 21 -reference test_reference.fa
         string file_format; 
         ReadFileInfo read_file_info;
         string file_layout; 
+        string read_reference; 
     } ReadsChannel;
 
     typedef structure {

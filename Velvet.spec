@@ -109,6 +109,7 @@ root@c50eaaa56231:/velvet_data# velveth test_dir 21 -reference test_reference.fa
         string file_layout; #e.g., -interleaved or -separate 
         string read_type; #e.g., -short, -shortPaired, short2, shortPaired2, -long, -longPaired, or -reference
     */
+
     /*
         Define a structure that holds the read file name and its use.
         Note: only read_file_name is required, the rest are optional.
@@ -121,15 +122,20 @@ root@c50eaaa56231:/velvet_data# velveth test_dir 21 -reference test_reference.fa
         string right_file;
     } ReadFileInfo;
 
-
+    /* 
+        Define a structure that mimics the concept of "channel" used by the Velvet program.
+    */
     typedef structure {
         string read_type; 
         string file_format; 
         ReadFileInfo read_file_info;
         string file_layout; 
-        string read_reference; 
+        bool read_reference; 
     } ReadsChannel;
 
+    /* 
+        Argument for velveth input
+    */
     typedef structure {
         string out_folder; 
         string workspace_name;
@@ -137,7 +143,7 @@ root@c50eaaa56231:/velvet_data# velveth test_dir 21 -reference test_reference.fa
         list<ReadsChannel> reads_channels; 
     } VelvethParams;
     
-    /* Output parameter(s) for run_velveth and run_velvetg
+    /* Output parameter items for run_velveth and run_velvetg
 
     report_name - the name of the KBaseReport.Report workspace object.
     report_ref - the workspace reference of the report.

@@ -37,7 +37,7 @@ https://github.com/dzerbino/velvet/blob/master/Columbus_manual.pdf
     ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "https://github.com/kbaseapps/kb_Velvet"
-    GIT_COMMIT_HASH = "ec40ffd74ae877d78c6f61b67ed0f5bedabf212c"
+    GIT_COMMIT_HASH = "f4093f1911a96412093c578d06c09b469c9d8a2e"
 
     #BEGIN_CLASS_HEADER
     # Class variables and functions can be defined in this block
@@ -90,22 +90,24 @@ https://github.com/dzerbino/velvet/blob/master/Columbus_manual.pdf
     def run_velveth(self, ctx, params):
         """
         Definition of run_velveth
-        :param params: instance of type "VelvethParams" -> structure:
-           parameter "out_folder" of String, parameter "workspace_name" of
-           String, parameter "hash_length" of Long, parameter
-           "reads_channels" of list of type "ReadsChannel" -> structure:
-           parameter "read_type" of String, parameter "file_format" of
-           String, parameter "read_file_info" of type "ReadFileInfo" (Define
-           a structure that holds the read file name and its use. Note: only
-           read_file_name is required, the rest are optional. e.g.,
-           {"reference_file" => "test_reference.fa", "read_file_name" =>
-           "mySortedReads.sam", "left_file" => "left.fa", "right_file" =>
-           "right.fa"}) -> structure: parameter "read_file" of String,
-           parameter "reference_file" of String, parameter "left_file" of
-           String, parameter "right_file" of String, parameter "file_layout"
-           of String, parameter "read_reference" of bool
-        :returns: instance of type "VelvetResults" (Output parameter(s) for
-           run_velveth and run_velvetg report_name - the name of the
+        :param params: instance of type "VelvethParams" (Argument for velveth
+           input) -> structure: parameter "out_folder" of String, parameter
+           "workspace_name" of String, parameter "hash_length" of Long,
+           parameter "reads_channels" of list of type "ReadsChannel" (Define
+           a structure that mimics the concept of "channel" used by the
+           Velvet program.) -> structure: parameter "read_type" of String,
+           parameter "file_format" of String, parameter "read_file_info" of
+           type "ReadFileInfo" (Define a structure that holds the read file
+           name and its use. Note: only read_file_name is required, the rest
+           are optional. e.g., {"reference_file" => "test_reference.fa",
+           "read_file_name" => "mySortedReads.sam", "left_file" => "left.fa",
+           "right_file" => "right.fa"}) -> structure: parameter "read_file"
+           of String, parameter "reference_file" of String, parameter
+           "left_file" of String, parameter "right_file" of String, parameter
+           "file_layout" of String, parameter "read_reference" of type "bool"
+           (A boolean. 0 = false, anything else = true.)
+        :returns: instance of type "VelvetResults" (Output parameter items
+           for run_velveth and run_velvetg report_name - the name of the
            KBaseReport.Report workspace object. report_ref - the workspace
            reference of the report.) -> structure: parameter "report_name" of
            String, parameter "report_ref" of String
@@ -276,8 +278,8 @@ https://github.com/dzerbino/velvet/blob/master/Columbus_manual.pdf
            parameter "read_trkg" of Long, parameter "min_contig_length" of
            Long, parameter "amos_file" of Long, parameter "exp_cov" of
            Double, parameter "long_cov_cutoff" of Double
-        :returns: instance of type "VelvetResults" (Output parameter(s) for
-           run_velveth and run_velvetg report_name - the name of the
+        :returns: instance of type "VelvetResults" (Output parameter items
+           for run_velveth and run_velvetg report_name - the name of the
            KBaseReport.Report workspace object. report_ref - the workspace
            reference of the report.) -> structure: parameter "report_name" of
            String, parameter "report_ref" of String

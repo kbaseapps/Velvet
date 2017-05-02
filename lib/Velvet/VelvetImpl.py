@@ -36,8 +36,8 @@ https://github.com/dzerbino/velvet/blob/master/Columbus_manual.pdf
     # the latter method is running.
     ######################################### noqa
     VERSION = "0.0.1"
-    GIT_URL = "https://github.com/kbaseapps/Velvet.git"
-    GIT_COMMIT_HASH = "f9dd477aaf7d370fb238d63483ed4dd3e6856f64"
+    GIT_URL = "https://github.com/kbaseapps/kb_Velvet"
+    GIT_COMMIT_HASH = "ec40ffd74ae877d78c6f61b67ed0f5bedabf212c"
 
     #BEGIN_CLASS_HEADER
     # Class variables and functions can be defined in this block
@@ -103,7 +103,7 @@ https://github.com/dzerbino/velvet/blob/master/Columbus_manual.pdf
            "right.fa"}) -> structure: parameter "read_file" of String,
            parameter "reference_file" of String, parameter "left_file" of
            String, parameter "right_file" of String, parameter "file_layout"
-           of String
+           of String, parameter "read_reference" of bool
         :returns: instance of type "VelvetResults" (Output parameter(s) for
            run_velveth and run_velvetg report_name - the name of the
            KBaseReport.Report workspace object. report_ref - the workspace

@@ -12,11 +12,13 @@ except:
     from configparser import ConfigParser  # py3
 
 from pprint import pprint  # noqa: F401
+from biokbase.AbstractHandle.Client import AbstractHandle as HandleService
 
-from biokbase.workspace.client import Workspace as workspaceService
+#from biokbase.workspace.client import Workspace as workspaceService
 from Velvet.VelvetImpl import Velvet
 from Velvet.VelvetServer import MethodContext
 from Velvet.authclient import KBaseAuth as _KBaseAuth
+from Workspace.WorkspaceClient import Workspace as workspaceService
 
 from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
 
@@ -33,6 +35,12 @@ class VelvetTest(unittest.TestCase):
         for nameval in config.items('Velvet'):
             print(nameval[0] + '=' + nameval[1])
             cls.cfg[nameval[0]] = nameval[1]
+
+        # Getting username from Auth profile for token
+        authServiceUrl = cls.cfg['auth-service-url']
+        auth_client = _KBaseAuth(authServiceUrl)
+        user_id = auth_client.get_user(token)
+
         # WARNING: don't call any logging methods on the context object,
         # it'll result in a NoneType error
         cls.ctx = MethodContext(None)
@@ -53,10 +61,6 @@ class VelvetTest(unittest.TestCase):
         cls.shockURL = cls.cfg['shock-url']
         cls.handleURL = cls.cfg['handle-service-url']
 
-        # Getting username from Auth profile for token
-        authServiceUrl = cls.cfg['auth-service-url']
-        auth_client = _KBaseAuth(authServiceUrl)
-        user_id = auth_client.get_user(token)
 
     @classmethod
     def tearDownClass(cls):
@@ -86,10 +90,10 @@ class VelvetTest(unittest.TestCase):
         # run velveth
         rc = {
             'read_type': 'short',
-            'file_format': 'fasta',
+            'file_format': 'sam',
             'file_layout': 'interleaved',
             'read_file_info' : {
-                                'read_file': 'mySortedReads.sam',
+                                'read_file': 'test_reads.sam',
                                 'reference_file': 'test_reference.fa',
                                 'left_file': '',
                                 'right_file': ''
@@ -97,7 +101,7 @@ class VelvetTest(unittest.TestCase):
         }
         params = {
             'workspace_name': self.getWsName(),
-            'out_folder': 'velvelh_outfolder',
+            'out_folder': 'velveth_outfolder',
             'hash_length': 21,
             'reads_channels': [rc]
         }
@@ -109,16 +113,9 @@ class VelvetTest(unittest.TestCase):
         # check the output
 
         # check the report. We assume that kb_quast and KBaseReport do what they're supposed to do
-        rep = self.ws.get_objects2({'objects': [{'ref': result[0]['report_ref']}]})['data'][0]
+        rep = self.wsClient.get_objects2({'objects': [{'ref': result[0]['report_ref']}]})['data'][0]
         print('REPORT object:')
         pprint(rep)
 
         self.assertEqual(rep['info'][1].rsplit('_', 1)[0], 'kb_velveth_report')
         self.assertEqual(rep['info'][2].split('-', 1)[0], 'KBaseReport.Report')
-        d = rep['data']
-        self.assertEqual(d['direct_html_link_index'], 0)
-        self.assertEqual(len(d['html_links']), 1)
-        ht = d['html_links'][0]
-        self.assertEqual(ht['URL'].split('/node')[0], self.shockURL)
-        self.assertEqual(ht['handle'].split('_', 1)[0], 'KBH')
-        self.assertEqual(ht['name'], 'report.html')

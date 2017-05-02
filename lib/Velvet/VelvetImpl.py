@@ -2,13 +2,19 @@
 #BEGIN_HEADER
 # The header block is where all import statments should live
 import os
+import shutil
+import subprocess
+import numpy as np
 from Bio import SeqIO
 from pprint import pprint, pformat
 from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
 from KBaseReport.KBaseReportClient import KBaseReport
-
+from datetime import datetime
 from pprint import pformat, pprint
 import time
+import uuid
+
+from KBaseReport.baseclient import ServerError as _RepError
 
 #END_HEADER
 
@@ -44,6 +50,7 @@ https://github.com/dzerbino/velvet/blob/master/Columbus_manual.pdf
     #/kb/deployment/bin/velveth or velvetg
     VELVETH = '/kb/module/velvet/velveth'
     VELVETG = '/kb/module/velvet/velvetg'
+    VELVET_DATA = '/kb/module/velvet/data/'
 
     def log(self, message, prefix_newline=False):
             print(('\n' if prefix_newline else '') +
@@ -65,6 +72,15 @@ https://github.com/dzerbino/velvet/blob/master/Columbus_manual.pdf
             raise ValueError('reads_channels must be a list')
         for rc in params['reads_channels']:
             self.log('Read file channel info :\n' + pformat(rc))
+            if 'read_file_info' not in rc:
+                raise ValueError('a read_channel must have a read_file_info dictionary')
+            else:
+                if 'read_file' not in rc['read_file_info'] or rc['read_file_info']['read_file'] == '':
+                    raise ValueError('a non-blank read file name is required')
+            if 'read_type' not in rc:
+                raise ValueError('a read_type is required')
+            if 'file_format' not in rc:
+                raise ValueError('a file_format is required')
 
     #END_CLASS_HEADER
 
@@ -123,63 +139,55 @@ https://github.com/dzerbino/velvet/blob/master/Columbus_manual.pdf
         self.process_params(params)
 
         # STEP 2: get the reads channels as reads file info
-        out_folder = params['out_fodler']
+        out_folder = params['out_folder']
         hash_length = params['hash_length']
         wsname = params['workspace_name']
         reads_channels = params['reads_channels']
 
-        #print('Input reads file:' + file_name + '\nwith file format of ' + file_format + '\nand read type of ' + read_type)
-
-        # STEP 3: run velveth
-        # construct the command
-        velveth_cmd = [self.MEGAHITH]
+        # STEP 3: construct the command for run_velveth
+        velveth_cmd = [self.VELVETH]
 
         # set the output location
         timestamp = int((datetime.utcnow() - datetime.utcfromtimestamp(0)).total_seconds() * 1000)
         output_dir = os.path.join(self.scratch, out_folder)
         #velveth_cmd.append('-o')
         velveth_cmd.append(output_dir)
-        velveth_cmd.append(hash_length)
+        velveth_cmd.append(str(hash_length))
 
         for rc in reads_channels:
-            velveth_cmd.append('-' + rc[file_format])
+            velveth_cmd.append('-' + rc['file_format'])
             read_type = rc['read_type']
             velveth_cmd.append('-' + read_type)
-            if(rc[read_reference] == 1):
-                velveth_cmd.append(rc['read_file_info']['reference_file'])
+            if 'read_reference' in rc and rc['read_reference'] == 1:
+                velveth_cmd.append(self.VELVET_DATA + rc['read_file_info']['reference_file'])
 
-            if(rc['file_layout'] == 'separate'):
+            if 'file_layout' in rc and rc['file_layout'] == 'separate':
                 velveth_cmd.append('-' + rc['file_layout'])
-                velveth_cmd.append(rc['read_file_info']['left_file'])
-                velveth_cmd.append(rc['read_file_info']['right_file'])
+                velveth_cmd.append(self.VELVET_DATA + rc['read_file_info']['left_file'])
+                velveth_cmd.append(self.VELVET_DATA + rc['read_file_info']['right_file'])
             else:
-                velveth_cmd.append(rc['read_file_info']['read_file'])
+                velveth_cmd.append(self.VELVET_DATA + rc['read_file_info']['read_file'])
 
         # run velveth
-        print('running velveth:')
-        print('    ' + ' '.join(velveth_cmd))
-        #p = subprocess.Popen(velveth_cmd, cwd=self.scratch, shell=False)
-        #retcode = p.wait()
+        self.log('running velveth with command:\n')
+        self.log('    ' + ' '.join(velveth_cmd))
+        p = subprocess.Popen(velveth_cmd, cwd=self.scratch, shell=False)
+        retcode = p.wait()
 
-        #print('Return code: ' + str(retcode))
-        #if p.returncode != 0:
-            #raise ValueError('Error running VELVETH, return code: ' + str(retcode) + '\n')
+        self.log('Return code: ' + str(retcode))
+        if p.returncode != 0:
+            raise ValueError('Error running VELVETH, return code: ' + str(retcode) + '\n')
 
         # STEP 4: generate and save the report
         # compute a simple contig length distribution for the report
         report = ''
         report += 'Velveth results saved to: ' + params['workspace_name'] + '/' + params['out_folder'] + '\n'
 
-        print('Saving report')
+        self.log('Saving report')
         kbr = KBaseReport(self.callbackURL)
         try:
             report_info = kbr.create_extended_report(
                 {'message': report,
-                 'direct_html_link_index': 0,
-                 'html_links': [{'shock_id': quastret['shock_id'],
-                                 'name': 'report.html',
-                                 'label': 'VELVETH report'}
-                                ],
                  'report_object_name': 'kb_velveth_report_' + str(uuid.uuid4()),
                  'workspace_name': params['workspace_name']
                  })

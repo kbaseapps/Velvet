@@ -36,8 +36,8 @@ RUN \
   cp velvet* /kb/deployment/bin/.  
 
 # For the testing data that comes with the software package, may not need the copying line
-RUN mkdir /velvet_data && \
-  cp -R velvet_1.2.10/data/* /velvet_data/.
+#RUN mkdir /velvet_data && \
+  #cp -R velvet_1.2.10/data/* /velvet_data/.
 
 # -----------------------------------------
 

@@ -111,6 +111,19 @@ class VelvetTest(unittest.TestCase):
 
         # check the output
 
+
+    def test_run_velvetg(self):
+        # run velvetg
+        params = {
+            'workspace_name': self.getWsName(),
+            'wk_folder': 'velveth_outfolder',
+            'min_contig_length': 20
+        }
+
+        result = self.getImpl().run_velvetg(self.getContext(), params)
+        print('RESULT from velvetg:\n')
+        pprint(result)
+
         # check the report. We assume that kb_quast and KBaseReport do what they're supposed to do
         rep = self.wsClient.get_objects2({'objects': [{'ref': result[0]['report_ref']}]})['data'][0]
         print('REPORT object:')

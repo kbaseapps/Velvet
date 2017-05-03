@@ -6,7 +6,8 @@
 
 module Velvet {
     /* 
-        A boolean. 0 = false, anything else = true. 
+        A boolean - 0 for false, 1 for true.
+        @range (0, 1)
     */
     typedef int bool;
 
@@ -14,10 +15,13 @@ module Velvet {
     /* 
         Arguments for run_velveth
      */
+
     /*
         Define a structure that holds the read file name and its use.
         Note: only read_file_name is required, the rest are optional.
-        e.g., {"reference_file" => "test_reference.fa", "read_file_name" => "mySortedReads.sam", "left_file" => "left.fa", "right_file" => "right.fa"}
+        e.g., 
+        {"reference_file" => "test_reference.fa", "read_file_name" => "mySortedReads.sam", 
+        "left_file" => "left.fa", "right_file" => "right.fa"}
     */ 
     typedef structure { 
         string read_file;
@@ -84,4 +88,5 @@ module Velvet {
         Definition of run_velvetg
      */
     funcdef run_velvetg(VelvetgParams params) returns (VelvetResults output) authentication required;
+
 };

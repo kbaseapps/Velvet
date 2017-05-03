@@ -39,7 +39,7 @@ class Velvet:
     ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "https://github.com/kbaseapps/kb_Velvet"
-    GIT_COMMIT_HASH = "3e0600bb79a24622d3080e6797bf289bcdb5d5f4"
+    GIT_COMMIT_HASH = "bf8c6970f501fcbba55be2a9fd968c9b7b154547"
 
     #BEGIN_CLASS_HEADER
     # Class variables and functions can be defined in this block
@@ -86,7 +86,7 @@ class Velvet:
         if 'wd_folder' not in params:
             raise ValueError('a string reprsenting ws_folder parameter is required')
 
-    # adapted fromi
+    # adapted from
     # https://github.com/kbaseapps/kb_SPAdes/blob/master/lib/kb_SPAdes/kb_SPAdesImpl.py
     # which was adapted from
     # https://github.com/kbase/transform/blob/master/plugins/scripts/convert/trns_transform_KBaseFile_AssemblyFile_to_KBaseGenomes_ContigSet.py
@@ -206,8 +206,8 @@ class Velvet:
            structure: parameter "read_file" of String, parameter
            "reference_file" of String, parameter "left_file" of String,
            parameter "right_file" of String, parameter "file_layout" of
-           String, parameter "read_reference" of type "bool" (A boolean. 0 =
-           false, anything else = true.)
+           String, parameter "read_reference" of type "bool" (A boolean - 0
+           for false, 1 for true. @range (0, 1))
         :returns: instance of String
         """
         # ctx is the context object
@@ -261,6 +261,8 @@ class Velvet:
             raise ValueError('Error running VELVETH, return code: ' + str(retcode) + '\n')
 
         output = out_folder 
+
+
         #END run_velveth
 
         # At some point might do deeper type checking...
@@ -311,6 +313,8 @@ class Velvet:
         if 'cov_cutoff' in params:
             velvetg_cmd.append('-cov_cutoff ' + str(params['cov_cutoff']))
         if 'ins_length' in params:
+            velvetg_cmd.append('-cov_cutoff ' + str(params['cov_cutoff']))
+        if 'ins_length' in params:
             velvetg_cmd.append('-ins_length ' + str(params['ins_length']))
         if 'read_trkg' in params:
             velvetg_cmd.append('-read_trkg ' + str(params['read_trkg']))
@@ -323,7 +327,7 @@ class Velvet:
         if 'long_cov_cutoff' in params:
             velvetg_cmd.append('-long_cov_cutoff ' + str(params['long_cov_cutoff']))
 
-        #appending the advanced optional inputs--TODO
+        # appending the advanced optional inputs--TODO
 
         # run velvetg
         self.log('running velvetg with command:\n')

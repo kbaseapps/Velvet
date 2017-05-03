@@ -20,7 +20,6 @@ from Velvet.VelvetServer import MethodContext
 from Velvet.authclient import KBaseAuth as _KBaseAuth
 from Workspace.WorkspaceClient import Workspace as workspaceService
 
-from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
 
 class VelvetTest(unittest.TestCase):
 
@@ -107,7 +106,7 @@ class VelvetTest(unittest.TestCase):
         }
 
         result = self.getImpl().run_velveth(self.getContext(), params)
-        print('RESULT:')
+        print('RESULT from velveth:\n')
         pprint(result)
 
         # check the output

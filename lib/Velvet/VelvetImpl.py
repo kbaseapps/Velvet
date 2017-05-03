@@ -2,6 +2,7 @@
 #BEGIN_HEADER
 # The header block is where all import statments should live
 import os
+import re
 import shutil
 import subprocess
 import numpy as np
@@ -15,6 +16,8 @@ import time
 import uuid
 
 from KBaseReport.baseclient import ServerError as _RepError
+from kb_quast.kb_quastClient import kb_quast
+from kb_quast.baseclient import ServerError as QUASTError
 
 #END_HEADER
 
@@ -26,13 +29,6 @@ class Velvet:
 
     Module Description:
     A KBase module: Velvet
-
-This is a KBase module that wraps the open source package "Short read de novo assembler using de Bruijn graphs"
-Version 1.2.10
-
-References:
-https://github.com/dzerbino/velvet
-https://github.com/dzerbino/velvet/blob/master/Columbus_manual.pdf
     '''
 
     ######## WARNING FOR GEVENT USERS ####### noqa
@@ -43,7 +39,7 @@ https://github.com/dzerbino/velvet/blob/master/Columbus_manual.pdf
     ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "https://github.com/kbaseapps/kb_Velvet"
-    GIT_COMMIT_HASH = "f4093f1911a96412093c578d06c09b469c9d8a2e"
+    GIT_COMMIT_HASH = "3e0600bb79a24622d3080e6797bf289bcdb5d5f4"
 
     #BEGIN_CLASS_HEADER
     # Class variables and functions can be defined in this block
@@ -51,12 +47,14 @@ https://github.com/dzerbino/velvet/blob/master/Columbus_manual.pdf
     VELVETH = '/kb/module/velvet/velveth'
     VELVETG = '/kb/module/velvet/velvetg'
     VELVET_DATA = '/kb/module/velvet/data/'
+    PARAM_IN_WS = 'workspace_name'
+    PARAM_IN_CS_NAME = 'velvet_contigset_name'
 
     def log(self, message, prefix_newline=False):
             print(('\n' if prefix_newline else '') +
                           str(time.time()) + ': ' + str(message))
 
-    def process_params(self, params):
+    def process_params_h(self, params):
         if 'workspace_name' not in params:
             raise ValueError('a string reprsenting workspace_name parameter is required')
         if 'out_folder' not in params:
@@ -82,6 +80,93 @@ https://github.com/dzerbino/velvet/blob/master/Columbus_manual.pdf
             if 'file_format' not in rc:
                 raise ValueError('a file_format is required')
 
+    def process_params_g(self, params):
+        if 'workspace_name' not in params:
+            raise ValueError('a string reprsenting workspace_name parameter is required')
+        if 'wd_folder' not in params:
+            raise ValueError('a string reprsenting ws_folder parameter is required')
+
+    # adapted fromi
+    # https://github.com/kbaseapps/kb_SPAdes/blob/master/lib/kb_SPAdes/kb_SPAdesImpl.py
+    # which was adapted from
+    # https://github.com/kbase/transform/blob/master/plugins/scripts/convert/trns_transform_KBaseFile_AssemblyFile_to_KBaseGenomes_ContigSet.py
+    def load_stats(self, input_file_name):
+        self.log('Starting conversion of FASTA to KBaseGenomeAnnotations.Assembly')
+        self.log('Building Object.')
+        if not os.path.isfile(input_file_name):
+            raise Exception('The input file name {0} is not a file!'.format(input_file_name))
+        with open(input_file_name, 'r') as input_file_handle:
+            contig_id = None
+            sequence_len = 0
+            fasta_dict = dict()
+            first_header_found = False
+            # Pattern for replacing white space
+            pattern = re.compile(r'\s+')
+            for current_line in input_file_handle:
+                if (current_line[0] == '>'):
+                    # found a header line
+                    # Wrap up previous fasta sequence
+                    if not first_header_found:
+                        first_header_found = True
+                    else:
+                        fasta_dict[contig_id] = sequence_len
+                        sequence_len = 0
+                    fasta_header = current_line.replace('>', '').strip()
+                    try:
+                        contig_id = fasta_header.strip().split(' ', 1)[0]
+                    except:
+                        contig_id = fasta_header.strip()
+                else:
+                    sequence_len += len(re.sub(pattern, '', current_line))
+        # wrap up last fasta sequence, should really make this a method
+        if not first_header_found:
+            raise Exception("There are no contigs in this file")
+        else:
+            fasta_dict[contig_id] = sequence_len
+        return fasta_dict
+
+    def generate_report(self, input_file_name, params, wsname):
+        self.log('Generating and saving report')
+
+        fasta_stats = self.load_stats(input_file_name)
+        lengths = [fasta_stats[contig_id] for contig_id in fasta_stats]
+
+        assembly_ref = params[self.PARAM_IN_WS] + '/' + params[self.PARAM_IN_CS_NAME]
+
+        report = ''
+        report += 'Velvetg results saved to: ' + wsname + '/' + params['wk_folder'] + '\n'
+        report += 'Assembly saved to: ' + assembly_ref + '\n'
+        report += 'Assembled into ' + str(len(lengths)) + ' contigs.\n'
+        report += 'Avg Length: ' + str(sum(lengths) / float(len(lengths))) + ' bp.\n'
+
+        # compute a simple contig length distribution
+        bins = 10
+        counts, edges = np.histogram(lengths, bins)  # @UndefinedVariable
+        report += 'Contig Length Distribution (# of contigs -- min to max ' + 'basepairs):\n'
+        for c in range(bins):
+            report += '   ' + str(counts[c]) + '\t--\t' + str(edges[c]) + ' to ' + str(edges[c + 1]) + ' bp\n'
+        print('Running QUAST')
+        kbq = kb_quast(self.callbackURL)
+        quastret = kbq.run_QUAST({'files': [{'path': input_file_name,
+                                             'label': params[self.PARAM_IN_CS_NAME]}]})
+        print('Saving report')
+        kbr = KBaseReport(self.callbackURL)
+        report_info = kbr.create_extended_report(
+            {'message': report,
+             'objects_created': [{'ref': assembly_ref, 'description': 'Assembled contigs'}],
+             'direct_html_link_index': 0,
+             'html_links': [{'shock_id': quastret['shock_id'],
+                             'name': 'report.html',
+                             'label': 'QUAST report'}
+                            ],
+             'report_object_name': 'kb_megahit_report_' + str(uuid.uuid4()),
+             'workspace_name': params['workspace_name']
+            })
+        reportName = report_info['name']
+        reportRef = report_info['ref']
+        return reportName, reportRef
+
+
     #END_CLASS_HEADER
 
     # config contains contents of config file in a hash or None if it couldn't
@@ -106,27 +191,24 @@ https://github.com/dzerbino/velvet/blob/master/Columbus_manual.pdf
     def run_velveth(self, ctx, params):
         """
         Definition of run_velveth
-        :param params: instance of type "VelvethParams" (Argument for velveth
-           input) -> structure: parameter "out_folder" of String, parameter
-           "workspace_name" of String, parameter "hash_length" of Long,
-           parameter "reads_channels" of list of type "ReadsChannel" (Define
-           a structure that mimics the concept of "channel" used by the
-           Velvet program.) -> structure: parameter "read_type" of String,
-           parameter "file_format" of String, parameter "read_file_info" of
-           type "ReadFileInfo" (Define a structure that holds the read file
-           name and its use. Note: only read_file_name is required, the rest
-           are optional. e.g., {"reference_file" => "test_reference.fa",
-           "read_file_name" => "mySortedReads.sam", "left_file" => "left.fa",
-           "right_file" => "right.fa"}) -> structure: parameter "read_file"
-           of String, parameter "reference_file" of String, parameter
-           "left_file" of String, parameter "right_file" of String, parameter
-           "file_layout" of String, parameter "read_reference" of type "bool"
-           (A boolean. 0 = false, anything else = true.)
-        :returns: instance of type "VelvetResults" (Output parameter items
-           for run_velveth and run_velvetg report_name - the name of the
-           KBaseReport.Report workspace object. report_ref - the workspace
-           reference of the report.) -> structure: parameter "report_name" of
-           String, parameter "report_ref" of String
+        :param params: instance of type "VelvethParams" (Arguments for
+           velveth input) -> structure: parameter "out_folder" of String,
+           parameter "workspace_name" of String, parameter "hash_length" of
+           Long, parameter "reads_channels" of list of type "ReadsChannel"
+           (Define a structure that mimics the concept of "channel" used by
+           the Velvet program.) -> structure: parameter "read_type" of
+           String, parameter "file_format" of String, parameter
+           "read_file_info" of type "ReadFileInfo" (Define a structure that
+           holds the read file name and its use. Note: only read_file_name is
+           required, the rest are optional. e.g., {"reference_file" =>
+           "test_reference.fa", "read_file_name" => "mySortedReads.sam",
+           "left_file" => "left.fa", "right_file" => "right.fa"}) ->
+           structure: parameter "read_file" of String, parameter
+           "reference_file" of String, parameter "left_file" of String,
+           parameter "right_file" of String, parameter "file_layout" of
+           String, parameter "read_reference" of type "bool" (A boolean. 0 =
+           false, anything else = true.)
+        :returns: instance of String
         """
         # ctx is the context object
         # return variables are: output
@@ -136,7 +218,7 @@ https://github.com/dzerbino/velvet/blob/master/Columbus_manual.pdf
         token = ctx['token']
 
         # STEP 1: basic parameter checks + parsing
-        self.process_params(params)
+        self.process_params_h(params)
 
         # STEP 2: get the reads channels as reads file info
         out_folder = params['out_folder']
@@ -178,33 +260,13 @@ https://github.com/dzerbino/velvet/blob/master/Columbus_manual.pdf
         if p.returncode != 0:
             raise ValueError('Error running VELVETH, return code: ' + str(retcode) + '\n')
 
-        # STEP 4: generate and save the report
-        # compute a simple contig length distribution for the report
-        report = ''
-        report += 'Velveth results saved to: ' + params['workspace_name'] + '/' + params['out_folder'] + '\n'
-
-        self.log('Saving report')
-        kbr = KBaseReport(self.callbackURL)
-        try:
-            report_info = kbr.create_extended_report(
-                {'message': report,
-                 'report_object_name': 'kb_velveth_report_' + str(uuid.uuid4()),
-                 'workspace_name': params['workspace_name']
-                 })
-        except _RepError as re:
-            # not really any way to test this, all inputs have been checked earlier and should be ok 
-            print('Logging exception from creating report object')
-            print(str(re))
-            raise
-
-        # STEP 5: contruct the output to send back
-        output = {'report_name': report_info['name'], 'report_ref': report_info['ref']}
+        output = out_folder 
         #END run_velveth
 
         # At some point might do deeper type checking...
-        if not isinstance(output, dict):
+        if not isinstance(output, basestring):
             raise ValueError('Method run_velveth return value ' +
-                             'output is not type dict as required.')
+                             'output is not type basestring as required.')
         # return the results
         return [output]
 
@@ -212,89 +274,97 @@ https://github.com/dzerbino/velvet/blob/master/Columbus_manual.pdf
         """
         Definition of run_velvetg
         :param params: instance of type "VelvetgParams" (Arguments for
-           run_velvetg wk_folder                       : working directory
-           name Standard options: -cov_cutoff <floating-point|auto>       :
-           removal of low coverage nodes AFTER tour bus or allow the system
-           to infer it (default: no removal) -ins_length <integer>          
-           : expected distance between two paired end reads (default: no read
-           pairing) -read_trkg <yes|no>             : tracking of short read
-           positions in assembly (default: no tracking) -min_contig_lgth
-           <integer>      : minimum contig length exported to contigs.fa file
-           (default: hash length * 2) -amos_file <yes|no>             :
-           export assembly to AMOS file (default: no export) -exp_cov
-           <floating point|auto>  : expected coverage of unique regions or
-           allow the system to infer it (default: no long or paired-end read
-           resolution) -long_cov_cutoff <floating-point>: removal of nodes
-           with low long-read coverage AFTER tour bus (default: no removal)
-           Advanced options: -ins_length* <integer>          : expected
-           distance between two paired-end reads in the respective short-read
-           dataset (default: no read pairing) -ins_length_long <integer>     
-           : expected distance between two long paired-end reads (default: no
-           read pairing) -ins_length*_sd <integer>       : est. standard
-           deviation of respective dataset (default: 10% of corresponding
-           length) [replace '*' by nothing, '2' or '_long' as necessary]
-           -scaffolding <yes|no>           : scaffolding of contigs used
-           paired end information (default: on) -max_branch_length <integer> 
-           : maximum length in base pair of bubble (default: 100)
-           -max_divergence <floating-point>: maximum divergence rate between
-           two branches in a bubble (default: 0.2) -max_gap_count <integer>  
-           : maximum number of gaps allowed in the alignment of the two
-           branches of a bubble (default: 3) -min_pair_count <integer>      
-           : minimum number of paired end connections to justify the
-           scaffolding of two long contigs (default: 5) -max_coverage
-           <floating point>  : removal of high coverage nodes AFTER tour bus
-           (default: no removal) -coverage_mask <int>    : minimum coverage
-           required for confident regions of contigs (default: 1)
-           -long_mult_cutoff <int>         : minimum number of long reads
-           required to merge contigs (default: 2) -unused_reads <yes|no>     
-           : export unused reads in UnusedReads.fa file (default: no)
-           -alignments <yes|no>            : export a summary of contig
-           alignment to the reference sequences (default: no) -exportFiltered
-           <yes|no>        : export the long nodes which were eliminated by
-           the coverage filters (default: no) -clean <yes|no>                
-           : remove all the intermediary files which are useless for
-           recalculation (default : no) -very_clean <yes|no>            :
-           remove all the intermediary files (no recalculation possible)
-           (default: no) -paired_exp_fraction <float>   : remove all the
-           paired end connections which less than the specified fraction of
-           the expected count (default: 0.1) -shortMatePaired* <yes|no>     
-           : for mate-pair libraries, indicate that the library might be
-           contaminated with paired-end reads (default no) -conserveLong
-           <yes|no>          : preserve sequences with long reads in them
-           (default no) Output: wk_folder/contigs.fa            : fasta file
-           of contigs longer than twice hash length wk_folder/stats.txt      
-           : stats file (tab-spaced) useful for determining appropriate
-           coverage cutoff wk_folder/LastGraph             : special
-           formatted file with all the information on the final graph
-           wk_folder/velvet_asm.afg        : (if requested) AMOS compatible
-           assembly file Example: ./velvetg wk_folder [options] string
-           wk_folder; #folder name for files to work on and to save results
-           float cov_cutoff; #removal of low coverage nodes AFTER tour bus or
-           allow the system to infer it (default: no removal) int ins_length;
-           #expected distance between two paired end reads (default: no read
-           pairing) int read_trkg; # (1=yes|0=no) tracking of short read
-           positions in assembly (default:0) int min_contig_length; #minimum
-           contig length exported to contigs.fa file (default: hash length *
-           2) int amos_file; # (1=yes|0=no) #export assembly to AMOS file
-           (default: 0) float exp_cov; # <floating point|auto>, expected
-           coverage of unique regions or allow the system to infer it
-           (default: no long or paired-end read resolution) float
-           long_cov_cutoff; #removal of nodes with low long-read coverage
-           AFTER tour bus(default: no removal)) -> structure: parameter
-           "workspace_name" of String, parameter "wk_folder" of String,
-           parameter "cov_cutoff" of Double, parameter "ins_length" of Long,
-           parameter "read_trkg" of Long, parameter "min_contig_length" of
-           Long, parameter "amos_file" of Long, parameter "exp_cov" of
-           Double, parameter "long_cov_cutoff" of Double
+           run_velvetg) -> structure: parameter "workspace_name" of String,
+           parameter "wk_folder" of String, parameter "cov_cutoff" of Double,
+           parameter "ins_length" of Long, parameter "read_trkg" of Long,
+           parameter "min_contig_length" of Long, parameter "amos_file" of
+           Long, parameter "exp_cov" of Double, parameter "long_cov_cutoff"
+           of Double
         :returns: instance of type "VelvetResults" (Output parameter items
-           for run_velveth and run_velvetg report_name - the name of the
-           KBaseReport.Report workspace object. report_ref - the workspace
-           reference of the report.) -> structure: parameter "report_name" of
-           String, parameter "report_ref" of String
+           for run_velvetg report_name - the name of the KBaseReport.Report
+           workspace object. report_ref - the workspace reference of the
+           report.) -> structure: parameter "report_name" of String,
+           parameter "report_ref" of String
         """
         # ctx is the context object
         # return variables are: output
         #BEGIN run_velvetg
+        self.log('Running run_velvetg with params:\n' + pformat(params))
+
+        token = ctx['token']
+
+        # STEP 1: basic parameter checks + parsing
+        self.process_params_g(params)
+
+        # STEP 2: get the reads channels as reads file info
+        wk_folder = params['wk_folder']
+        wsname = params['workspace_name']
+
+        # STEP 3: construct the command for run_velveth
+        velvetg_cmd = [self.VELVETG]
+
+        # set the output location
+        timestamp = int((datetime.utcnow() - datetime.utcfromtimestamp(0)).total_seconds() * 1000)
+        work_dir = os.path.join(self.scratch, wk_folder)
+        velvetg_cmd.append(work_dir)
+        #appending the standard optional inputs
+        if 'cov_cutoff' in params:
+            velvetg_cmd.append('-cov_cutoff ' + str(params['cov_cutoff']))
+        if 'ins_length' in params:
+            velvetg_cmd.append('-ins_length ' + str(params['ins_length']))
+        if 'read_trkg' in params:
+            velvetg_cmd.append('-read_trkg ' + str(params['read_trkg']))
+        if 'min_contig_length' in params:
+            velvetg_cmd.append('-min_contig_length ' + str(params['min_contig_length']))
+        if 'amos_file' in params:
+            velvetg_cmd.append('-amos_file ' + str(params['amos_file']))
+        if 'exp_cov' in params:
+            velvetg_cmd.append('-exp_cov ' + str(params['exp_cov']))
+        if 'long_cov_cutoff' in params:
+            velvetg_cmd.append('-long_cov_cutoff ' + str(params['long_cov_cutoff']))
+
+        #appending the advanced optional inputs--TODO
+
+        # run velvetg
+        self.log('running velvetg with command:\n')
+        self.log('    ' + ' '.join(velvetg_cmd))
+        p = subprocess.Popen(velvetg_cmd, cwd=self.scratch, shell=False)
+        retcode = p.wait()
+
+        self.log('Return code: ' + str(retcode))
+        if p.returncode != 0:
+            raise ValueError('Error running VELVETH, return code: ' + str(retcode) + '\n')
+
+        # STEP 4: parse the output and save back to KBase, create report in the same time
+        self.log('Velvet output folder: ' + work_dir)
+
+        output_contigs = os.path.join(work_dir, 'contigs.fa')
+
+        self.log('Uploading FASTA file to Assembly')
+
+        assemblyUtil = AssemblyUtil(self.callbackURL, token=ctx['token'], service_ver='release')
+
+        if params.get('min_contig_length', 0) > 0:
+            assemblyUtil.save_assembly_from_fasta(
+                {'file': {'path': output_contigs},
+                 'workspace_name': wsname,
+                 'assembly_name': params[self.PARAM_IN_CS_NAME],
+                 'min_contig_length': params['min_contig_length']
+                 })
+            # load report from contigs.fa.filtered.fa
+            report_name, report_ref = self.generate_report(output_contigs+'.filtered.fa', params, wsname)
+        else:
+            assemblyUtil.save_assembly_from_fasta(
+                {'file': {'path': output_contigs},
+                 'workspace_name': wsname,
+                 'assembly_name': params[self.PARAM_IN_CS_NAME]
+                 })
+            # load report from contigs.fa
+            report_name, report_ref = self.load_report(output_contigs, params, wsname)
+        
+        # STEP 5: contruct the output to send back
+        output = {'report_name': report_info['name'], 'report_ref': report_info['ref']}
+
         #END run_velvetg
 
         # At some point might do deeper type checking...

@@ -1,6 +1,12 @@
-language: 
-env:
-before_install:
+language: Python 
+
+sudo: required
+
+services:
+  - docker
+
 install:
+
 script:
-after_script:
+  - make
+  - make sdkbase

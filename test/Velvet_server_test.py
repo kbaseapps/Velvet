@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 import os  # noqa: F401
+import os.path
 import json  # noqa: F401
 import time
 import requests
@@ -115,11 +116,14 @@ class VelvetTest(unittest.TestCase):
 
     def velvetg(self, work_folder, output_contigset):
         # run velvetg
+        #work_folder = self.velveth()[0]
+        #print "Returned work folder from velveth call: " + work_folder
         params = {
             'workspace_name': self.getWsName(),
             'wk_folder': work_folder,
-            'output_contigset_name': output_contigset 
-            #'min_contig_length': 20
+            'output_contigset_name': 'test_contigset'#, 
+            #'min_contig_length': 100,
+            #'cov_cutoff': 5.2
         }
 
         result = self.getImpl().run_velvetg(self.getContext(), params)
@@ -137,11 +141,10 @@ class VelvetTest(unittest.TestCase):
 
     def test_run_velvet(self):
         # run velveth
-        work_folder = self.velveth()
-        work_folder = 'velvet_outfolder'#self.velveth()
-       
+        work_folder = self.velveth()[0]
+
         # run velvetg
         if(not work_folder == ""):
             self.velvetg(work_folder, 'test_contigset')
         else:
-            print('velvet failed!')
+            print('A valid work folder is required!')

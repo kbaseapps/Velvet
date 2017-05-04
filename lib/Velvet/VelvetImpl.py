@@ -88,7 +88,10 @@ class Velvet:
             raise ValueError('a string reprsenting wk_folder parameter is required')
         if self.PARAM_IN_CS_NAME not in params:
                 raise ValueError('output_contigset_name parameter is required')
-
+        rm_dir = os.path.join(self.scratch, params['wk_folder'] + '/Roadmaps')
+        sq_dir = os.path.join(self.scratch, params['wk_folder'] + '/Sequences')
+        if not os.path.exists(rm_dir) or not os.path.exists(sq_dir):
+            raise ValueError('no valid folders in the working directory for running velvetg')
 
     # adapted from
     # https://github.com/kbaseapps/kb_SPAdes/blob/master/lib/kb_SPAdes/kb_SPAdesImpl.py
@@ -244,7 +247,6 @@ class Velvet:
         velveth_cmd = [self.VELVETH]
 
         # set the output location
-        timestamp = int((datetime.utcnow() - datetime.utcfromtimestamp(0)).total_seconds() * 1000)
         output_dir = os.path.join(self.scratch, out_folder)
         velveth_cmd.append(output_dir)
         velveth_cmd.append(str(hash_length))
@@ -335,7 +337,6 @@ class Velvet:
         velvetg_cmd = [self.VELVETG]
 
         # set the output location
-        timestamp = int((datetime.utcnow() - datetime.utcfromtimestamp(0)).total_seconds() * 1000)
         work_dir = os.path.join(self.scratch, wk_folder)
         velvetg_cmd.append(work_dir)
         #appending the standard optional inputs

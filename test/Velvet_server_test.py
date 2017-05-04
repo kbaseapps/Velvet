@@ -85,7 +85,7 @@ class VelvetTest(unittest.TestCase):
     def getContext(self):
         return self.__class__.ctx
 
-    def test_run_velveth(self):
+    def run_velveth(self):
         # run velveth
         rc = {
             'read_type': 'short',
@@ -100,7 +100,7 @@ class VelvetTest(unittest.TestCase):
         }
         params = {
             'workspace_name': self.getWsName(),
-            'out_folder': 'velveth_outfolder',
+            'out_folder': 'velvet_outfolder',
             'hash_length': 21,
             'reads_channels': [rc]
         }
@@ -108,16 +108,17 @@ class VelvetTest(unittest.TestCase):
         result = self.getImpl().run_velveth(self.getContext(), params)
         print('RESULT from velveth:\n')
         pprint(result)
+        return result
 
         # check the output
 
 
-    def test_run_velvetg(self):
+    def run_velvetg(self, work_folder):
         # run velvetg
         params = {
             'workspace_name': self.getWsName(),
-            'wk_folder': 'velveth_outfolder',
-            'min_contig_length': 20
+            'wk_folder': work_folder
+            #'min_contig_length': 20
         }
 
         result = self.getImpl().run_velvetg(self.getContext(), params)
@@ -131,3 +132,14 @@ class VelvetTest(unittest.TestCase):
 
         self.assertEqual(rep['info'][1].rsplit('_', 1)[0], 'kb_velveth_report')
         self.assertEqual(rep['info'][2].split('-', 1)[0], 'KBaseReport.Report')
+
+
+    def test_run_velvet(self):
+        # run velveth
+        work_folder = 'velvet_outfolder'#self.run_velveth()
+       
+        # run velvetg
+        if(not work_folder == ""):
+            self.run_velvetg(work_folder)
+        else:
+            print('velvet failed!')

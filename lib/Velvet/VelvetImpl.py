@@ -9,12 +9,13 @@ import numpy as np
 from Bio import SeqIO
 from pprint import pprint, pformat
 from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
-from KBaseReport.KBaseReportClient import KBaseReport
 from datetime import datetime
 from pprint import pformat, pprint
 import time
 import uuid
 
+
+from KBaseReport.KBaseReportClient import KBaseReport
 from KBaseReport.baseclient import ServerError as _RepError
 from kb_quast.kb_quastClient import kb_quast
 from kb_quast.baseclient import ServerError as QUASTError
@@ -83,8 +84,8 @@ class Velvet:
     def process_params_g(self, params):
         if 'workspace_name' not in params:
             raise ValueError('a string reprsenting workspace_name parameter is required')
-        if 'wd_folder' not in params:
-            raise ValueError('a string reprsenting ws_folder parameter is required')
+        if 'wk_folder' not in params:
+            raise ValueError('a string reprsenting wk_folder parameter is required')
 
     # adapted from
     # https://github.com/kbaseapps/kb_SPAdes/blob/master/lib/kb_SPAdes/kb_SPAdesImpl.py
@@ -337,7 +338,7 @@ class Velvet:
 
         self.log('Return code: ' + str(retcode))
         if p.returncode != 0:
-            raise ValueError('Error running VELVETH, return code: ' + str(retcode) + '\n')
+            raise ValueError('Error running VELVETG, return code: ' + str(retcode) + '\n')
 
         # STEP 4: parse the output and save back to KBase, create report in the same time
         self.log('Velvet output folder: ' + work_dir)

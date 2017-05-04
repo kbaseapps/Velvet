@@ -40,7 +40,7 @@ class Velvet:
     ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "https://github.com/kbaseapps/kb_Velvet"
-    GIT_COMMIT_HASH = "bf8c6970f501fcbba55be2a9fd968c9b7b154547"
+    GIT_COMMIT_HASH = "68feeabfb1dc4181835d93a7f6910c470d275d50"
 
     #BEGIN_CLASS_HEADER
     # Class variables and functions can be defined in this block
@@ -49,14 +49,14 @@ class Velvet:
     VELVETG = '/kb/module/velvet/velvetg'
     VELVET_DATA = '/kb/module/velvet/data/'
     PARAM_IN_WS = 'workspace_name'
-    PARAM_IN_CS_NAME = 'velvet_contigset_name'
+    PARAM_IN_CS_NAME = 'output_contigset_name'
 
     def log(self, message, prefix_newline=False):
             print(('\n' if prefix_newline else '') +
                           str(time.time()) + ': ' + str(message))
 
     def process_params_h(self, params):
-        if 'workspace_name' not in params:
+        if self.PARAM_IN_WS not in params:
             raise ValueError('a string reprsenting workspace_name parameter is required')
         if 'out_folder' not in params:
             raise ValueError('a string reprsenting out_folder parameter is required')
@@ -82,10 +82,13 @@ class Velvet:
                 raise ValueError('a file_format is required')
 
     def process_params_g(self, params):
-        if 'workspace_name' not in params:
+        if self.PARAM_IN_WS not in params:
             raise ValueError('a string reprsenting workspace_name parameter is required')
         if 'wk_folder' not in params:
             raise ValueError('a string reprsenting wk_folder parameter is required')
+        if self.PARAM_IN_CS_NAME not in params:
+                raise ValueError('output_contigset_name parameter is required')
+
 
     # adapted from
     # https://github.com/kbaseapps/kb_SPAdes/blob/master/lib/kb_SPAdes/kb_SPAdesImpl.py
@@ -119,7 +122,7 @@ class Velvet:
                         contig_id = fasta_header.strip()
                 else:
                     sequence_len += len(re.sub(pattern, '', current_line))
-        # wrap up last fasta sequence, should really make this a method
+        # wrap up last fasta sequence
         if not first_header_found:
             raise Exception("There are no contigs in this file")
         else:
@@ -135,7 +138,7 @@ class Velvet:
         assembly_ref = params[self.PARAM_IN_WS] + '/' + params[self.PARAM_IN_CS_NAME]
 
         report = ''
-        report += 'Velvetg results saved to: ' + wsname + '/' + params['wk_folder'] + '\n'
+        report += 'Velvet results saved to: ' + wsname + '/' + params['wk_folder'] + '\n'
         report += 'Assembly saved to: ' + assembly_ref + '\n'
         report += 'Assembled into ' + str(len(lengths)) + ' contigs.\n'
         report += 'Avg Length: ' + str(sum(lengths) / float(len(lengths))) + ' bp.\n'
@@ -160,13 +163,12 @@ class Velvet:
                              'name': 'report.html',
                              'label': 'QUAST report'}
                             ],
-             'report_object_name': 'kb_megahit_report_' + str(uuid.uuid4()),
-             'workspace_name': params['workspace_name']
+             'report_object_name': 'kb_velvet_report_' + str(uuid.uuid4()),
+             'workspace_name': params[self.PARAM_IN_WS]
             })
         reportName = report_info['name']
         reportRef = report_info['ref']
         return reportName, reportRef
-
 
     #END_CLASS_HEADER
 
@@ -193,11 +195,22 @@ class Velvet:
         """
         Definition of run_velveth
         :param params: instance of type "VelvethParams" (Arguments for
-           velveth input) -> structure: parameter "out_folder" of String,
-           parameter "workspace_name" of String, parameter "hash_length" of
-           Long, parameter "reads_channels" of list of type "ReadsChannel"
-           (Define a structure that mimics the concept of "channel" used by
-           the Velvet program.) -> structure: parameter "read_type" of
+           velveth input string workspace_name - the name of the workspace
+           for input/output string out_folder - the folder name for output
+           files int hash_length - EITHER an odd integer (if even, it will be
+           decremented) <= 31 (if above, will be reduced)L) -> structure:
+           parameter "out_folder" of String, parameter "workspace_name" of
+           String, parameter "hash_length" of Long, parameter
+           "reads_channels" of list of type "ReadsChannel" (Define a
+           structure that mimics the concept of "channel" used by the Velvet
+           program. string read_type - the read type, e.g., -short,
+           -shortPaired, short2, shortPaired2, -long, or -longPaired string
+           file_format - the format of the input file, e.g., -fasta, -fastq,
+           -raw,-fasta.gz, -fastq.gz, -raw.gz, -sam, -bam, -fmtAuto string
+           read_file_info - the hash that holds the details about the read
+           file string file_layout - the layout of the file, e.g.,
+           -interleaved or -separate bool read_reference - indicating if a
+           reference file is used) -> structure: parameter "read_type" of
            String, parameter "file_format" of String, parameter
            "read_file_info" of type "ReadFileInfo" (Define a structure that
            holds the read file name and its use. Note: only read_file_name is
@@ -224,7 +237,7 @@ class Velvet:
         # STEP 2: get the reads channels as reads file info
         out_folder = params['out_folder']
         hash_length = params['hash_length']
-        wsname = params['workspace_name']
+        wsname = params[self.PARAM_IN_WS]
         reads_channels = params['reads_channels']
 
         # STEP 3: construct the command for run_velveth
@@ -233,7 +246,6 @@ class Velvet:
         # set the output location
         timestamp = int((datetime.utcnow() - datetime.utcfromtimestamp(0)).total_seconds() * 1000)
         output_dir = os.path.join(self.scratch, out_folder)
-        #velveth_cmd.append('-o')
         velveth_cmd.append(output_dir)
         velveth_cmd.append(str(hash_length))
 
@@ -263,7 +275,6 @@ class Velvet:
 
         output = out_folder 
 
-
         #END run_velveth
 
         # At some point might do deeper type checking...
@@ -277,12 +288,29 @@ class Velvet:
         """
         Definition of run_velvetg
         :param params: instance of type "VelvetgParams" (Arguments for
-           run_velvetg) -> structure: parameter "workspace_name" of String,
-           parameter "wk_folder" of String, parameter "cov_cutoff" of Double,
-           parameter "ins_length" of Long, parameter "read_trkg" of Long,
-           parameter "min_contig_length" of Long, parameter "amos_file" of
-           Long, parameter "exp_cov" of Double, parameter "long_cov_cutoff"
-           of Double
+           run_velvetg string workspace_name - the name of the workspace from
+           which to take input and store output. string wk_folder - the name
+           of the folder where the velvet results are created and saved
+           output_contigset_name - the name of the output contigset
+           list<paired_end_lib> float cov_cutoff - the removal of low
+           coverage nodes AFTER tour bus or allow the system to infer it
+           (default: no removal) int ins_length - expected distance between
+           two paired end reads (default: no read pairing) int read_trkg; - 
+           (1=yes|0=no) tracking of short read positions in assembly
+           (default:0) int min_contig_length - minimum contig length exported
+           to contigs.fa file (default: hash length * 2) int amos_file -
+           (1=yes|0=no) #export assembly to AMOS file (default: 0) float
+           exp_cov - <floating point|auto>, expected coverage of unique
+           regions or allow the system to infer it (default: no long or
+           paired-end read resolution) float long_cov_cutoff - removal of
+           nodes with low long-read coverage AFTER tour bus(default: no
+           removal)) -> structure: parameter "workspace_name" of String,
+           parameter "wk_folder" of String, parameter "output_contigset_name"
+           of String, parameter "cov_cutoff" of Double, parameter
+           "ins_length" of Long, parameter "read_trkg" of Long, parameter
+           "min_contig_length" of Long, parameter "amos_file" of Long,
+           parameter "exp_cov" of Double, parameter "long_cov_cutoff" of
+           Double
         :returns: instance of type "VelvetResults" (Output parameter items
            for run_velvetg report_name - the name of the KBaseReport.Report
            workspace object. report_ref - the workspace reference of the
@@ -301,7 +329,7 @@ class Velvet:
 
         # STEP 2: get the reads channels as reads file info
         wk_folder = params['wk_folder']
-        wsname = params['workspace_name']
+        wsname = params[self.PARAM_IN_WS]
 
         # STEP 3: construct the command for run_velveth
         velvetg_cmd = [self.VELVETG]
@@ -320,7 +348,7 @@ class Velvet:
         if 'read_trkg' in params:
             velvetg_cmd.append('-read_trkg ' + str(params['read_trkg']))
         if 'min_contig_length' in params:
-            velvetg_cmd.append('-min_contig_length ' + str(params['min_contig_length']))
+            velvetg_cmd.append('-min_contig_lgth ' + str(params['min_contig_length']))
         if 'amos_file' in params:
             velvetg_cmd.append('-amos_file ' + str(params['amos_file']))
         if 'exp_cov' in params:
@@ -356,19 +384,17 @@ class Velvet:
                  'assembly_name': params[self.PARAM_IN_CS_NAME],
                  'min_contig_length': params['min_contig_length']
                  })
-            # load report from contigs.fa.filtered.fa
-            report_name, report_ref = self.generate_report(output_contigs+'.filtered.fa', params, wsname)
         else:
             assemblyUtil.save_assembly_from_fasta(
                 {'file': {'path': output_contigs},
                  'workspace_name': wsname,
                  'assembly_name': params[self.PARAM_IN_CS_NAME]
                  })
-            # load report from contigs.fa
-            report_name, report_ref = self.load_report(output_contigs, params, wsname)
-        
+        # generate report from contigs.fa
+        report_name, report_ref = self.generate_report(output_contigs, params, wsname)
+
         # STEP 5: contruct the output to send back
-        output = {'report_name': report_info['name'], 'report_ref': report_info['ref']}
+        output = {'report_name': report_name, 'report_ref': report_ref}
 
         #END run_velvetg
 
@@ -378,7 +404,6 @@ class Velvet:
                              'output is not type dict as required.')
         # return the results
         return [output]
-
     def status(self, ctx):
         #BEGIN_STATUS
         returnVal = {'state': "OK",

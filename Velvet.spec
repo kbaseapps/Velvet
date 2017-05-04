@@ -32,6 +32,11 @@ module Velvet {
 
     /* 
         Define a structure that mimics the concept of "channel" used by the Velvet program.
+        string read_type - the read type, e.g., -short, -shortPaired, short2, shortPaired2, -long, or -longPaired
+        string file_format - the format of the input file, e.g., -fasta, -fastq, -raw,-fasta.gz, -fastq.gz, -raw.gz, -sam, -bam, -fmtAuto
+        string read_file_info - the hash that holds the details about the read file
+        string file_layout - the layout of the file, e.g., -interleaved or -separate 
+        bool read_reference - indicating if a reference file is used
     */
     typedef structure {
         string read_type; 
@@ -43,7 +48,10 @@ module Velvet {
 
     /* 
         Arguments for velveth input
-    */
+        string workspace_name - the name of the workspace for input/output
+        string out_folder - the folder name for output files
+        int hash_length - EITHER an odd integer (if even, it will be decremented) <= 31 (if above, will be reduced)L
+   */
     typedef structure {
         string out_folder; 
         string workspace_name;
@@ -59,11 +67,22 @@ module Velvet {
 
     /* 
         Arguments for run_velvetg
+        string workspace_name - the name of the workspace from which to take input and store output.
+        string wk_folder - the name of the folder where the velvet results are created and saved
+        output_contigset_name - the name of the output contigset list<paired_end_lib>
+        float cov_cutoff - the removal of low coverage nodes AFTER tour bus or allow the system to infer it (default: no removal)
+        int ins_length - expected distance between two paired end reads (default: no read pairing)
+        int read_trkg; -  (1=yes|0=no) tracking of short read positions in assembly (default:0)
+        int min_contig_length - minimum contig length exported to contigs.fa file (default: hash length * 2)
+        int amos_file - (1=yes|0=no) #export assembly to AMOS file (default: 0)
+        float exp_cov - <floating point|auto>, expected coverage of unique regions or allow the system to infer it (default: no long or paired-end read resolution)
+        float long_cov_cutoff - removal of nodes with low long-read coverage AFTER tour bus(default: no removal)
      */
 
     typedef structure {
         string workspace_name;
-        string wk_folder; 
+        string wk_folder;
+        string output_contigset_name; 
         float cov_cutoff; 
         int ins_length; 
         int read_trkg; 

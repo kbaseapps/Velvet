@@ -85,7 +85,7 @@ class VelvetTest(unittest.TestCase):
     def getContext(self):
         return self.__class__.ctx
 
-    def run_velveth(self):
+    def velveth(self):
         # run velveth
         rc = {
             'read_type': 'short',
@@ -113,11 +113,12 @@ class VelvetTest(unittest.TestCase):
         # check the output
 
 
-    def run_velvetg(self, work_folder):
+    def velvetg(self, work_folder, output_contigset):
         # run velvetg
         params = {
             'workspace_name': self.getWsName(),
-            'wk_folder': work_folder
+            'wk_folder': work_folder,
+            'output_contigset_name': output_contigset 
             #'min_contig_length': 20
         }
 
@@ -130,16 +131,17 @@ class VelvetTest(unittest.TestCase):
         print('REPORT object:')
         pprint(rep)
 
-        self.assertEqual(rep['info'][1].rsplit('_', 1)[0], 'kb_velveth_report')
+        self.assertEqual(rep['info'][1].rsplit('_', 1)[0], 'kb_velvet_report')
         self.assertEqual(rep['info'][2].split('-', 1)[0], 'KBaseReport.Report')
 
 
     def test_run_velvet(self):
         # run velveth
-        work_folder = 'velvet_outfolder'#self.run_velveth()
+        work_folder = self.velveth()
+        work_folder = 'velvet_outfolder'#self.velveth()
        
         # run velvetg
         if(not work_folder == ""):
-            self.run_velvetg(work_folder)
+            self.velvetg(work_folder, 'test_contigset')
         else:
             print('velvet failed!')

@@ -29,7 +29,14 @@ class Velvet:
     Velvet
 
     Module Description:
-    A KBase module: Velvet
+    Name of module: Velvet
+
+   This is a KBase module that wraps the open source package "Short read de novo assembler using de Bruijn graphs"
+   Velvet_1.2.10
+
+   References:
+   https://github.com/dzerbino/velvet
+   https://github.com/dzerbino/velvet/blob/master/Columbus_manual.pdf
     '''
 
     ######## WARNING FOR GEVENT USERS ####### noqa
@@ -40,7 +47,7 @@ class Velvet:
     ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "https://github.com/kbaseapps/kb_Velvet"
-    GIT_COMMIT_HASH = "68feeabfb1dc4181835d93a7f6910c470d275d50"
+    GIT_COMMIT_HASH = "187a87834fc89e5dba2be392d5a389f5b35ca9e9"
 
     #BEGIN_CLASS_HEADER
     # Class variables and functions can be defined in this block
@@ -91,7 +98,7 @@ class Velvet:
         rm_dir = os.path.join(self.scratch, params['wk_folder'] + '/Roadmaps')
         sq_dir = os.path.join(self.scratch, params['wk_folder'] + '/Sequences')
         if not os.path.exists(rm_dir) or not os.path.exists(sq_dir):
-            raise ValueError('no valid folders in the working directory for running velvetg')
+            raise ValueError('no valid subfolders named Roadmaps and Sequences  in the working directory for running velvetg')
 
     # adapted from
     # https://github.com/kbaseapps/kb_SPAdes/blob/master/lib/kb_SPAdes/kb_SPAdesImpl.py

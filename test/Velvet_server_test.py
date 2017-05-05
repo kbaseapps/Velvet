@@ -15,7 +15,6 @@ except:
 from pprint import pprint  # noqa: F401
 from biokbase.AbstractHandle.Client import AbstractHandle as HandleService
 
-#from biokbase.workspace.client import Workspace as workspaceService
 from Velvet.VelvetImpl import Velvet
 from Velvet.VelvetServer import MethodContext
 from Velvet.authclient import KBaseAuth as _KBaseAuth
@@ -121,9 +120,9 @@ class VelvetTest(unittest.TestCase):
         params = {
             'workspace_name': self.getWsName(),
             'wk_folder': work_folder,
-            'output_contigset_name': 'test_contigset'#, 
+            'output_contigset_name': 'test_contigset', 
             #'min_contig_length': 100,
-            #'cov_cutoff': 5.2
+            'cov_cutoff': 5.2
         }
 
         result = self.getImpl().run_velvetg(self.getContext(), params)

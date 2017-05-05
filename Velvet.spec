@@ -1,6 +1,13 @@
 /*
 
-        A KBase module: Velvet
+   Name of module: Velvet
+
+   This is a KBase module that wraps the open source package "Short read de novo assembler using de Bruijn graphs"
+   Velvet_1.2.10
+
+   References:
+   https://github.com/dzerbino/velvet
+   https://github.com/dzerbino/velvet/blob/master/Columbus_manual.pdf
 
 */
 
@@ -67,6 +74,7 @@ module Velvet {
 
     /* 
         Arguments for run_velvetg
+
         string workspace_name - the name of the workspace from which to take input and store output.
         string wk_folder - the name of the folder where the velvet results are created and saved
         output_contigset_name - the name of the output contigset list<paired_end_lib>

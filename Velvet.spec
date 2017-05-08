@@ -100,7 +100,21 @@ module Velvet {
         float long_cov_cutoff; 
     } VelvetgParams;
    
-    /* Output parameter items for run_velvetg
+    /* 
+        Definition of run_velvetg
+     */
+    funcdef run_velvetg(VelvetgParams params) returns (string output) authentication required;
+
+
+    /*
+        Arguments for run_velvet
+     */
+    typedef structure {
+        VelvethParams h_params;
+        VelvetgParams g_params;
+    } VelvetParams;
+   
+    /* Output parameter items for run_velvet
 
     report_name - the name of the KBaseReport.Report workspace object.
     report_ref - the workspace reference of the report.
@@ -112,8 +126,8 @@ module Velvet {
     } VelvetResults;
     
     /* 
-        Definition of run_velvetg
+        Definition of run_velvet
      */
-    funcdef run_velvetg(VelvetgParams params) returns (VelvetResults output) authentication required;
+    funcdef run_velvet(VelvetParams params) returns (VelvetResults output) authentication required;
 
 };

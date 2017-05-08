@@ -106,28 +106,61 @@ class VelvetTest(unittest.TestCase):
         }
 
         result = self.getImpl().run_velveth(self.getContext(), params)
-        print('RESULT from velveth:\n')
+        print('RESULT from velveth is saved in:\n')
         pprint(result)
         return result
 
         # check the output
 
-
-    def velvetg(self, work_folder, output_contigset):
+    def velvetg(self):
         # run velvetg
         #work_folder = self.velveth()[0]
         #print "Returned work folder from velveth call: " + work_folder
         params = {
             'workspace_name': self.getWsName(),
-            'wk_folder': work_folder,
+            'wk_folder': 'velvet_outfolder',
             'output_contigset_name': 'test_contigset', 
-            #'min_contig_length': 100,
+            'min_contig_length': 100,
             'cov_cutoff': 5.2
         }
 
         result = self.getImpl().run_velvetg(self.getContext(), params)
         print('RESULT from velvetg:\n')
         pprint(result)
+        return result
+
+    def test_run_velvet(self):
+        # velveth parameters
+        rc = {
+            'read_type': 'short',
+            'file_format': 'sam',
+            'file_layout': 'interleaved',
+            'read_file_info' : {
+                                'read_file': 'test_reads.sam',
+                                'reference_file': 'test_reference.fa',
+                                'left_file': '',
+                                'right_file': ''
+                               }
+        }
+        h_params = {
+            'workspace_name': self.getWsName(),
+            'out_folder': 'velvet_outfolder',
+            'hash_length': 21,
+            'reads_channels': [rc]
+        }
+
+        # velvetg parameters
+        g_params = {
+            'workspace_name': self.getWsName(),
+            'wk_folder': 'velvet_outfolder',
+            'output_contigset_name': 'test_contigset', 
+            'min_contig_length': 100,
+            'cov_cutoff': 5.2
+        }
+
+        params = {'h_params': h_params, 'g_params': g_params}
+
+        result = self.getImpl().run_velvet(self.getContext(), params)
 
         # check the report. We assume that kb_quast and KBaseReport do what they're supposed to do
         rep = self.wsClient.get_objects2({'objects': [{'ref': result[0]['report_ref']}]})['data'][0]
@@ -136,14 +169,3 @@ class VelvetTest(unittest.TestCase):
 
         self.assertEqual(rep['info'][1].rsplit('_', 1)[0], 'kb_velvet_report')
         self.assertEqual(rep['info'][2].split('-', 1)[0], 'KBaseReport.Report')
-
-
-    def test_run_velvet(self):
-        # run velveth
-        work_folder = self.velveth()[0]
-
-        # run velvetg
-        if(not work_folder == ""):
-            self.velvetg(work_folder, 'test_contigset')
-        else:
-            print('A valid work folder is required!')

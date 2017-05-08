@@ -14,7 +14,6 @@ from pprint import pformat, pprint
 import time
 import uuid
 import Queue
-from threading import Thread
 
 from KBaseReport.KBaseReportClient import KBaseReport
 from KBaseReport.baseclient import ServerError as _RepError

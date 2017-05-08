@@ -5,6 +5,7 @@ import os.path
 import json  # noqa: F401
 import time
 import requests
+import Queue
 
 from os import environ
 try:
@@ -59,7 +60,7 @@ class VelvetTest(unittest.TestCase):
 
         cls.shockURL = cls.cfg['shock-url']
         cls.handleURL = cls.cfg['handle-service-url']
-
+        cls.queue = Queue.Queue()
 
     @classmethod
     def tearDownClass(cls):
@@ -153,9 +154,9 @@ class VelvetTest(unittest.TestCase):
         g_params = {
             'workspace_name': self.getWsName(),
             'wk_folder': 'velvet_outfolder',
-            'output_contigset_name': 'test_contigset', 
-            'min_contig_length': 100,
-            'cov_cutoff': 5.2
+            'output_contigset_name': 'test_contigset'#, 
+            #'min_contig_length': 100#,
+            #'cov_cutoff': 5.2
         }
 
         params = {'h_params': h_params, 'g_params': g_params}

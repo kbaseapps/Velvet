@@ -341,6 +341,10 @@ class Application(object):
                              name='Velvet.run_velvetg',
                              types=[dict])
         self.method_authentication['Velvet.run_velvetg'] = 'required'  # noqa
+        self.rpc_service.add(impl_Velvet.run_velvet,
+                             name='Velvet.run_velvet',
+                             types=[dict])
+        self.method_authentication['Velvet.run_velvet'] = 'required'  # noqa
         self.rpc_service.add(impl_Velvet.status,
                              name='Velvet.status',
                              types=[dict])

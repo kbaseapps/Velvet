@@ -12,6 +12,10 @@ References:
 https://github.com/dzerbino/velvet
 https://github.com/dzerbino/velvet/blob/master/Columbus_manual.pdf
 
+Copyright 2007, 2008 Daniel Zerbino (zerbino@ebi.ac.uk)
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
 To compile and run the Velvet App implementation, run:
 
     cd Velvet
@@ -24,6 +28,9 @@ For more help on how to modify, register and deploy the example to KBase, see th
 
 ===============================================================
 velveth, help
+
+velveth - simple hashing program
+Version 1.2.10
 
 Compilation settings:
 CATEGORIES = 2

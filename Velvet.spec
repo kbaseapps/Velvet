@@ -69,7 +69,7 @@ module Velvet {
     /* 
         Definition of run_velveth
      */
-    funcdef run_velveth(VelvethParams params) returns (string output) authentication required;
+    funcdef run_velveth(VelvethParams params) returns (int output) authentication required;
 
 
     /* 
@@ -103,7 +103,7 @@ module Velvet {
     /* 
         Definition of run_velvetg
      */
-    funcdef run_velvetg(VelvetgParams params) returns (string output) authentication required;
+    funcdef run_velvetg(VelvetgParams params) returns (int output) authentication required;
 
 
     /*

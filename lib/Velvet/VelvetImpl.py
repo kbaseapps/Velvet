@@ -8,15 +8,14 @@ import subprocess
 import numpy as np
 from Bio import SeqIO
 from pprint import pprint, pformat
-from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
 from datetime import datetime
 from pprint import pformat, pprint
 import time
 import uuid
-import Queue
 
 from KBaseReport.KBaseReportClient import KBaseReport
 from KBaseReport.baseclient import ServerError as _RepError
+from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
 from kb_quast.kb_quastClient import kb_quast
 from kb_quast.baseclient import ServerError as QUASTError
 #END_HEADER
@@ -46,11 +45,10 @@ class Velvet:
     ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "https://github.com/kbaseapps/kb_Velvet"
-    GIT_COMMIT_HASH = "1127c0adb6f2828e41b324dc1bf9d15de4f71c31"
+    GIT_COMMIT_HASH = "6efca462c5b4e221751c6d448d386829d8e776f1"
 
     #BEGIN_CLASS_HEADER
     # Class variables and functions can be defined in this block
-    #/kb/deployment/bin/velveth or velvetg
     VELVETH = '/kb/module/velvet/velveth'
     VELVETG = '/kb/module/velvet/velvetg'
     VELVET_DATA = '/kb/module/velvet/data/'
@@ -97,8 +95,7 @@ class Velvet:
         rm_dir = os.path.join(self.scratch, params['wk_folder'] + '/Roadmaps')
         sq_dir = os.path.join(self.scratch, params['wk_folder'] + '/Sequences')
         if not os.path.exists(rm_dir) or not os.path.exists(sq_dir):
-            raise ValueError('no valid subfolders named Roadmaps and Sequences  in the working directory for running velvetg')
-
+            raise ValueError('no valid subfolders named %s and %s in the working directory for running velvetg' % (rm_dir, sq_dir))
 
     def construct_velveth_cmd(self, params):
         # STEP 1: get the reads channels as reads file info
@@ -130,7 +127,6 @@ class Velvet:
                 vh_cmd.append(self.VELVET_DATA + rc['read_file_info']['read_file'])
 
         # STEP 3 return vh_cmd
-        vh_cmd = ' '.join(vh_cmd)
         return wsname, vh_cmd
 
     def construct_velvetg_cmd(self, params):
@@ -164,8 +160,6 @@ class Velvet:
         # appending the advanced optional inputs--TODO
 
         # STEP 3 return vg_cmd
-        self.log('running velvetg with command:\n')
-        vg_cmd = ' '.join(vg_cmd)
         return wsname, vg_cmd
 
     # adapted from
@@ -265,7 +259,6 @@ class Velvet:
         if not os.path.exists(self.scratch):
             os.makedirs(self.scratch)
 
-        self.velvet_queue = Queue.Queue()
         #END_CONSTRUCTOR
         pass
 
@@ -301,7 +294,7 @@ class Velvet:
            parameter "right_file" of String, parameter "file_layout" of
            String, parameter "read_reference" of type "bool" (A boolean - 0
            for false, 1 for true. @range (0, 1))
-        :returns: instance of String
+        :returns: instance of Long
         """
         # ctx is the context object
         # return variables are: output
@@ -317,7 +310,8 @@ class Velvet:
         wsname, velveth_cmd = self.construct_velveth_cmd(params)
 
         # STEP 3: run velveth
-        self.log('running velveth with command:\n' + velveth_cmd)
+        self.log('Running velveth with command:\n' + pformat(velveth_cmd))
+        #p = subprocess.Popen(velveth_cmd, cwd=self.scratch, shell=False)
         p = subprocess.Popen(velveth_cmd, cwd=self.scratch, shell=False)
         retcode = p.wait()
 
@@ -325,19 +319,16 @@ class Velvet:
         if p.returncode != 0:
             raise ValueError('Error running VELVETH, return code: ' + str(retcode) + '\n')
 
-        output = params['out_folder'] 
-        self.velvet_queue.put(output)
-        time.sleep(1)
+        output = p.returncode 
 
         #END run_velveth
 
         # At some point might do deeper type checking...
-        if not isinstance(output, basestring):
+        if not isinstance(output, int):
             raise ValueError('Method run_velveth return value ' +
-                             'output is not type basestring as required.')
+                             'output is not type int as required.')
         # return the results
         return [output]
-
 
     def run_velvetg(self, ctx, params):
         """
@@ -366,7 +357,7 @@ class Velvet:
            "min_contig_length" of Long, parameter "amos_file" of Long,
            parameter "exp_cov" of Double, parameter "long_cov_cutoff" of
            Double
-        :returns: instance of String
+        :returns: instance of Long
         """
         # ctx is the context object
         # return variables are: output
@@ -374,7 +365,6 @@ class Velvet:
         self.log('Running run_velvetg with params:\n' + pformat(params))
 
         token = ctx['token']
-        self.velvet_queue.get()
 
         # STEP 1: basic parameter checks + parsing
         self.process_params_g(params)
@@ -383,7 +373,7 @@ class Velvet:
         wsname, velvetg_cmd = self.construct_velvetg_cmd(params)
 
         # STEP 3: run velvetg
-        self.log('running velvetg with command:\n' + velvetg_cmd)
+        self.log('running velvetg with command:\n' + pformat(velvetg_cmd))
         p = subprocess.Popen(velvetg_cmd, cwd=self.scratch, shell=False)
         retcode = p.wait()
 
@@ -391,16 +381,13 @@ class Velvet:
         if p.returncode != 0:
             raise ValueError('Error running VELVETG, return code: ' + str(retcode) + '\n')
 
-        output = params['wk_folder']
-        time.sleep(1)
-        self.velvet_queue.task_done
-
+        output = p.returncode 
         #END run_velvetg
 
         # At some point might do deeper type checking...
-        if not isinstance(output, basestring):
+        if not isinstance(output, int):
             raise ValueError('Method run_velvetg return value ' +
-                             'output is not type basestring as required.')
+                             'output is not type int as required.')
         # return the results
         return [output]
 
@@ -472,26 +459,29 @@ class Velvet:
         self.log('Running run_velvet with params:\n' + pformat(params))
 
         token = ctx['token']
+        wsname = params['g_params']['workspace_name']
 
         # STEP 1: build the command for run velveth and velvetg
-        #wsname, velh_cmd = self.construct_velveth_cmd(params['h_params'])
-        #wsname, velg_cmd = self.construct_velvetg_cmd(params['g_params'])
-        #velvet_cmd = velh_cmd + ' && ' + velg_cmd
-
-        # STEP 2: run velveth and velvetg
-        #self.log('running velvet with command:\n' + velvet_cmd)
-        #p = subprocess.Popen(velvet_cmd, cwd=self.scratch, shell=False)
+        wsname, velh_cmd = self.construct_velveth_cmd(params['h_params'])
+        wsname, velg_cmd = self.construct_velvetg_cmd(params['g_params'])
+        velvet_cmd = velh_cmd + [' && '] + velg_cmd
+        #self.log('running velvet with command:\n' + pformat(velvet_cmd))
+        #p = subprocess.Popen(velvet_cmd, cwd=self.scratch, shell=True)
         #retcode = p.wait()
 
         #self.log('Return code: ' + str(retcode))
         #if p.returncode != 0:
-            #raise ValueError('Error running VELVETG, return code: ' + str(retcode) + '\n')
-        self.run_velveth(ctx, params['h_params'])
-        self.run_velvetg(ctx, params['g_params'])
+           #raise ValueError('Error running VELVET, return code: ' + str(retcode) + '\n')
+
+        # STEP 2: run velveth and velvetg sequentially
+        while( self.run_velveth(ctx, params['h_params'])[0] != 0 ):
+            time.sleep(1)
+
+        while( self.run_velvetg(ctx, params['g_params'])[0] != 0 ):
+            time.sleep(1)
 
         # STEP 3: parse the output and save back to KBase, create report in the same time
-        self.velvet_queue.join()
-
+        work_dir = os.path.join(self.scratch, params['g_params']['wk_folder'])
         self.log('Velvet output folder: ' + work_dir)
 
         output_contigs = os.path.join(work_dir, 'contigs.fa')

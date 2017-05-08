@@ -26,14 +26,14 @@ Velvet::VelvetClient
 =head1 DESCRIPTION
 
 
-A KBase module: Velvet
+Name of module: Velvet
 
-This is a KBase module that wraps the open source package "Short read de novo assembler using de Bruijn graphs"
-Version 1.2.10
+   This is a KBase module that wraps the open source package "Short read de novo assembler using de Bruijn graphs"
+   Velvet_1.2.10
 
-References:
-https://github.com/dzerbino/velvet
-https://github.com/dzerbino/velvet/blob/master/Columbus_manual.pdf
+   References:
+   https://github.com/dzerbino/velvet
+   https://github.com/dzerbino/velvet/blob/master/Columbus_manual.pdf
 
 
 =cut
@@ -127,15 +127,24 @@ sub new
 
 <pre>
 $params is a Velvet.VelvethParams
-$output is a Velvet.VelvethResults
+$output is an int
 VelvethParams is a reference to a hash where the following keys are defined:
 	out_folder has a value which is a string
+	workspace_name has a value which is a string
 	hash_length has a value which is an int
-	filename has a value which is a string
-	file_format has a value which is a string
+	reads_channels has a value which is a reference to a list where each element is a Velvet.ReadsChannel
+ReadsChannel is a reference to a hash where the following keys are defined:
 	read_type has a value which is a string
-VelvethResults is a reference to a hash where the following keys are defined:
-	out_folder has a value which is a string
+	file_format has a value which is a string
+	read_file_info has a value which is a Velvet.ReadFileInfo
+	file_layout has a value which is a string
+	read_reference has a value which is a Velvet.bool
+ReadFileInfo is a reference to a hash where the following keys are defined:
+	read_file has a value which is a string
+	reference_file has a value which is a string
+	left_file has a value which is a string
+	right_file has a value which is a string
+bool is an int
 
 </pre>
 
@@ -144,15 +153,24 @@ VelvethResults is a reference to a hash where the following keys are defined:
 =begin text
 
 $params is a Velvet.VelvethParams
-$output is a Velvet.VelvethResults
+$output is an int
 VelvethParams is a reference to a hash where the following keys are defined:
 	out_folder has a value which is a string
+	workspace_name has a value which is a string
 	hash_length has a value which is an int
-	filename has a value which is a string
-	file_format has a value which is a string
+	reads_channels has a value which is a reference to a list where each element is a Velvet.ReadsChannel
+ReadsChannel is a reference to a hash where the following keys are defined:
 	read_type has a value which is a string
-VelvethResults is a reference to a hash where the following keys are defined:
-	out_folder has a value which is a string
+	file_format has a value which is a string
+	read_file_info has a value which is a Velvet.ReadFileInfo
+	file_layout has a value which is a string
+	read_reference has a value which is a Velvet.bool
+ReadFileInfo is a reference to a hash where the following keys are defined:
+	read_file has a value which is a string
+	reference_file has a value which is a string
+	left_file has a value which is a string
+	right_file has a value which is a string
+bool is an int
 
 
 =end text
@@ -225,9 +243,11 @@ Definition of run_velveth
 
 <pre>
 $params is a Velvet.VelvetgParams
-$output is a Velvet.VelvetgResults
+$output is an int
 VelvetgParams is a reference to a hash where the following keys are defined:
+	workspace_name has a value which is a string
 	wk_folder has a value which is a string
+	output_contigset_name has a value which is a string
 	cov_cutoff has a value which is a float
 	ins_length has a value which is an int
 	read_trkg has a value which is an int
@@ -235,8 +255,6 @@ VelvetgParams is a reference to a hash where the following keys are defined:
 	amos_file has a value which is an int
 	exp_cov has a value which is a float
 	long_cov_cutoff has a value which is a float
-VelvetgResults is a reference to a hash where the following keys are defined:
-	wk_folder has a value which is a string
 
 </pre>
 
@@ -245,9 +263,11 @@ VelvetgResults is a reference to a hash where the following keys are defined:
 =begin text
 
 $params is a Velvet.VelvetgParams
-$output is a Velvet.VelvetgResults
+$output is an int
 VelvetgParams is a reference to a hash where the following keys are defined:
+	workspace_name has a value which is a string
 	wk_folder has a value which is a string
+	output_contigset_name has a value which is a string
 	cov_cutoff has a value which is a float
 	ins_length has a value which is an int
 	read_trkg has a value which is an int
@@ -255,8 +275,6 @@ VelvetgParams is a reference to a hash where the following keys are defined:
 	amos_file has a value which is an int
 	exp_cov has a value which is a float
 	long_cov_cutoff has a value which is a float
-VelvetgResults is a reference to a hash where the following keys are defined:
-	wk_folder has a value which is a string
 
 
 =end text
@@ -315,6 +333,156 @@ Definition of run_velvetg
     }
 }
  
+
+
+=head2 run_velvet
+
+  $output = $obj->run_velvet($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a Velvet.VelvetParams
+$output is a Velvet.VelvetResults
+VelvetParams is a reference to a hash where the following keys are defined:
+	h_params has a value which is a Velvet.VelvethParams
+	g_params has a value which is a Velvet.VelvetgParams
+VelvethParams is a reference to a hash where the following keys are defined:
+	out_folder has a value which is a string
+	workspace_name has a value which is a string
+	hash_length has a value which is an int
+	reads_channels has a value which is a reference to a list where each element is a Velvet.ReadsChannel
+ReadsChannel is a reference to a hash where the following keys are defined:
+	read_type has a value which is a string
+	file_format has a value which is a string
+	read_file_info has a value which is a Velvet.ReadFileInfo
+	file_layout has a value which is a string
+	read_reference has a value which is a Velvet.bool
+ReadFileInfo is a reference to a hash where the following keys are defined:
+	read_file has a value which is a string
+	reference_file has a value which is a string
+	left_file has a value which is a string
+	right_file has a value which is a string
+bool is an int
+VelvetgParams is a reference to a hash where the following keys are defined:
+	workspace_name has a value which is a string
+	wk_folder has a value which is a string
+	output_contigset_name has a value which is a string
+	cov_cutoff has a value which is a float
+	ins_length has a value which is an int
+	read_trkg has a value which is an int
+	min_contig_length has a value which is an int
+	amos_file has a value which is an int
+	exp_cov has a value which is a float
+	long_cov_cutoff has a value which is a float
+VelvetResults is a reference to a hash where the following keys are defined:
+	report_name has a value which is a string
+	report_ref has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a Velvet.VelvetParams
+$output is a Velvet.VelvetResults
+VelvetParams is a reference to a hash where the following keys are defined:
+	h_params has a value which is a Velvet.VelvethParams
+	g_params has a value which is a Velvet.VelvetgParams
+VelvethParams is a reference to a hash where the following keys are defined:
+	out_folder has a value which is a string
+	workspace_name has a value which is a string
+	hash_length has a value which is an int
+	reads_channels has a value which is a reference to a list where each element is a Velvet.ReadsChannel
+ReadsChannel is a reference to a hash where the following keys are defined:
+	read_type has a value which is a string
+	file_format has a value which is a string
+	read_file_info has a value which is a Velvet.ReadFileInfo
+	file_layout has a value which is a string
+	read_reference has a value which is a Velvet.bool
+ReadFileInfo is a reference to a hash where the following keys are defined:
+	read_file has a value which is a string
+	reference_file has a value which is a string
+	left_file has a value which is a string
+	right_file has a value which is a string
+bool is an int
+VelvetgParams is a reference to a hash where the following keys are defined:
+	workspace_name has a value which is a string
+	wk_folder has a value which is a string
+	output_contigset_name has a value which is a string
+	cov_cutoff has a value which is a float
+	ins_length has a value which is an int
+	read_trkg has a value which is an int
+	min_contig_length has a value which is an int
+	amos_file has a value which is an int
+	exp_cov has a value which is a float
+	long_cov_cutoff has a value which is a float
+VelvetResults is a reference to a hash where the following keys are defined:
+	report_name has a value which is a string
+	report_ref has a value which is a string
+
+
+=end text
+
+=item Description
+
+Definition of run_velvet
+
+=back
+
+=cut
+
+ sub run_velvet
+{
+    my($self, @args) = @_;
+
+# Authentication: required
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function run_velvet (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to run_velvet:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'run_velvet');
+	}
+    }
+
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "Velvet.run_velvet",
+	    params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'run_velvet',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method run_velvet",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'run_velvet',
+				       );
+    }
+}
+ 
   
 sub status
 {
@@ -358,16 +526,16 @@ sub version {
             Bio::KBase::Exceptions::JSONRPC->throw(
                 error => $result->error_message,
                 code => $result->content->{code},
-                method_name => 'run_velvetg',
+                method_name => 'run_velvet',
             );
         } else {
             return wantarray ? @{$result->result} : $result->result->[0];
         }
     } else {
         Bio::KBase::Exceptions::HTTP->throw(
-            error => "Error invoking method run_velvetg",
+            error => "Error invoking method run_velvet",
             status_line => $self->{client}->status_line,
-            method_name => 'run_velvetg',
+            method_name => 'run_velvet',
         );
     }
 }
@@ -404,7 +572,7 @@ sub _validate_version {
 
 
 
-=head2 report_ref
+=head2 bool
 
 =over 4
 
@@ -412,11 +580,8 @@ sub _validate_version {
 
 =item Description
 
-A 'typedef' allows you to provide a more specific name for
-a type.  Built-in primitive types include 'string', 'int',
-'float'.  Here we define a type named assembly_ref to indicate
-a string that should be set to a KBase ID reference to an
-Assembly data object.
+A boolean - 0 for false, 1 for true.
+@range (0, 1)
 
 
 =item Definition
@@ -424,14 +589,107 @@ Assembly data object.
 =begin html
 
 <pre>
-a string
+an int
 </pre>
 
 =end html
 
 =begin text
 
-a string
+an int
+
+=end text
+
+=back
+
+
+
+=head2 ReadFileInfo
+
+=over 4
+
+
+
+=item Description
+
+Define a structure that holds the read file name and its use.
+Note: only read_file_name is required, the rest are optional.
+e.g., 
+{"reference_file" => "test_reference.fa", "read_file_name" => "mySortedReads.sam", 
+"left_file" => "left.fa", "right_file" => "right.fa"}
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+read_file has a value which is a string
+reference_file has a value which is a string
+left_file has a value which is a string
+right_file has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+read_file has a value which is a string
+reference_file has a value which is a string
+left_file has a value which is a string
+right_file has a value which is a string
+
+
+=end text
+
+=back
+
+
+
+=head2 ReadsChannel
+
+=over 4
+
+
+
+=item Description
+
+Define a structure that mimics the concept of "channel" used by the Velvet program.
+string read_type - the read type, e.g., -short, -shortPaired, short2, shortPaired2, -long, or -longPaired
+string file_format - the format of the input file, e.g., -fasta, -fastq, -raw,-fasta.gz, -fastq.gz, -raw.gz, -sam, -bam, -fmtAuto
+string read_file_info - the hash that holds the details about the read file
+string file_layout - the layout of the file, e.g., -interleaved or -separate 
+bool read_reference - indicating if a reference file is used
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+read_type has a value which is a string
+file_format has a value which is a string
+read_file_info has a value which is a Velvet.ReadFileInfo
+file_layout has a value which is a string
+read_reference has a value which is a Velvet.bool
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+read_type has a value which is a string
+file_format has a value which is a string
+read_file_info has a value which is a Velvet.ReadFileInfo
+file_layout has a value which is a string
+read_reference has a value which is a Velvet.bool
+
 
 =end text
 
@@ -447,91 +705,10 @@ a string
 
 =item Description
 
-Arguments for run_velveth
-velveth, help
-
-Compilation settings:
-CATEGORIES = 2
-MAXKMERLENGTH = 31
-
-Usage:
-./velveth directory hash_length {[-file_format][-read_type][-separate|-interleaved] filename1 [filename2 ...]} {...} [options]
-
-        directory       : directory name for output files
-        hash_length     : EITHER an odd integer (if even, it will be decremented) <= 31 (if above, will be reduced)
-                        : OR: m,M,s where m and M are odd integers (if not, they will be decremented) with m < M <= 31 (if above, will be reduced)
-                                and s is a step (even number). Velvet will then hash from k=m to k=M with a step of s
-        filename        : path to sequence file or - for standard input
-
-File format options:
-        -fasta  -fastq  -raw    -fasta.gz       -fastq.gz       -raw.gz -sam    -bam    -fmtAuto
-        (Note: -fmtAuto will detect fasta or fastq, and will try the following programs for decompression : gunzip, pbunzip2, bunzip2
-
-File layout options for paired reads (only for fasta and fastq formats):
-        -interleaved    : File contains paired reads interleaved in the one file (default)
-        -separate       : Read 2 separate files for paired reads
-
-Read type options:
-        -short  -shortPaired
-        -short2 -shortPaired2
-        -long   -longPaired
-        -reference
-
-Options:
-        -strand_specific        : for strand specific transcriptome sequencing data (default: off)
-        -reuse_Sequences        : reuse Sequences file (or link) already in directory (no need to provide original filenames in this case (default: off)
-        -reuse_binary   : reuse binary sequences file (or link) already in directory (no need to provide original filenames in this case (default: off)
-        -noHash                 : simply prepare Sequences file, do not hash reads or prepare Roadmaps file (default: off)
-        -create_binary          : create binary CnyUnifiedSeq file (default: off)
-
-Synopsis:
-
-- Short single end reads:
-        velveth Assem 29 -short -fastq s_1_sequence.txt
-
-- Paired-end short reads (remember to interleave paired reads):
-        velveth Assem 31 -shortPaired -fasta interleaved.fna
-
-- Paired-end short reads (using separate files for the paired reads)
-        velveth Assem 31 -shortPaired -fasta -separate left.fa right.fa
-
-- Two channels and some long reads:
-        velveth Assem 43 -short -fastq unmapped.fna -longPaired -fasta SangerReads.fasta
-
-- Three channels:
-        velveth Assem 35 -shortPaired -fasta pe_lib1.fasta -shortPaired2 pe_lib2.fasta -short3 se_lib1.fa
-
-Output:
-        out_folder/Roadmaps
-        out_folder/Sequences
-                [Both files are picked up by graph, so please leave them there]
-
-    Here is the test examples and their stdout printouts:
-root@c50eaaa56231:/kb/module# ls /data
-__READY__  velvet_data
-root@c50eaaa56231:/kb/module# cd /velvet_data/
-root@c50eaaa56231:/velvet_data# ls
-test_long.fa  test_reads.fa  test_reads.sam  test_reference.fa
-root@c50eaaa56231:/velvet_data# sort test_reads.sam > mySortedReads.sam
-root@c50eaaa56231:/velvet_data# velveth test_dir 21 -reference test_reference.fa -shortPaired -sam mySortedReads.sam
-[0.000000] Reading FastA file test_reference.fa;
-[0.006270] 1 sequences found
-[0.006299] Done
-[0.006331] Reading SAM file mySortedReads.sam
-[0.246146] 142858 reads found.
-[0.246170] Done
-[0.246172] Reference mapping counters
-[0.246173] Name Read mappings
-[0.246174] SEQUENCE     142858
-[0.246222] Reading read set file test_dir/Sequences;
-[0.259455] 142859 sequences found
-[0.259559] Read 1 of length 32773, longer than limit 32767
-[0.259575] You should modify recompile with the LONGSEQUENCES option (cf. manual)
-        string out_folder; #folder name for output files
-        int hash_length; #EITHER an odd integer (if even, it will be decremented) <= 31 (if above, will be reduced)L
-        string filename; #path to sequence file or - for standard input
-        string file_format; #e.g., -fasta, -fastq, -raw,-fasta.gz, -fastq.gz, -raw.gz, -sam, -bam, -fmtAuto
-        string read_type; #e.g., -short (-shortPaired), -long(-longPaired), or -reference
+Arguments for velveth input
+string workspace_name - the name of the workspace for input/output
+string out_folder - the folder name for output files
+int hash_length - EITHER an odd integer (if even, it will be decremented) <= 31 (if above, will be reduced)L
 
 
 =item Definition
@@ -541,10 +718,9 @@ root@c50eaaa56231:/velvet_data# velveth test_dir 21 -reference test_reference.fa
 <pre>
 a reference to a hash where the following keys are defined:
 out_folder has a value which is a string
+workspace_name has a value which is a string
 hash_length has a value which is an int
-filename has a value which is a string
-file_format has a value which is a string
-read_type has a value which is a string
+reads_channels has a value which is a reference to a list where each element is a Velvet.ReadsChannel
 
 </pre>
 
@@ -554,40 +730,9 @@ read_type has a value which is a string
 
 a reference to a hash where the following keys are defined:
 out_folder has a value which is a string
+workspace_name has a value which is a string
 hash_length has a value which is an int
-filename has a value which is a string
-file_format has a value which is a string
-read_type has a value which is a string
-
-
-=end text
-
-=back
-
-
-
-=head2 VelvethResults
-
-=over 4
-
-
-
-=item Definition
-
-=begin html
-
-<pre>
-a reference to a hash where the following keys are defined:
-out_folder has a value which is a string
-
-</pre>
-
-=end html
-
-=begin text
-
-a reference to a hash where the following keys are defined:
-out_folder has a value which is a string
+reads_channels has a value which is a reference to a list where each element is a Velvet.ReadsChannel
 
 
 =end text
@@ -605,58 +750,17 @@ out_folder has a value which is a string
 =item Description
 
 Arguments for run_velvetg
-wk_folder                       : working directory name
 
-Standard options:
--cov_cutoff <floating-point|auto>       : removal of low coverage nodes AFTER tour bus or allow the system to infer it
-        (default: no removal)
--ins_length <integer>           : expected distance between two paired end reads (default: no read pairing)
--read_trkg <yes|no>             : tracking of short read positions in assembly (default: no tracking)
--min_contig_lgth <integer>      : minimum contig length exported to contigs.fa file (default: hash length * 2)
--amos_file <yes|no>             : export assembly to AMOS file (default: no export)
--exp_cov <floating point|auto>  : expected coverage of unique regions or allow the system to infer it
-        (default: no long or paired-end read resolution)
--long_cov_cutoff <floating-point>: removal of nodes with low long-read coverage AFTER tour bus
-        (default: no removal)
-
-Advanced options:
--ins_length* <integer>          : expected distance between two paired-end reads in the respective short-read dataset (default: no read pairing)
--ins_length_long <integer>      : expected distance between two long paired-end reads (default: no read pairing)
--ins_length*_sd <integer>       : est. standard deviation of respective dataset (default: 10% of corresponding length)
-        [replace '*' by nothing, '2' or '_long' as necessary]
--scaffolding <yes|no>           : scaffolding of contigs used paired end information (default: on)
--max_branch_length <integer>    : maximum length in base pair of bubble (default: 100)
--max_divergence <floating-point>: maximum divergence rate between two branches in a bubble (default: 0.2)
--max_gap_count <integer>        : maximum number of gaps allowed in the alignment of the two branches of a bubble (default: 3)
--min_pair_count <integer>       : minimum number of paired end connections to justify the scaffolding of two long contigs (default: 5)
--max_coverage <floating point>  : removal of high coverage nodes AFTER tour bus (default: no removal)
--coverage_mask <int>    : minimum coverage required for confident regions of contigs (default: 1)
--long_mult_cutoff <int>         : minimum number of long reads required to merge contigs (default: 2)
--unused_reads <yes|no>          : export unused reads in UnusedReads.fa file (default: no)
--alignments <yes|no>            : export a summary of contig alignment to the reference sequences (default: no)
--exportFiltered <yes|no>        : export the long nodes which were eliminated by the coverage filters (default: no)
--clean <yes|no>                 : remove all the intermediary files which are useless for recalculation (default : no)
--very_clean <yes|no>            : remove all the intermediary files (no recalculation possible) (default: no)
--paired_exp_fraction <float>   : remove all the paired end connections which less than the specified fraction of the expected count (default: 0.1)
--shortMatePaired* <yes|no>      : for mate-pair libraries, indicate that the library might be contaminated with paired-end reads (default no)
--conserveLong <yes|no>          : preserve sequences with long reads in them (default no)
-
-Output:
-wk_folder/contigs.fa            : fasta file of contigs longer than twice hash length
-wk_folder/stats.txt             : stats file (tab-spaced) useful for determining appropriate coverage cutoff
-wk_folder/LastGraph             : special formatted file with all the information on the final graph
-wk_folder/velvet_asm.afg        : (if requested) AMOS compatible assembly file
-    
-Example: 
-./velvetg wk_folder [options]
-string wk_folder; #folder name for files to work on and to save results
-float cov_cutoff; #removal of low coverage nodes AFTER tour bus or allow the system to infer it (default: no removal)
-int ins_length; #expected distance between two paired end reads (default: no read pairing)
-int read_trkg; # (1=yes|0=no) tracking of short read positions in assembly (default:0)
-int min_contig_length; #minimum contig length exported to contigs.fa file (default: hash length * 2)
-int amos_file; # (1=yes|0=no) #export assembly to AMOS file (default: 0)
-float exp_cov; # <floating point|auto>, expected coverage of unique regions or allow the system to infer it (default: no long or paired-end read resolution)
-float long_cov_cutoff; #removal of nodes with low long-read coverage AFTER tour bus(default: no removal)
+string workspace_name - the name of the workspace from which to take input and store output.
+string wk_folder - the name of the folder where the velvet results are created and saved
+output_contigset_name - the name of the output contigset list<paired_end_lib>
+float cov_cutoff - the removal of low coverage nodes AFTER tour bus or allow the system to infer it (default: no removal)
+int ins_length - expected distance between two paired end reads (default: no read pairing)
+int read_trkg; -  (1=yes|0=no) tracking of short read positions in assembly (default:0)
+int min_contig_length - minimum contig length exported to contigs.fa file (default: hash length * 2)
+int amos_file - (1=yes|0=no) #export assembly to AMOS file (default: 0)
+float exp_cov - <floating point|auto>, expected coverage of unique regions or allow the system to infer it (default: no long or paired-end read resolution)
+float long_cov_cutoff - removal of nodes with low long-read coverage AFTER tour bus(default: no removal)
 
 
 =item Definition
@@ -665,7 +769,9 @@ float long_cov_cutoff; #removal of nodes with low long-read coverage AFTER tour 
 
 <pre>
 a reference to a hash where the following keys are defined:
+workspace_name has a value which is a string
 wk_folder has a value which is a string
+output_contigset_name has a value which is a string
 cov_cutoff has a value which is a float
 ins_length has a value which is an int
 read_trkg has a value which is an int
@@ -681,7 +787,9 @@ long_cov_cutoff has a value which is a float
 =begin text
 
 a reference to a hash where the following keys are defined:
+workspace_name has a value which is a string
 wk_folder has a value which is a string
+output_contigset_name has a value which is a string
 cov_cutoff has a value which is a float
 ins_length has a value which is an int
 read_trkg has a value which is an int
@@ -697,10 +805,15 @@ long_cov_cutoff has a value which is a float
 
 
 
-=head2 VelvetgResults
+=head2 VelvetParams
 
 =over 4
 
+
+
+=item Description
+
+Arguments for run_velvet
 
 
 =item Definition
@@ -709,7 +822,8 @@ long_cov_cutoff has a value which is a float
 
 <pre>
 a reference to a hash where the following keys are defined:
-wk_folder has a value which is a string
+h_params has a value which is a Velvet.VelvethParams
+g_params has a value which is a Velvet.VelvetgParams
 
 </pre>
 
@@ -718,7 +832,48 @@ wk_folder has a value which is a string
 =begin text
 
 a reference to a hash where the following keys are defined:
-wk_folder has a value which is a string
+h_params has a value which is a Velvet.VelvethParams
+g_params has a value which is a Velvet.VelvetgParams
+
+
+=end text
+
+=back
+
+
+
+=head2 VelvetResults
+
+=over 4
+
+
+
+=item Description
+
+Output parameter items for run_velvet
+
+    report_name - the name of the KBaseReport.Report workspace object.
+    report_ref - the workspace reference of the report.
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+report_name has a value which is a string
+report_ref has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+report_name has a value which is a string
+report_ref has a value which is a string
 
 
 =end text

@@ -86,7 +86,9 @@ class VelvetTest(unittest.TestCase):
     def getContext(self):
         return self.__class__.ctx
 
-    def run_velveth(self):
+    # Uncomment to skip this test
+    @unittest.skip("skipped test_run_velveth")
+    def test_run_velveth(self):
         # run velveth
         rc = {
             'read_type': 'short',
@@ -107,13 +109,17 @@ class VelvetTest(unittest.TestCase):
         }
 
         result = self.getImpl().run_velveth(self.getContext(), params)
-        print('RESULT from velveth is saved in:\n' + params['out_folder'])
+        self.assertTrue(os.path.isfile(os.path.join(self.scratch, params['out_folder'] + '/Roadmaps')))
+        self.assertTrue(os.path.isfile(os.path.join(self.scratch, params['out_folder'] + '/Sequences')))
+        print('RESULT from velveth is saved in:\n' + os.path.join(self.scratch, params['out_folder']))
         pprint('Returned value by Velveth is: ' + str(result))
         return result
 
         # check the output
 
-    def run_velvetg(self):
+    # Uncomment to skip this test
+    @unittest.skip("skipped test_run_velvetg")
+    def test_run_velvetg(self):
         # run velvetg
         #work_folder = self.velveth()[0]
         #print "Returned work folder from velveth call: " + work_folder
@@ -126,10 +132,14 @@ class VelvetTest(unittest.TestCase):
         }
 
         result = self.getImpl().run_velvetg(self.getContext(), params)
-        print('RESULT from velvetg is saved in:\n' + params['wk_folder'])
+        self.assertTrue(os.path.isfile(os.path.join(self.scratch, params['wk_folder'] + '/LastGraph')))
+        self.assertTrue(os.path.isfile(os.path.join(self.scratch, params['wk_folder'] + '/Log')))
+        print('RESULT from velvetg is saved in:\n' + os.path.join(self.scratch, params['wk_folder']))
         pprint('Returned value by Velvetg is: ' + str(result))
         return result
 
+    # Uncomment to skip this test
+    #@unittest.skip("skipped test_run_velvet")
     def test_run_velvet(self):
         # velveth parameters
         rc = {

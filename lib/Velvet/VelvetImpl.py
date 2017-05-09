@@ -18,6 +18,8 @@ from KBaseReport.baseclient import ServerError as _RepError
 from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
 from kb_quast.kb_quastClient import kb_quast
 from kb_quast.baseclient import ServerError as QUASTError
+
+#from kb_Msuite.Utils.DataStagingUtils import DataStagingUtils
 #END_HEADER
 
 
@@ -92,10 +94,10 @@ class Velvet:
             raise ValueError('a string reprsenting wk_folder parameter is required')
         if self.PARAM_IN_CS_NAME not in params:
                 raise ValueError('output_contigset_name parameter is required')
-        rm_dir = os.path.join(self.scratch, params['wk_folder'] + '/Roadmaps')
-        sq_dir = os.path.join(self.scratch, params['wk_folder'] + '/Sequences')
-        if not os.path.exists(rm_dir) or not os.path.exists(sq_dir):
-            raise ValueError('no valid subfolders named %s and %s in the working directory for running velvetg' % (rm_dir, sq_dir))
+        rm_path = os.path.join(self.scratch, params['wk_folder'] + '/Roadmaps')
+        sq_path = os.path.join(self.scratch, params['wk_folder'] + '/Sequences')
+        if not os.path.exists(rm_path) or not os.path.exists(sq_path):
+            raise ValueError('no valid subfolders/files named %s and %s in the working directory for running velvetg' % (rm_path, sq_path))
 
     def construct_velveth_cmd(self, params):
         # STEP 1: get the reads channels as reads file info
@@ -303,8 +305,21 @@ class Velvet:
 
         token = ctx['token']
 
-        # STEP 1: basic parameter checks + parsing
+        # STEP 0: basic parameter checks + parsing
         self.process_params_h(params)
+
+        # STEP 1: stage input data
+        #dsu = DataStagingUtils(self.config)
+        #staged_input = dsu.stage_input(params['input_ref'], 'fna')
+        #input_dir = staged_input['input_dir']
+        #suffix = staged_input['folder_suffix']
+        #all_seq_fasta_file = staged_input['all_seq_fasta']
+
+        #output_dir = os.path.join(self.scratch, 'output_' + suffix)
+        #plots_dir = os.path.join(self.scratch, 'plot_' + suffix)
+        #html_dir = os.path.join(self.scratch, 'html_' + suffix)
+
+        #log('Staged input directory: ' + input_dir)
 
         # STEP 2: construct the command for run_velveth
         wsname, velveth_cmd = self.construct_velveth_cmd(params)
@@ -320,7 +335,8 @@ class Velvet:
             raise ValueError('Error running VELVETH, return code: ' + str(retcode) + '\n')
 
         output = p.returncode 
-
+        #self.log('Velveth command line cmd:')
+        #pprint(' '.join(velveth_cmd))
         #END run_velveth
 
         # At some point might do deeper type checking...
@@ -382,6 +398,9 @@ class Velvet:
             raise ValueError('Error running VELVETG, return code: ' + str(retcode) + '\n')
 
         output = p.returncode 
+
+        #self.log('Velvetg command line cmd:')
+        #pprint(' '.join(velvetg_cmd))
         #END run_velvetg
 
         # At some point might do deeper type checking...

@@ -18,6 +18,8 @@ from KBaseReport.baseclient import ServerError as _RepError
 from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
 from kb_quast.kb_quastClient import kb_quast
 from kb_quast.baseclient import ServerError as QUASTError
+from ReadsUtils.ReadsUtilsClient import ReadsUtils 
+from ReadsUtils.baseclient import ServerError
 
 #from kb_Msuite.Utils.DataStagingUtils import DataStagingUtils
 #END_HEADER
@@ -47,7 +49,7 @@ class Velvet:
     ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "https://github.com/kbaseapps/kb_Velvet"
-    GIT_COMMIT_HASH = "6efca462c5b4e221751c6d448d386829d8e776f1"
+    GIT_COMMIT_HASH = "5a41b5039d5aa1907816c6e50550c9b720199d0c"
 
     #BEGIN_CLASS_HEADER
     # Class variables and functions can be defined in this block
@@ -56,6 +58,7 @@ class Velvet:
     VELVET_DATA = '/kb/module/velvet/data/'
     PARAM_IN_WS = 'workspace_name'
     PARAM_IN_CS_NAME = 'output_contigset_name'
+    PARAM_IN_SEQ = 'sequence_files'
 
     def log(self, message, prefix_newline=False):
             print(('\n' if prefix_newline else '') +
@@ -98,6 +101,62 @@ class Velvet:
         sq_path = os.path.join(self.scratch, params['wk_folder'] + '/Sequences')
         if not os.path.exists(rm_path) or not os.path.exists(sq_path):
             raise ValueError('no valid subfolders/files named %s and %s in the working directory for running velvetg' % (rm_path, sq_path))
+
+    def preprocess_sequence_files(self, params):
+        for r in params[self.PARAM_IN_SEQ]:
+            obj_ids.append({'ref': r if '/' in r else (wsname + '/' + r)})
+        ws = workspaceService(self.workspaceURL, token=token)
+        ws_info = ws.get_object_info_new({'objects': obj_ids})
+        reads_params = []
+
+        reftoname = {}
+        for wsi, oid in zip(ws_info, obj_ids):
+            ref = oid['ref']
+            reads_params.append(ref)
+            obj_name = wsi[1]
+            reftoname[ref] = wsi[7] + '/' + obj_name
+
+        readcli = ReadsUtils(self.callbackURL, token=ctx['token'])
+
+        typeerr = ('Supported types: KBaseFile.SingleEndLibrary ' +
+                   'KBaseFile.PairedEndLibrary ' +
+                   'KBaseAssembly.SingleEndLibrary ' +
+                   'KBaseAssembly.PairedEndLibrary')
+        try:
+            reads = readcli.download_reads({'sequence_files': reads_params,
+                                            'interleaved': 'false',
+                                            'gzipped': None
+                                            })['files']
+        except ServerError as se:
+            self.log('logging stacktrace from dynamic client error')
+            self.log(se.data)
+            if typeerr in se.message:
+                prefix = se.message.split('.')[0]
+                raise ValueError(
+                    prefix + '. Only the types ' +
+                    'KBaseAssembly.PairedEndLibrary ' +
+                    'and KBaseFile.PairedEndLibrary are supported')
+            else:
+                raise
+
+        self.log('Got reads data from converter:\n' + pformat(reads))
+        vh_cmd = [self.VELVETH]
+
+        # set the output location
+        output_dir = os.path.join(self.scratch, out_folder)
+        vh_cmd.append(output_dir)
+        for rf in reads:
+           vh_cmd.append(rf)
+        vh_cmd.append('-noHash')
+        # run velveth with 'noHash' tag to preprocess the reads files into a sequence file
+        self.log('Running velveth preprocessing with command:\n' + pformat(velveth_cmd))
+        #p = subprocess.Popen(velveth_cmd, cwd=self.scratch, shell=False)
+        p = subprocess.Popen(velveth_cmd, cwd=self.scratch, shell=False)
+        retcode = p.wait()
+
+        self.log('Return code: ' + str(retcode))
+        if p.returncode != 0:
+            raise ValueError('Error running VELVETH, return code: ' + str(retcode) + '\n')
 
     def construct_velveth_cmd(self, params):
         # STEP 1: get the reads channels as reads file info
@@ -271,13 +330,18 @@ class Velvet:
         :param params: instance of type "VelvethParams" (Arguments for
            velveth input string workspace_name - the name of the workspace
            for input/output string out_folder - the folder name for output
-           files int hash_length - EITHER an odd integer (if even, it will be
-           decremented) <= 31 (if above, will be reduced)L) -> structure:
+           files int hash_length - an odd integer (if even, it will be
+           decremented) <= 31 list<seq_file_name> sequence_files - sequence
+           files to assemble list<ReadsChannel> reads_channels - a list/an
+           array of ReadsChannel defining {read_type, file_format,
+           {read_file[,...]}[, file_layout, read_reference]}) -> structure:
            parameter "out_folder" of String, parameter "workspace_name" of
            String, parameter "hash_length" of Long, parameter
-           "reads_channels" of list of type "ReadsChannel" (Define a
-           structure that mimics the concept of "channel" used by the Velvet
-           program. string read_type - the read type, e.g., -short,
+           "sequence_files" of list of type "seq_file_name" (The workspace
+           object name of a read library file of the KBaseFile type.),
+           parameter "reads_channels" of list of type "ReadsChannel" (Define
+           a structure that mimics the concept of "channel" used by the
+           Velvet program. string read_type - the read type, e.g., -short,
            -shortPaired, short2, shortPaired2, -long, or -longPaired string
            file_format - the format of the input file, e.g., -fasta, -fastq,
            -raw,-fasta.gz, -fastq.gz, -raw.gz, -sam, -bam, -fmtAuto string
@@ -335,8 +399,8 @@ class Velvet:
             raise ValueError('Error running VELVETH, return code: ' + str(retcode) + '\n')
 
         output = p.returncode 
-        #self.log('Velveth command line cmd:')
-        #pprint(' '.join(velveth_cmd))
+        self.log('Velveth command line cmd:')
+        pprint(' '.join(velveth_cmd))
         #END run_velveth
 
         # At some point might do deeper type checking...
@@ -353,23 +417,23 @@ class Velvet:
            run_velvetg string workspace_name - the name of the workspace from
            which to take input and store output. string wk_folder - the name
            of the folder where the velvet results are created and saved
-           output_contigset_name - the name of the output contigset
-           list<paired_end_lib> float cov_cutoff - the removal of low
-           coverage nodes AFTER tour bus or allow the system to infer it
-           (default: no removal) int ins_length - expected distance between
-           two paired end reads (default: no read pairing) int read_trkg; - 
-           (1=yes|0=no) tracking of short read positions in assembly
-           (default:0) int min_contig_length - minimum contig length exported
-           to contigs.fa file (default: hash length * 2) int amos_file -
-           (1=yes|0=no) #export assembly to AMOS file (default: 0) float
-           exp_cov - <floating point|auto>, expected coverage of unique
-           regions or allow the system to infer it (default: no long or
-           paired-end read resolution) float long_cov_cutoff - removal of
-           nodes with low long-read coverage AFTER tour bus(default: no
-           removal)) -> structure: parameter "workspace_name" of String,
-           parameter "wk_folder" of String, parameter "output_contigset_name"
-           of String, parameter "cov_cutoff" of Double, parameter
-           "ins_length" of Long, parameter "read_trkg" of Long, parameter
+           string output_contigset_name - the name of the output contigset
+           float cov_cutoff - the removal of low coverage nodes AFTER tour
+           bus or allow the system to infer it (default: no removal) int
+           ins_length - expected distance between two paired end reads
+           (default: no read pairing) int read_trkg; -  (1=yes|0=no) tracking
+           of short read positions in assembly (default:0) int
+           min_contig_length - minimum contig length exported to contigs.fa
+           file (default: hash length * 2) int amos_file - (1=yes|0=no)
+           #export assembly to AMOS file (default: 0) float exp_cov -
+           <floating point|auto>, expected coverage of unique regions or
+           allow the system to infer it (default: no long or paired-end read
+           resolution) float long_cov_cutoff - removal of nodes with low
+           long-read coverage AFTER tour bus(default: no removal)) ->
+           structure: parameter "workspace_name" of String, parameter
+           "wk_folder" of String, parameter "output_contigset_name" of
+           String, parameter "cov_cutoff" of Double, parameter "ins_length"
+           of Long, parameter "read_trkg" of Long, parameter
            "min_contig_length" of Long, parameter "amos_file" of Long,
            parameter "exp_cov" of Double, parameter "long_cov_cutoff" of
            Double
@@ -399,8 +463,8 @@ class Velvet:
 
         output = p.returncode 
 
-        #self.log('Velvetg command line cmd:')
-        #pprint(' '.join(velvetg_cmd))
+        self.log('Velvetg command line cmd:')
+        pprint(' '.join(velvetg_cmd))
         #END run_velvetg
 
         # At some point might do deeper type checking...
@@ -417,11 +481,16 @@ class Velvet:
            run_velvet) -> structure: parameter "h_params" of type
            "VelvethParams" (Arguments for velveth input string workspace_name
            - the name of the workspace for input/output string out_folder -
-           the folder name for output files int hash_length - EITHER an odd
-           integer (if even, it will be decremented) <= 31 (if above, will be
-           reduced)L) -> structure: parameter "out_folder" of String,
+           the folder name for output files int hash_length - an odd integer
+           (if even, it will be decremented) <= 31 list<seq_file_name>
+           sequence_files - sequence files to assemble list<ReadsChannel>
+           reads_channels - a list/an array of ReadsChannel defining
+           {read_type, file_format, {read_file[,...]}[, file_layout,
+           read_reference]}) -> structure: parameter "out_folder" of String,
            parameter "workspace_name" of String, parameter "hash_length" of
-           Long, parameter "reads_channels" of list of type "ReadsChannel"
+           Long, parameter "sequence_files" of list of type "seq_file_name"
+           (The workspace object name of a read library file of the KBaseFile
+           type.), parameter "reads_channels" of list of type "ReadsChannel"
            (Define a structure that mimics the concept of "channel" used by
            the Velvet program. string read_type - the read type, e.g.,
            -short, -shortPaired, short2, shortPaired2, -long, or -longPaired
@@ -445,27 +514,26 @@ class Velvet:
            type "VelvetgParams" (Arguments for run_velvetg string
            workspace_name - the name of the workspace from which to take
            input and store output. string wk_folder - the name of the folder
-           where the velvet results are created and saved
-           output_contigset_name - the name of the output contigset
-           list<paired_end_lib> float cov_cutoff - the removal of low
-           coverage nodes AFTER tour bus or allow the system to infer it
-           (default: no removal) int ins_length - expected distance between
-           two paired end reads (default: no read pairing) int read_trkg; - 
-           (1=yes|0=no) tracking of short read positions in assembly
-           (default:0) int min_contig_length - minimum contig length exported
-           to contigs.fa file (default: hash length * 2) int amos_file -
-           (1=yes|0=no) #export assembly to AMOS file (default: 0) float
-           exp_cov - <floating point|auto>, expected coverage of unique
-           regions or allow the system to infer it (default: no long or
-           paired-end read resolution) float long_cov_cutoff - removal of
-           nodes with low long-read coverage AFTER tour bus(default: no
-           removal)) -> structure: parameter "workspace_name" of String,
-           parameter "wk_folder" of String, parameter "output_contigset_name"
-           of String, parameter "cov_cutoff" of Double, parameter
-           "ins_length" of Long, parameter "read_trkg" of Long, parameter
-           "min_contig_length" of Long, parameter "amos_file" of Long,
-           parameter "exp_cov" of Double, parameter "long_cov_cutoff" of
-           Double
+           where the velvet results are created and saved string
+           output_contigset_name - the name of the output contigset float
+           cov_cutoff - the removal of low coverage nodes AFTER tour bus or
+           allow the system to infer it (default: no removal) int ins_length
+           - expected distance between two paired end reads (default: no read
+           pairing) int read_trkg; -  (1=yes|0=no) tracking of short read
+           positions in assembly (default:0) int min_contig_length - minimum
+           contig length exported to contigs.fa file (default: hash length *
+           2) int amos_file - (1=yes|0=no) #export assembly to AMOS file
+           (default: 0) float exp_cov - <floating point|auto>, expected
+           coverage of unique regions or allow the system to infer it
+           (default: no long or paired-end read resolution) float
+           long_cov_cutoff - removal of nodes with low long-read coverage
+           AFTER tour bus(default: no removal)) -> structure: parameter
+           "workspace_name" of String, parameter "wk_folder" of String,
+           parameter "output_contigset_name" of String, parameter
+           "cov_cutoff" of Double, parameter "ins_length" of Long, parameter
+           "read_trkg" of Long, parameter "min_contig_length" of Long,
+           parameter "amos_file" of Long, parameter "exp_cov" of Double,
+           parameter "long_cov_cutoff" of Double
         :returns: instance of type "VelvetResults" (Output parameter items
            for run_velvet report_name - the name of the KBaseReport.Report
            workspace object. report_ref - the workspace reference of the

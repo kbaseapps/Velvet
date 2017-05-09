@@ -18,6 +18,9 @@ module Velvet {
     */
     typedef int bool;
 
+    /* The workspace object name of a read library file of the KBaseFile type.
+    */
+    typedef string seq_file_name;
 
     /* 
         Arguments for run_velveth
@@ -57,12 +60,15 @@ module Velvet {
         Arguments for velveth input
         string workspace_name - the name of the workspace for input/output
         string out_folder - the folder name for output files
-        int hash_length - EITHER an odd integer (if even, it will be decremented) <= 31 (if above, will be reduced)L
+        int hash_length - an odd integer (if even, it will be decremented) <= 31
+        list<seq_file_name> sequence_files - sequence files to assemble
+        list<ReadsChannel> reads_channels - a list/an array of ReadsChannel defining {read_type, file_format, {read_file[,...]}[, file_layout, read_reference]}
    */
     typedef structure {
         string out_folder; 
         string workspace_name;
         int hash_length; 
+        list<seq_file_name> sequence_files;
         list<ReadsChannel> reads_channels; 
     } VelvethParams;
     
@@ -77,7 +83,7 @@ module Velvet {
 
         string workspace_name - the name of the workspace from which to take input and store output.
         string wk_folder - the name of the folder where the velvet results are created and saved
-        output_contigset_name - the name of the output contigset list<paired_end_lib>
+        string output_contigset_name - the name of the output contigset
         float cov_cutoff - the removal of low coverage nodes AFTER tour bus or allow the system to infer it (default: no removal)
         int ins_length - expected distance between two paired end reads (default: no read pairing)
         int read_trkg; -  (1=yes|0=no) tracking of short read positions in assembly (default:0)

@@ -20,7 +20,8 @@ from Velvet.VelvetImpl import Velvet
 from Velvet.VelvetServer import MethodContext
 from Velvet.authclient import KBaseAuth as _KBaseAuth
 from Workspace.WorkspaceClient import Workspace as workspaceService
-
+from ReadsUtils.baseclient import ServerError
+from ReadsUtils.ReadsUtilsClient import ReadsUtils
 
 class VelvetTest(unittest.TestCase):
 
@@ -62,11 +63,109 @@ class VelvetTest(unittest.TestCase):
         cls.handleURL = cls.cfg['handle-service-url']
         cls.queue = Queue.Queue()
 
+        cls.readUtilsImpl = ReadsUtils(cls.callback_url, token=cls.token)
+        cls.staged = {}
+        cls.nodes_to_delete = []
+        cls.handles_to_delete = []
+        #cls.setupTestData()
+
     @classmethod
     def tearDownClass(cls):
         if hasattr(cls, 'wsName'):
             cls.wsClient.delete_workspace({'workspace': cls.wsName})
             print('Test workspace was deleted')
+
+    # Helper script borrowed from the transform service, logger removed
+    @classmethod
+    def upload_file_to_shock(cls, file_path):
+        """
+        Use HTTP multi-part POST to save a file to a SHOCK instance.
+        """
+
+        header = dict()
+        header["Authorization"] = "Oauth {0}".format(cls.token)
+
+        if file_path is None:
+            raise Exception("No file given for upload to SHOCK!")
+
+        with open(os.path.abspath(file_path), 'rb') as dataFile:
+            files = {'upload': dataFile}
+            print('POSTing data')
+            response = requests.post(
+                cls.shockURL + '/node', headers=header, files=files,
+                stream=True, allow_redirects=True)
+            print('got response')
+
+        if not response.ok:
+            response.raise_for_status()
+
+        result = response.json()
+
+        if result['error']:
+            raise Exception(result['error'][0])
+        else:
+            return result["data"]
+
+    @classmethod
+    def upload_file_to_shock_and_get_handle(cls, test_file):
+        '''
+        Uploads the file in test_file to shock and returns the node and a
+        handle to the node.
+        '''
+        print('loading file to shock: ' + test_file)
+        node = cls.upload_file_to_shock(test_file)
+        pprint(node)
+        cls.nodes_to_delete.append(node['id'])
+
+        print('creating handle for shock id ' + node['id'])
+        handle_id = cls.hs.persist_handle({'id': node['id'],
+                                           'type': 'shock',
+                                           'url': cls.shockURL
+                                           })
+        cls.handles_to_delete.append(handle_id)
+
+        md5 = node['file']['checksum']['md5']
+        return node['id'], handle_id, md5, node['file']['size']
+
+    @classmethod
+    def upload_reads(cls, wsobjname, object_body, fwd_reads,
+                     rev_reads=None, single_end=False, sequencing_tech='Illumina',
+                     single_genome='1'):
+
+        ob = dict(object_body)  # copy
+        ob['sequencing_tech'] = sequencing_tech
+#        ob['single_genome'] = single_genome
+        ob['wsname'] = cls.getWsName()
+        ob['name'] = wsobjname
+        if single_end or rev_reads:
+            ob['interleaved']= 0
+        else:
+            ob['interleaved']= 1
+        print('\n===============staging data for object ' + wsobjname +
+              '================')
+        print('uploading forward reads file ' + fwd_reads['file'])
+        fwd_id, fwd_handle_id, fwd_md5, fwd_size = \
+            cls.upload_file_to_shock_and_get_handle(fwd_reads['file'])
+
+        ob['fwd_id']= fwd_id
+        rev_id = None
+        rev_handle_id = None
+        if rev_reads:
+            print('uploading reverse reads file ' + rev_reads['file'])
+            rev_id, rev_handle_id, rev_md5, rev_size = \
+                cls.upload_file_to_shock_and_get_handle(rev_reads['file'])
+            ob['rev_id']= rev_id
+        obj_ref = cls.readUtilsImpl.upload_reads(ob)
+        objdata = cls.wsClient.get_object_info_new({
+            'objects': [{'ref': obj_ref['obj_ref']}]
+            })[0]
+        cls.staged[wsobjname] = {'info': objdata,
+                                 'ref': cls.make_ref(objdata),
+                                 'fwd_node_id': fwd_id,
+                                 'rev_node_id': rev_id,
+                                 'fwd_handle_id': fwd_handle_id,
+                                 'rev_handle_id': rev_handle_id
+                                 }
 
     def getWsClient(self):
         return self.__class__.wsClient

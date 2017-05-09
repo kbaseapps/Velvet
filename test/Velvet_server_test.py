@@ -86,7 +86,7 @@ class VelvetTest(unittest.TestCase):
     def getContext(self):
         return self.__class__.ctx
 
-    def velveth(self):
+    def run_velveth(self):
         # run velveth
         rc = {
             'read_type': 'short',
@@ -107,13 +107,13 @@ class VelvetTest(unittest.TestCase):
         }
 
         result = self.getImpl().run_velveth(self.getContext(), params)
-        print('RESULT from velveth is saved in:\n')
-        pprint(result)
+        print('RESULT from velveth is saved in:\n' + params['out_folder'])
+        pprint('Returned value by Velveth is: ' + str(result))
         return result
 
         # check the output
 
-    def velvetg(self):
+    def run_velvetg(self):
         # run velvetg
         #work_folder = self.velveth()[0]
         #print "Returned work folder from velveth call: " + work_folder
@@ -126,8 +126,8 @@ class VelvetTest(unittest.TestCase):
         }
 
         result = self.getImpl().run_velvetg(self.getContext(), params)
-        print('RESULT from velvetg:\n')
-        pprint(result)
+        print('RESULT from velvetg is saved in:\n' + params['wk_folder'])
+        pprint('Returned value by Velvetg is: ' + str(result))
         return result
 
     def test_run_velvet(self):
@@ -155,8 +155,8 @@ class VelvetTest(unittest.TestCase):
             'workspace_name': self.getWsName(),
             'wk_folder': 'velvet_outfolder',
             'output_contigset_name': 'test_contigset'#, 
-            #'min_contig_length': 100#,
             #'cov_cutoff': 5.2
+            #'min_contig_length': 100#,
         }
 
         params = {'h_params': h_params, 'g_params': g_params}

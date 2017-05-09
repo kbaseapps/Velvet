@@ -461,54 +461,58 @@ class Velvet:
         token = ctx['token']
         wsname = params['g_params']['workspace_name']
 
-        # STEP 1: build the command for run velveth and velvetg
-        wsname, velh_cmd = self.construct_velveth_cmd(params['h_params'])
-        wsname, velg_cmd = self.construct_velvetg_cmd(params['g_params'])
-        velvet_cmd = velh_cmd + [' && '] + velg_cmd
-        #self.log('running velvet with command:\n' + pformat(velvet_cmd))
-        #p = subprocess.Popen(velvet_cmd, cwd=self.scratch, shell=True)
-        #retcode = p.wait()
+        # STEP 1: run velveth and velvetg sequentially
+        ret = []
+        try:
+            ret = self.run_velveth(ctx, params['h_params'])
+            while( ret[0] != 0 ):
+                time.sleep(1)
+        except ValueError as eh:
+            self.log('Velveth raised error:\n')
+            print(eh)
+        else:#no exception raised by Velveth and Velveth returns 0, then run Velvetg
+            try:
+                ret = self.run_velvetg(ctx, params['g_params'])
+                while( ret[0] != 0 ):
+                    time.sleep(1)
+            except ValueError as eg:
+                self.log('Velvetg raised error:\n')
+                print(eg)
+            else:#no exception raised by Velvetg and Velvetg returns 0, then move to STEP 3  
+                ret[0] = 0
 
-        #self.log('Return code: ' + str(retcode))
-        #if p.returncode != 0:
-           #raise ValueError('Error running VELVET, return code: ' + str(retcode) + '\n')
+        # STEP 2: parse the output and save back to KBase, create report in the same time
+        if( ret[0] == 0 ):
+                work_dir = os.path.join(self.scratch, params['g_params']['wk_folder'])
+                self.log('Velvet output folder: ' + work_dir)
 
-        # STEP 2: run velveth and velvetg sequentially
-        while( self.run_velveth(ctx, params['h_params'])[0] != 0 ):
-            time.sleep(1)
+                output_contigs = os.path.join(work_dir, 'contigs.fa')
 
-        while( self.run_velvetg(ctx, params['g_params'])[0] != 0 ):
-            time.sleep(1)
+                self.log('Uploading FASTA file to Assembly')
 
-        # STEP 3: parse the output and save back to KBase, create report in the same time
-        work_dir = os.path.join(self.scratch, params['g_params']['wk_folder'])
-        self.log('Velvet output folder: ' + work_dir)
+                assemblyUtil = AssemblyUtil(self.callbackURL, token=ctx['token'], service_ver='release')
 
-        output_contigs = os.path.join(work_dir, 'contigs.fa')
+                min_contig_length = (params['g_params']).get('min_contig_length', 0)
+                if min_contig_length > 0:
+                        assemblyUtil.save_assembly_from_fasta(
+                                {'file': {'path': output_contigs},
+                                'workspace_name': wsname,
+                                'assembly_name': params['g_params'][self.PARAM_IN_CS_NAME],
+                                'min_contig_length': params['g_params']['min_contig_length']
+                                })
+                else:
+                        assemblyUtil.save_assembly_from_fasta(
+                        {'file': {'path': output_contigs},
+                        'workspace_name': wsname,
+                        'assembly_name': params['g_params'][self.PARAM_IN_CS_NAME]
+                        })
+                # generate report from contigs.fa
+                report_name, report_ref = self.generate_report(output_contigs, params['g_params'], wsname)
 
-        self.log('Uploading FASTA file to Assembly')
-
-        assemblyUtil = AssemblyUtil(self.callbackURL, token=ctx['token'], service_ver='release')
-
-        min_contig_length = (params['g_params']).get('min_contig_length', 0)
-        if min_contig_length > 0:
-            assemblyUtil.save_assembly_from_fasta(
-                {'file': {'path': output_contigs},
-                 'workspace_name': wsname,
-                 'assembly_name': params['g_params'][self.PARAM_IN_CS_NAME],
-                 'min_contig_length': params['g_params']['min_contig_length']
-                 })
+                # STEP 3: contruct the output to send back
+                output = {'report_name': report_name, 'report_ref': report_ref}
         else:
-            assemblyUtil.save_assembly_from_fasta(
-                {'file': {'path': output_contigs},
-                 'workspace_name': wsname,
-                 'assembly_name': params['g_params'][self.PARAM_IN_CS_NAME]
-                 })
-        # generate report from contigs.fa
-        report_name, report_ref = self.generate_report(output_contigs, params['g_params'], wsname)
-
-        # STEP 5: contruct the output to send back
-        output = {'report_name': report_name, 'report_ref': report_ref}
+            output = {'report_name': 'Velvet failed', 'report_ref': null}
 
         #END run_velvet
 

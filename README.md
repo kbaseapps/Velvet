@@ -161,7 +161,7 @@ usage:
 </p>
 
 <p>    
-        Example 1******************************:<br>
+    Example 1******************************:<br>
         root@a8f57e8985e8:/kb/module# /kb/module/velvet/velvetg /kb/module/work/tmp/velveth_outfolder 
         [0.000000] Reading roadmap file /kb/module/work/tmp/velveth_outfolder/Roadmaps
         [0.186241] 142858 roadmaps read
@@ -260,13 +260,14 @@ usage:
         [1.294472] Writing contigs into /kb/module/work/tmp/velveth_outfolder/contigs.fa...
         [1.309443] Writing into stats file /kb/module/work/tmp/velveth_outfolder/stats.txt...
         [1.310940] Writing into graph file /kb/module/work/tmp/velveth_outfolder/LastGraph...
-        Final graph has 13 nodes and n50 of 24184, max 44966, total 100059, using 0/142858 reads
-        root@a8f57e8985e8:/kb/module# ls /kb/module/work/tmp/velveth_outfolder/
+    Final graph has 13 nodes and n50 of 24184, max 44966, total 100059, using 0/142858 reads
+   
+    root@a8f57e8985e8:/kb/module# ls /kb/module/work/tmp/velveth_outfolder/
         Graph  LastGraph  Log  PreGraph  Roadmaps  Sequences  contigs.fa  stats.txt
 </p>
 <p>
 
-        root@a8f57e8985e8:/kb/module# ls -al /kb/module/work/tmp/velveth_outfolder/
+    root@a8f57e8985e8:/kb/module# ls -al /kb/module/work/tmp/velveth_outfolder/
         total 16652
         drwxr-xr-x 10 root root      340 May  3 15:10 .
         drwxr-xr-x  3 root root      102 May  3 14:43 ..
@@ -278,7 +279,7 @@ usage:
         -rw-r--r--  1 root root 10063561 May  3 15:06 Sequences
         -rw-r--r--  1 root root   102424 May  3 15:10 contigs.fa
         -rw-r--r--  1 root root      912 May  3 15:10 stats.txt
-        root@a8f57e8985e8:/kb/module# cat /kb/module/work/tmp/velveth_outfolder/stats.txt 
+    root@a8f57e8985e8:/kb/module# cat /kb/module/work/tmp/velveth_outfolder/stats.txt 
         ID      lgth    out     in      long_cov        short1_cov      short1_Ocov     short2_cov      short2_Ocov     long_nb short1_nb       short2_nb
         1       23736   2       2       0.000000        18.616153       18.597110       0.000000        0.000000        0       0       0
         2       6591    2       0       0.000000        18.814899       18.807768       0.000000        0.000000        0       0       0
@@ -296,9 +297,8 @@ usage:
 </p>
 
 <p>
-        Example 2******************************:<br>
-        root@a8f57e8985e8:/kb/module# /kb/module/velvet/velvetg /kb/module/work/tmp/velveth_outfolder -cov_cutoff 0.1
-
+    Example 2******************************:<br>
+    root@a8f57e8985e8:/kb/module# /kb/module/velvet/velvetg /kb/module/work/tmp/velveth_outfolder -cov_cutoff 0.1
         [0.000000] Reading graph file /kb/module/work/tmp/velveth_outfolder/Graph
         [0.000648] Graph has 13 nodes and 142858 sequences
         [0.007546] Reading read set file /kb/module/work/tmp/velveth_outfolder/Sequences;
@@ -339,6 +339,6 @@ usage:
         [0.259348] Writing contigs into /kb/module/work/tmp/velveth_outfolder/contigs.fa...
         [0.282974] Writing into stats file /kb/module/work/tmp/velveth_outfolder/stats.txt...
         [0.286045] Writing into graph file /kb/module/work/tmp/velveth_outfolder/LastGraph...
-        Final graph has 13 nodes and n50 of 24184, max 44966, total 100059, using 0/142858 reads
+    Final graph has 13 nodes and n50 of 24184, max 44966, total 100059, using 0/142858 reads
 </p>
 

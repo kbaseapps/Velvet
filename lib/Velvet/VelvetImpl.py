@@ -159,37 +159,51 @@ class Velvet:
             raise ValueError('Error running VELVETH, return code: ' + str(retcode) + '\n')
 
     def construct_velveth_cmd(self, params):
-        # STEP 1: download the reads files
-        input_ref = params['read_library_ref']
-        reads_params = {'read_libraries': [input_ref],
+        if 'reads_channels' in params:
+                reads_channels = params['reads_channels']
+        else:
+                reads_channels = []
+
+        # STEP 1: fetch the reads files and build the reads channel
+        if(params['read_library_ref']):
+                input_ref = params['read_library_ref']
+                reads_params = {'read_libraries': [input_ref],
                         'interleaved': 'false',
                         'gzipped': None
                         }
-        ru = ReadsUtils(self.callbackURL)
-        reads = ru.download_reads(reads_params)['files']
+                ru = ReadsUtils(self.callbackURL)
+                reads = ru.download_reads(reads_params)['files']
 
-        print('Input reads files:')
-        fwd = reads[input_ref]['files']['fwd']
-        rev = reads[input_ref]['files']['rev']
-        pprint('forward: ' + fwd)
-        pprint('reverse: ' + rev)
+                print('Input paired reads files:')
+                fwd = reads[input_ref]['files']['fwd']
+                rev = reads[input_ref]['files']['rev']
+                pprint('forward: ' + fwd)
+                pprint('reverse: ' + rev)
 
-        # STEP 2: build the reads channels from the reads file info
-        file_info = {
-                'read_file_name':'',
-                'left_file':fwd,
-                'right_file':rev,
-                'reference_file':''
+                file_info = {
+                        'read_file_name':'',
+                        'left_file':fwd,
+                        'right_file':rev
                 }
-        reads_channels = [{
-                'read_type': 'shortPaired',
-                'file_format': 'fastq',
-                'reads_file_info': file_info 
-                'file_layout': 'separate'
-                }]
+                reads_channels.append({
+                        'read_type': 'shortPaired',
+                        'file_format': 'fastq',
+                        'reads_file_info': file_info 
+                        'file_layout': 'separate'
+                        })
 
-        #uncomment the following line only when there is reads_channels input in params, but for now we only handle pairedEnd reads
-        #reads_channels = params['reads_channels']
+        # STEP 2: build the reads channels from the sequence files
+        if(params['sequence_files']):
+                sq_files = ' '.join(params['sequence_files'])
+                if( sq_files != ''):
+                        file_info = {
+                                'read_file_name': sq_files
+                        }
+                        reads_channels.append({
+                                'read_type': 'short',
+                                'file_format': 'fastq',
+                                'reads_file_info': file_info
+                        })
 
         # STEP 3: construct the command for run_velveth
         out_folder = params['out_folder']

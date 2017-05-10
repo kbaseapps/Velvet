@@ -5,7 +5,7 @@ import os.path
 import json  # noqa: F401
 import time
 import requests
-import Queue
+import shutil
 
 from os import environ
 try:
@@ -75,98 +75,6 @@ class VelvetTest(unittest.TestCase):
             cls.wsClient.delete_workspace({'workspace': cls.wsName})
             print('Test workspace was deleted')
 
-    # Helper script borrowed from the transform service, logger removed
-    @classmethod
-    def upload_file_to_shock(cls, file_path):
-        """
-        Use HTTP multi-part POST to save a file to a SHOCK instance.
-        """
-
-        header = dict()
-        header["Authorization"] = "Oauth {0}".format(cls.token)
-
-        if file_path is None:
-            raise Exception("No file given for upload to SHOCK!")
-
-        with open(os.path.abspath(file_path), 'rb') as dataFile:
-            files = {'upload': dataFile}
-            print('POSTing data')
-            response = requests.post(
-                cls.shockURL + '/node', headers=header, files=files,
-                stream=True, allow_redirects=True)
-            print('got response')
-
-        if not response.ok:
-            response.raise_for_status()
-
-        result = response.json()
-
-        if result['error']:
-            raise Exception(result['error'][0])
-        else:
-            return result["data"]
-
-    @classmethod
-    def upload_file_to_shock_and_get_handle(cls, test_file):
-        '''
-        Uploads the file in test_file to shock and returns the node and a
-        handle to the node.
-        '''
-        print('loading file to shock: ' + test_file)
-        node = cls.upload_file_to_shock(test_file)
-        pprint(node)
-        cls.nodes_to_delete.append(node['id'])
-
-        print('creating handle for shock id ' + node['id'])
-        handle_id = cls.hs.persist_handle({'id': node['id'],
-                                           'type': 'shock',
-                                           'url': cls.shockURL
-                                           })
-        cls.handles_to_delete.append(handle_id)
-
-        md5 = node['file']['checksum']['md5']
-        return node['id'], handle_id, md5, node['file']['size']
-
-    @classmethod
-    def upload_reads(cls, wsobjname, object_body, fwd_reads,
-                     rev_reads=None, single_end=False, sequencing_tech='Illumina',
-                     single_genome='1'):
-
-        ob = dict(object_body)  # copy
-        ob['sequencing_tech'] = sequencing_tech
-#        ob['single_genome'] = single_genome
-        ob['wsname'] = cls.getWsName()
-        ob['name'] = wsobjname
-        if single_end or rev_reads:
-            ob['interleaved']= 0
-        else:
-            ob['interleaved']= 1
-        print('\n===============staging data for object ' + wsobjname +
-              '================')
-        print('uploading forward reads file ' + fwd_reads['file'])
-        fwd_id, fwd_handle_id, fwd_md5, fwd_size = \
-            cls.upload_file_to_shock_and_get_handle(fwd_reads['file'])
-
-        ob['fwd_id']= fwd_id
-        rev_id = None
-        rev_handle_id = None
-        if rev_reads:
-            print('uploading reverse reads file ' + rev_reads['file'])
-            rev_id, rev_handle_id, rev_md5, rev_size = \
-                cls.upload_file_to_shock_and_get_handle(rev_reads['file'])
-            ob['rev_id']= rev_id
-        obj_ref = cls.readUtilsImpl.upload_reads(ob)
-        objdata = cls.wsClient.get_object_info_new({
-            'objects': [{'ref': obj_ref['obj_ref']}]
-            })[0]
-        cls.staged[wsobjname] = {'info': objdata,
-                                 'ref': cls.make_ref(objdata),
-                                 'fwd_node_id': fwd_id,
-                                 'rev_node_id': rev_id,
-                                 'fwd_handle_id': fwd_handle_id,
-                                 'rev_handle_id': rev_handle_id
-                                 }
-
     def getWsClient(self):
         return self.__class__.wsClient
 
@@ -185,11 +93,57 @@ class VelvetTest(unittest.TestCase):
     def getContext(self):
         return self.__class__.ctx
 
+    # borrowed from Megahit - call this method to get the WS object info of a Paired End Library (will
+    # upload the example data if this is the first time the method is called during tests)
+    def getPairedEndLibInfo(self):
+        if hasattr(self.__class__, 'pairedEndLibInfo'):
+            return self.__class__.pairedEndLibInfo
+        # 1) upload files to shock
+        shared_dir = "/kb/module/work/tmp"
+        forward_data_file = 'data/small.forward.fq'
+        forward_file = os.path.join(shared_dir, os.path.basename(forward_data_file))
+        shutil.copy(forward_data_file, forward_file)
+        reverse_data_file = 'data/small.reverse.fq'
+        reverse_file = os.path.join(shared_dir, os.path.basename(reverse_data_file))
+        shutil.copy(reverse_data_file, reverse_file)
+
+        ru = ReadsUtils(os.environ['SDK_CALLBACK_URL'])
+        paired_end_ref = ru.upload_reads({'fwd_file': forward_file, 'rev_file': reverse_file,
+                                          'sequencing_tech': 'artificial reads',
+                                          'interleaved': 0, 'wsname': self.getWsName(),
+                                          'name': 'test.pe.reads'})['obj_ref']
+
+        new_obj_info = self.ws.get_object_info_new({'objects': [{'ref': paired_end_ref}]})
+        self.__class__.pairedEndLibInfo = new_obj_info[0]
+        return new_obj_info[0]
+
+    @classmethod
+    def make_ref(self, object_info):
+        return str(object_info[6]) + '/' + str(object_info[0]) + \
+            '/' + str(object_info[4])
+
     # Uncomment to skip this test
     @unittest.skip("skipped test_run_velveth")
-    def test_run_velveth(self):
+    def test_run_velveth(self): 
+        # get the test data
+        pe_lib_info = self.getPairedEndLibInfo()
+        pprint(pe_lib_info)
+
+        # Object Info Contents
+        # 0 - obj_id objid
+        # 1 - obj_name name
+        # 2 - type_string type
+        # 3 - timestamp save_date
+        # 4 - int version
+        # 5 - username saved_by
+        # 6 - ws_id wsid
+        # 7 - ws_name workspace
+        # 8 - string chsum
+        # 9 - int size
+        # 10 - usermeta meta
+
         # run velveth
-        rc = {
+        rc1 = {
             'read_type': 'short',
             'file_format': 'sam',
             'file_layout': 'interleaved',
@@ -200,11 +154,24 @@ class VelvetTest(unittest.TestCase):
                                 'right_file': ''
                                }
         }
+        rc = {
+            'read_type': 'short',
+            'file_format': 'fastq',
+            'file_layout': 'separated',
+            'read_file_info' : {
+                                'read_library_ref': pe_lib_info[7] + '/' + pe_lib_info[1],
+                                'read_file': '',
+                                'reference_file': '',
+                                'left_file': '',
+                                'right_file': ''
+                               }
+        }
         params = {
-            'workspace_name': self.getWsName(),
+            'workspace_name': pe_lib_info[7],
+            #'workspace_name': self.getWsName(),
             'out_folder': 'velvet_outfolder',
             'hash_length': 21,
-            'reads_channels': [rc]
+            'reads_channels': [rc1, rc]
         }
 
         result = self.getImpl().run_velveth(self.getContext(), params)
@@ -263,7 +230,7 @@ class VelvetTest(unittest.TestCase):
         g_params = {
             'workspace_name': self.getWsName(),
             'wk_folder': 'velvet_outfolder',
-            'output_contigset_name': 'test_contigset'#, 
+            'output_contigset_name': 'Velvet_test_contigset'#, 
             #'cov_cutoff': 5.2
             #'min_contig_length': 100#,
         }

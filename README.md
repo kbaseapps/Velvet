@@ -119,7 +119,7 @@ usage:
         wk_folder                       : working directory name
 
 <p>
-Standard options:
+- Standard options:
         -cov_cutoff <floating-point|auto>       : removal of low coverage nodes AFTER tour bus or allow the system to infer it
                 (default: no removal)
         -ins_length <integer>           : expected distance between two paired end reads (default: no read pairing)
@@ -131,7 +131,7 @@ Standard options:
         -long_cov_cutoff <floating-point>: removal of nodes with low long-read coverage AFTER tour bus
                 (default: no removal)
 
-Advanced options:
+- Advanced options:
         -ins_length* <integer>          : expected distance between two paired-end reads in the respective short-read dataset (default: no read pairing)
         -ins_length_long <integer>      : expected distance between two long paired-end reads (default: no read pairing)
         -ins_length*_sd <integer>       : est. standard deviation of respective dataset (default: 10% of corresponding length)
@@ -153,7 +153,7 @@ Advanced options:
         -shortMatePaired* <yes|no>      : for mate-pair libraries, indicate that the library might be contaminated with paired-end reads (default no)
         -conserveLong <yes|no>          : preserve sequences with long reads in them (default no)
 
-Output:
+- Output:
         wk_folder/contigs.fa            : fasta file of contigs longer than twice hash length
         wk_folder/stats.txt             : stats file (tab-spaced) useful for determining appropriate coverage cutoff
         wk_folder/LastGraph             : special formatted file with all the information on the final graph
@@ -161,181 +161,184 @@ Output:
 </p>
 
 <p>    
-Example 1******************************:<br>
-root@a8f57e8985e8:/kb/module# /kb/module/velvet/velvetg /kb/module/work/tmp/velveth_outfolder 
-[0.000000] Reading roadmap file /kb/module/work/tmp/velveth_outfolder/Roadmaps
-[0.186241] 142858 roadmaps read
-[0.187244] Creating insertion markers
-[0.200749] Ordering insertion markers
-[0.274086] Counting preNodes
-[0.286508] 106331 preNodes counted, creating them now
-[0.442948] Adjusting marker info...
-[0.457206] Connecting preNodes
-[0.517518] Cleaning up memory
-[0.518942] Done creating preGraph
-[0.518956] Concatenation...
-[0.541450] Renumbering preNodes
-[0.541506] Initial preNode count 106331
-[0.543644] Destroyed 83056 preNodes
-[0.543674] Concatenation over!
-[0.543676] Clipping short tips off preGraph
-[0.547323] Concatenation...
-[0.552777] Renumbering preNodes
-[0.552836] Initial preNode count 23275
-[0.553376] Destroyed 23070 preNodes
-[0.553405] Concatenation over!
-[0.553407] 11897 tips cut off
-[0.553409] 205 nodes left
-[0.559824] Writing into pregraph file /kb/module/work/tmp/velveth_outfolder/PreGraph...
-[0.577028] Reading read set file /kb/module/work/tmp/velveth_outfolder/Sequences;
-[0.631350] 142858 sequences found
-[0.782756] Done
-[0.838311] Reading pre-graph file /kb/module/work/tmp/velveth_outfolder/PreGraph
-[0.839205] Graph has 205 nodes and 142858 sequences
-[0.843581] Scanning pre-graph file /kb/module/work/tmp/velveth_outfolder/PreGraph for k-mers
-[0.846083] 101403 kmers found
-[0.851464] Sorting kmer occurence table ... 
-[0.871973] Sorting done.
-[0.872029] Computing acceleration table... 
-[0.902730] Computing offsets... 
-[0.904008] Ghost Threading through reads 0 / 142858
-[0.906167]  === Ghost-Threaded in 0.002160 s
-[0.906245] Threading through reads 0 / 142858
-[1.258779]  === Threaded in 0.352534 s
-[1.267668] Correcting graph with cutoff 0.200000
-[1.267744] Determining eligible starting points
-[1.267841] Done listing starting nodes
-[1.267851] Initializing todo lists
-[1.267862] Done with initilization
-[1.267863] Activating arc lookup table
-[1.267870] Done activating arc lookup table
-[1.270729] Concatenation...
-[1.270753] Renumbering nodes
-[1.270755] Initial node count 205
-[1.270757] Removed 192 null nodes
-[1.270758] Concatenation over!
-[1.270768] Clipping short tips off graph, drastic
-[1.270770] Concatenation...
-[1.270771] Renumbering nodes
-[1.270772] Initial node count 13
-[1.270773] Removed 0 null nodes
-[1.270774] Concatenation over!
-[1.270774] 13 nodes left
-[1.272440] Writing into graph file /kb/module/work/tmp/velveth_outfolder/Graph...
-[1.292097] WARNING: NO COVERAGE CUTOFF PROVIDED
-[1.292154] Velvet will probably leave behind many detectable errors
-[1.292156] See manual for instructions on how to set the coverage cutoff parameter
-[1.292157] Removing contigs with coverage < -1.000000...
-[1.292190] Concatenation...
-[1.292201] Renumbering nodes
-[1.292202] Initial node count 13
-[1.292204] Removed 0 null nodes
-[1.292205] Concatenation over!
-[1.292206] Concatenation...
-[1.292207] Renumbering nodes
-[1.292208] Initial node count 13
-[1.292217] Removed 0 null nodes
-[1.292218] Concatenation over!
-[1.292220] Clipping short tips off graph, drastic
-[1.292221] Concatenation...
-[1.292222] Renumbering nodes
-[1.292222] Initial node count 13
-[1.292223] Removed 0 null nodes
-[1.292224] Concatenation over!
-[1.292225] 13 nodes left
-[1.292234] WARNING: NO EXPECTED COVERAGE PROVIDED
-[1.292235] Velvet will be unable to resolve any repeats
-[1.292237] See manual for instructions on how to set the expected coverage parameter
-[1.292238] Concatenation...
-[1.292239] Renumbering nodes
-[1.292240] Initial node count 13
-[1.292241] Removed 0 null nodes
-[1.292241] Concatenation over!
-[1.292242] Removing reference contigs with coverage < -1.000000...
-[1.292253] Concatenation...
-[1.292254] Renumbering nodes
-[1.292255] Initial node count 13
-[1.292256] Removed 0 null nodes
-[1.292257] Concatenation over!
-[1.294472] Writing contigs into /kb/module/work/tmp/velveth_outfolder/contigs.fa...
-[1.309443] Writing into stats file /kb/module/work/tmp/velveth_outfolder/stats.txt...
-[1.310940] Writing into graph file /kb/module/work/tmp/velveth_outfolder/LastGraph...
-Final graph has 13 nodes and n50 of 24184, max 44966, total 100059, using 0/142858 reads
-root@a8f57e8985e8:/kb/module# ls /kb/module/work/tmp/velveth_outfolder/
-Graph  LastGraph  Log  PreGraph  Roadmaps  Sequences  contigs.fa  stats.txt
-root@a8f57e8985e8:/kb/module# ls -al /kb/module/work/tmp/velveth_outfolder/
-total 16652
-drwxr-xr-x 10 root root      340 May  3 15:10 .
-drwxr-xr-x  3 root root      102 May  3 14:43 ..
--rw-r--r--  1 root root   200669 May  3 15:10 Graph
--rw-r--r--  1 root root   200669 May  3 15:10 LastGraph
--rw-r--r--  1 root root     1302 May  3 15:10 Log
--rw-r--r--  1 root root   108173 May  3 15:10 PreGraph
--rw-r--r--  1 root root  6358231 May  3 15:06 Roadmaps
--rw-r--r--  1 root root 10063561 May  3 15:06 Sequences
--rw-r--r--  1 root root   102424 May  3 15:10 contigs.fa
--rw-r--r--  1 root root      912 May  3 15:10 stats.txt
-root@a8f57e8985e8:/kb/module# cat /kb/module/work/tmp/velveth_outfolder/stats.txt 
-ID      lgth    out     in      long_cov        short1_cov      short1_Ocov     short2_cov      short2_Ocov     long_nb short1_nb       short2_nb
-1       23736   2       2       0.000000        18.616153       18.597110       0.000000        0.000000        0       0       0
-2       6591    2       0       0.000000        18.814899       18.807768       0.000000        0.000000        0       0       0
-3       24184   2       2       0.000000        18.632774       18.622767       0.000000        0.000000        0       0       0
-4       414     2       2       0.000000        18.190821       18.188406       0.000000        0.000000        0       0       0
-5       44966   2       0       0.000000        18.710159       18.690277       0.000000        0.000000        0       0       0
-6       21      1       1       0.000000        15.428571       15.428571       0.000000        0.000000        0       0       0
-7       21      1       1       0.000000        1.190476        1.190476        0.000000        0.000000        0       0       0
-8       21      1       1       0.000000        18.904762       18.904762       0.000000        0.000000        0       0       0
-9       21      1       1       0.000000        14.761905       13.571429       0.000000        0.000000        0       0       0
-10      21      1       1       0.000000        22.047619       22.047619       0.000000        0.000000        0       0       0
-11      21      1       1       0.000000        1.190476        1.190476        0.000000        0.000000        0       0       0
-12      21      1       1       0.000000        1.190476        1.190476        0.000000        0.000000        0       0       0
-13      21      1       1       0.000000        1.047619        1.047619        0.000000        0.000000        0       0       0
+        Example 1******************************:<br>
+        root@a8f57e8985e8:/kb/module# /kb/module/velvet/velvetg /kb/module/work/tmp/velveth_outfolder 
+        [0.000000] Reading roadmap file /kb/module/work/tmp/velveth_outfolder/Roadmaps
+        [0.186241] 142858 roadmaps read
+        [0.187244] Creating insertion markers
+        [0.200749] Ordering insertion markers
+        [0.274086] Counting preNodes
+        [0.286508] 106331 preNodes counted, creating them now
+        [0.442948] Adjusting marker info...
+        [0.457206] Connecting preNodes
+        [0.517518] Cleaning up memory
+        [0.518942] Done creating preGraph
+        [0.518956] Concatenation...
+        [0.541450] Renumbering preNodes
+        [0.541506] Initial preNode count 106331
+        [0.543644] Destroyed 83056 preNodes
+        [0.543674] Concatenation over!
+        [0.543676] Clipping short tips off preGraph
+        [0.547323] Concatenation...
+        [0.552777] Renumbering preNodes
+        [0.552836] Initial preNode count 23275
+        [0.553376] Destroyed 23070 preNodes
+        [0.553405] Concatenation over!
+        [0.553407] 11897 tips cut off
+        [0.553409] 205 nodes left
+        [0.559824] Writing into pregraph file /kb/module/work/tmp/velveth_outfolder/PreGraph...
+        [0.577028] Reading read set file /kb/module/work/tmp/velveth_outfolder/Sequences;
+        [0.631350] 142858 sequences found
+        [0.782756] Done
+        [0.838311] Reading pre-graph file /kb/module/work/tmp/velveth_outfolder/PreGraph
+        [0.839205] Graph has 205 nodes and 142858 sequences
+        [0.843581] Scanning pre-graph file /kb/module/work/tmp/velveth_outfolder/PreGraph for k-mers
+        [0.846083] 101403 kmers found
+        [0.851464] Sorting kmer occurence table ... 
+        [0.871973] Sorting done.
+        [0.872029] Computing acceleration table... 
+        [0.902730] Computing offsets... 
+        [0.904008] Ghost Threading through reads 0 / 142858
+        [0.906167]  === Ghost-Threaded in 0.002160 s
+        [0.906245] Threading through reads 0 / 142858
+        [1.258779]  === Threaded in 0.352534 s
+        [1.267668] Correcting graph with cutoff 0.200000
+        [1.267744] Determining eligible starting points
+        [1.267841] Done listing starting nodes
+        [1.267851] Initializing todo lists
+        [1.267862] Done with initilization
+        [1.267863] Activating arc lookup table
+        [1.267870] Done activating arc lookup table
+        [1.270729] Concatenation...
+        [1.270753] Renumbering nodes
+        [1.270755] Initial node count 205
+        [1.270757] Removed 192 null nodes
+        [1.270758] Concatenation over!
+        [1.270768] Clipping short tips off graph, drastic
+        [1.270770] Concatenation...
+        [1.270771] Renumbering nodes
+        [1.270772] Initial node count 13
+        [1.270773] Removed 0 null nodes
+        [1.270774] Concatenation over!
+        [1.270774] 13 nodes left
+        [1.272440] Writing into graph file /kb/module/work/tmp/velveth_outfolder/Graph...
+        [1.292097] WARNING: NO COVERAGE CUTOFF PROVIDED
+        [1.292154] Velvet will probably leave behind many detectable errors
+        [1.292156] See manual for instructions on how to set the coverage cutoff parameter
+        [1.292157] Removing contigs with coverage < -1.000000...
+        [1.292190] Concatenation...
+        [1.292201] Renumbering nodes
+        [1.292202] Initial node count 13
+        [1.292204] Removed 0 null nodes
+        [1.292205] Concatenation over!
+        [1.292206] Concatenation...
+        [1.292207] Renumbering nodes
+        [1.292208] Initial node count 13
+        [1.292217] Removed 0 null nodes
+        [1.292218] Concatenation over!
+        [1.292220] Clipping short tips off graph, drastic
+        [1.292221] Concatenation...
+        [1.292222] Renumbering nodes
+        [1.292222] Initial node count 13
+        [1.292223] Removed 0 null nodes
+        [1.292224] Concatenation over!
+        [1.292225] 13 nodes left
+        [1.292234] WARNING: NO EXPECTED COVERAGE PROVIDED
+        [1.292235] Velvet will be unable to resolve any repeats
+        [1.292237] See manual for instructions on how to set the expected coverage parameter
+        [1.292238] Concatenation...
+        [1.292239] Renumbering nodes
+        [1.292240] Initial node count 13
+        [1.292241] Removed 0 null nodes
+        [1.292241] Concatenation over!
+        [1.292242] Removing reference contigs with coverage < -1.000000...
+        [1.292253] Concatenation...
+        [1.292254] Renumbering nodes
+        [1.292255] Initial node count 13
+        [1.292256] Removed 0 null nodes
+        [1.292257] Concatenation over!
+        [1.294472] Writing contigs into /kb/module/work/tmp/velveth_outfolder/contigs.fa...
+        [1.309443] Writing into stats file /kb/module/work/tmp/velveth_outfolder/stats.txt...
+        [1.310940] Writing into graph file /kb/module/work/tmp/velveth_outfolder/LastGraph...
+        Final graph has 13 nodes and n50 of 24184, max 44966, total 100059, using 0/142858 reads
+        root@a8f57e8985e8:/kb/module# ls /kb/module/work/tmp/velveth_outfolder/
+        Graph  LastGraph  Log  PreGraph  Roadmaps  Sequences  contigs.fa  stats.txt
+</p>
+<p>
+
+        root@a8f57e8985e8:/kb/module# ls -al /kb/module/work/tmp/velveth_outfolder/
+        total 16652
+        drwxr-xr-x 10 root root      340 May  3 15:10 .
+        drwxr-xr-x  3 root root      102 May  3 14:43 ..
+        -rw-r--r--  1 root root   200669 May  3 15:10 Graph
+        -rw-r--r--  1 root root   200669 May  3 15:10 LastGraph
+        -rw-r--r--  1 root root     1302 May  3 15:10 Log
+        -rw-r--r--  1 root root   108173 May  3 15:10 PreGraph
+        -rw-r--r--  1 root root  6358231 May  3 15:06 Roadmaps
+        -rw-r--r--  1 root root 10063561 May  3 15:06 Sequences
+        -rw-r--r--  1 root root   102424 May  3 15:10 contigs.fa
+        -rw-r--r--  1 root root      912 May  3 15:10 stats.txt
+        root@a8f57e8985e8:/kb/module# cat /kb/module/work/tmp/velveth_outfolder/stats.txt 
+        ID      lgth    out     in      long_cov        short1_cov      short1_Ocov     short2_cov      short2_Ocov     long_nb short1_nb       short2_nb
+        1       23736   2       2       0.000000        18.616153       18.597110       0.000000        0.000000        0       0       0
+        2       6591    2       0       0.000000        18.814899       18.807768       0.000000        0.000000        0       0       0
+        3       24184   2       2       0.000000        18.632774       18.622767       0.000000        0.000000        0       0       0
+        4       414     2       2       0.000000        18.190821       18.188406       0.000000        0.000000        0       0       0
+        5       44966   2       0       0.000000        18.710159       18.690277       0.000000        0.000000        0       0       0
+        6       21      1       1       0.000000        15.428571       15.428571       0.000000        0.000000        0       0       0
+        7       21      1       1       0.000000        1.190476        1.190476        0.000000        0.000000        0       0       0
+        8       21      1       1       0.000000        18.904762       18.904762       0.000000        0.000000        0       0       0
+        9       21      1       1       0.000000        14.761905       13.571429       0.000000        0.000000        0       0       0
+        10      21      1       1       0.000000        22.047619       22.047619       0.000000        0.000000        0       0       0
+        11      21      1       1       0.000000        1.190476        1.190476        0.000000        0.000000        0       0       0
+        12      21      1       1       0.000000        1.190476        1.190476        0.000000        0.000000        0       0       0
+        13      21      1       1       0.000000        1.047619        1.047619        0.000000        0.000000        0       0       0
 </p>
 
 <p>
-Example 2******************************:<br>
-root@a8f57e8985e8:/kb/module# /kb/module/velvet/velvetg /kb/module/work/tmp/velveth_outfolder -cov_cutoff 0.1
+        Example 2******************************:<br>
+        root@a8f57e8985e8:/kb/module# /kb/module/velvet/velvetg /kb/module/work/tmp/velveth_outfolder -cov_cutoff 0.1
 
-[0.000000] Reading graph file /kb/module/work/tmp/velveth_outfolder/Graph
-[0.000648] Graph has 13 nodes and 142858 sequences
-[0.007546] Reading read set file /kb/module/work/tmp/velveth_outfolder/Sequences;
-[0.051878] 142858 sequences found
-[0.201670] Done
-[0.254594] Removing contigs with coverage < 0.100000...
-[0.254647] Concatenation...
-[0.254650] Renumbering nodes
-[0.254652] Initial node count 13
-[0.254660] Removed 0 null nodes
-[0.254661] Concatenation over!
-[0.254663] Concatenation...
-[0.254664] Renumbering nodes
-[0.254666] Initial node count 13
-[0.254667] Removed 0 null nodes
-[0.254668] Concatenation over!
-[0.254670] Clipping short tips off graph, drastic
-[0.254672] Concatenation...
-[0.254673] Renumbering nodes
-[0.254675] Initial node count 13
-[0.254676] Removed 0 null nodes
-[0.254677] Concatenation over!
-[0.254678] 13 nodes left
-[0.254680] WARNING: NO EXPECTED COVERAGE PROVIDED
-[0.254681] Velvet will be unable to resolve any repeats
-[0.254683] See manual for instructions on how to set the expected coverage parameter
-[0.254685] Concatenation...
-[0.254686] Renumbering nodes
-[0.254687] Initial node count 13
-[0.254688] Removed 0 null nodes
-[0.254689] Concatenation over!
-[0.254690] Removing reference contigs with coverage < 0.100000...
-[0.254703] Concatenation...
-[0.254708] Renumbering nodes
-[0.254712] Initial node count 13
-[0.254717] Removed 0 null nodes
-[0.254721] Concatenation over!
-[0.259348] Writing contigs into /kb/module/work/tmp/velveth_outfolder/contigs.fa...
-[0.282974] Writing into stats file /kb/module/work/tmp/velveth_outfolder/stats.txt...
-[0.286045] Writing into graph file /kb/module/work/tmp/velveth_outfolder/LastGraph...
-Final graph has 13 nodes and n50 of 24184, max 44966, total 100059, using 0/142858 reads
+        [0.000000] Reading graph file /kb/module/work/tmp/velveth_outfolder/Graph
+        [0.000648] Graph has 13 nodes and 142858 sequences
+        [0.007546] Reading read set file /kb/module/work/tmp/velveth_outfolder/Sequences;
+        [0.051878] 142858 sequences found
+        [0.201670] Done
+        [0.254594] Removing contigs with coverage < 0.100000...
+        [0.254647] Concatenation...
+        [0.254650] Renumbering nodes
+        [0.254652] Initial node count 13
+        [0.254660] Removed 0 null nodes
+        [0.254661] Concatenation over!
+        [0.254663] Concatenation...
+        [0.254664] Renumbering nodes
+        [0.254666] Initial node count 13
+        [0.254667] Removed 0 null nodes
+        [0.254668] Concatenation over!
+        [0.254670] Clipping short tips off graph, drastic
+        [0.254672] Concatenation...
+        [0.254673] Renumbering nodes
+        [0.254675] Initial node count 13
+        [0.254676] Removed 0 null nodes
+        [0.254677] Concatenation over!
+        [0.254678] 13 nodes left
+        [0.254680] WARNING: NO EXPECTED COVERAGE PROVIDED
+        [0.254681] Velvet will be unable to resolve any repeats
+        [0.254683] See manual for instructions on how to set the expected coverage parameter
+        [0.254685] Concatenation...
+        [0.254686] Renumbering nodes
+        [0.254687] Initial node count 13
+        [0.254688] Removed 0 null nodes
+        [0.254689] Concatenation over!
+        [0.254690] Removing reference contigs with coverage < 0.100000...
+        [0.254703] Concatenation...
+        [0.254708] Renumbering nodes
+        [0.254712] Initial node count 13
+        [0.254717] Removed 0 null nodes
+        [0.254721] Concatenation over!
+        [0.259348] Writing contigs into /kb/module/work/tmp/velveth_outfolder/contigs.fa...
+        [0.282974] Writing into stats file /kb/module/work/tmp/velveth_outfolder/stats.txt...
+        [0.286045] Writing into graph file /kb/module/work/tmp/velveth_outfolder/LastGraph...
+        Final graph has 13 nodes and n50 of 24184, max 44966, total 100059, using 0/142858 reads
 </p>
 

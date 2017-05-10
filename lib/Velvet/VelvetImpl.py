@@ -159,13 +159,43 @@ class Velvet:
             raise ValueError('Error running VELVETH, return code: ' + str(retcode) + '\n')
 
     def construct_velveth_cmd(self, params):
-        # STEP 1: get the reads channels as reads file info
+        # STEP 1: download the reads files
+        input_ref = params['read_library_ref']
+        reads_params = {'read_libraries': [input_ref],
+                        'interleaved': 'false',
+                        'gzipped': None
+                        }
+        ru = ReadsUtils(self.callbackURL)
+        reads = ru.download_reads(reads_params)['files']
+
+        print('Input reads files:')
+        fwd = reads[input_ref]['files']['fwd']
+        rev = reads[input_ref]['files']['rev']
+        pprint('forward: ' + fwd)
+        pprint('reverse: ' + rev)
+
+        # STEP 2: build the reads channels from the reads file info
+        file_info = {
+                'read_file_name':'',
+                'left_file':fwd,
+                'right_file':rev,
+                'reference_file':''
+                }
+        reads_channels = [{
+                'read_type': 'shortPaired',
+                'file_format': 'fastq',
+                'reads_file_info': file_info 
+                'file_layout': 'separate'
+                }]
+
+        #uncomment the following line only when there is reads_channels input in params, but for now we only handle pairedEnd reads
+        #reads_channels = params['reads_channels']
+
+        # STEP 3: construct the command for run_velveth
         out_folder = params['out_folder']
         hash_length = params['hash_length']
         wsname = params[self.PARAM_IN_WS]
-        reads_channels = params['reads_channels']
-
-        # STEP 2: construct the command for run_velveth
+        
         vh_cmd = [self.VELVETH]
 
         # set the output location
@@ -185,7 +215,7 @@ class Velvet:
                 vh_cmd.append(self.VELVET_DATA + rc['read_file_info']['left_file'])
                 vh_cmd.append(self.VELVET_DATA + rc['read_file_info']['right_file'])
             else:
-                vh_cmd.append(self.VELVET_DATA + rc['read_file_info']['read_file'])
+                vh_cmd.append(self.VELVET_DATA + rc['read_file_info']['read_file_name'])
 
         # STEP 3 return vh_cmd
         return wsname, vh_cmd

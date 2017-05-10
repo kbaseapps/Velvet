@@ -34,7 +34,7 @@ module Velvet {
         "left_file" => "left.fa", "right_file" => "right.fa"}
     */ 
     typedef structure { 
-        string read_file;
+        string read_file_name;
         string reference_file;
         string left_file;
         string right_file;
@@ -61,13 +61,15 @@ module Velvet {
         string workspace_name - the name of the workspace for input/output
         string out_folder - the folder name for output files
         int hash_length - an odd integer (if even, it will be decremented) <= 31
-        list<seq_file_name> sequence_files - sequence files to assemble
+        read_library_ref - the name of the PE read library (SE library, and other (sam, bam, fasta, etc.) support is provided through the reads_channels input parameter)
+        list<seq_file_name> sequence_files - sequence files to assemble, in case preprocessing is needed
         list<ReadsChannel> reads_channels - a list/an array of ReadsChannel defining {read_type, file_format, {read_file[,...]}[, file_layout, read_reference]}
    */
     typedef structure {
         string out_folder; 
         string workspace_name;
-        int hash_length; 
+        int hash_length;
+        string read_library_ref; 
         list<seq_file_name> sequence_files;
         list<ReadsChannel> reads_channels; 
     } VelvethParams;

@@ -137,16 +137,28 @@
                     "target_property": "out_folder"
                 },
                 {
-                    "input_parameter": "output_contigset_name",
-                    "target_property": "output_contigset_name"
+                    "input_parameter": "wk_folder",
+                    "target_property": "wk_folder"
                 },
                 {
                     "input_parameter": "hash_length",
                     "target_property": "hash_length"
                 },
                 {
+                    "input_parameter": "output_contigset_name",
+                    "target_property": "output_contigset_name"
+                },
+                {
                     "input_parameter": "min_contig_length",
                     "target_property": "min_contig_length"
+                },
+                {
+                    "input_parameter": "exp_cov",
+                    "target_property": "exp_cov"
+                },
+                {
+                    "input_parameter": "ins_length",
+                    "target_property": "ins_length"
                 },
                 {
                     "input_parameter": "cov_cutoff",

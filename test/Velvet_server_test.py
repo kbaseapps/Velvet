@@ -61,7 +61,6 @@ class VelvetTest(unittest.TestCase):
 
         cls.shockURL = cls.cfg['shock-url']
         cls.handleURL = cls.cfg['handle-service-url']
-        cls.queue = Queue.Queue()
 
         cls.readUtilsImpl = ReadsUtils(cls.callback_url, token=cls.token)
         cls.staged = {}
@@ -115,6 +114,9 @@ class VelvetTest(unittest.TestCase):
 
         new_obj_info = self.ws.get_object_info_new({'objects': [{'ref': paired_end_ref}]})
         self.__class__.pairedEndLibInfo = new_obj_info[0]
+        print ('paired reads uploaded:\n')
+        pprint (pformat(new_obj_info))
+
         return new_obj_info[0]
 
     @classmethod
@@ -123,24 +125,11 @@ class VelvetTest(unittest.TestCase):
             '/' + str(object_info[4])
 
     # Uncomment to skip this test
-    @unittest.skip("skipped test_run_velveth")
-    def test_run_velveth(self): 
+    #@unittest.skip("skipped test_run_velveth")
+    def test_run_velveth(self):
         # get the test data
         pe_lib_info = self.getPairedEndLibInfo()
         pprint(pe_lib_info)
-
-        # Object Info Contents
-        # 0 - obj_id objid
-        # 1 - obj_name name
-        # 2 - type_string type
-        # 3 - timestamp save_date
-        # 4 - int version
-        # 5 - username saved_by
-        # 6 - ws_id wsid
-        # 7 - ws_name workspace
-        # 8 - string chsum
-        # 9 - int size
-        # 10 - usermeta meta
 
         # run velveth
         rc1 = {
@@ -148,7 +137,7 @@ class VelvetTest(unittest.TestCase):
             'file_format': 'sam',
             'file_layout': 'interleaved',
             'read_file_info' : {
-                                'read_file': 'test_reads.sam',
+                                'read_file_name': 'test_reads.sam',
                                 'reference_file': 'test_reference.fa',
                                 'left_file': '',
                                 'right_file': ''
@@ -205,7 +194,7 @@ class VelvetTest(unittest.TestCase):
         return result
 
     # Uncomment to skip this test
-    #@unittest.skip("skipped test_run_velvet")
+    @unittest.skip("skipped test_run_velvet")
     def test_run_velvet(self):
         # velveth parameters
         rc = {
@@ -213,7 +202,7 @@ class VelvetTest(unittest.TestCase):
             'file_format': 'sam',
             'file_layout': 'interleaved',
             'read_file_info' : {
-                                'read_file': 'test_reads.sam',
+                                'read_file_name': 'test_reads.sam',
                                 'reference_file': 'test_reference.fa',
                                 'left_file': '',
                                 'right_file': ''

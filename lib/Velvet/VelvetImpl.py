@@ -49,13 +49,14 @@ class Velvet:
     ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "https://github.com/kbaseapps/kb_Velvet"
-    GIT_COMMIT_HASH = "5a41b5039d5aa1907816c6e50550c9b720199d0c"
+    GIT_COMMIT_HASH = "06f3ab777e4506f00c551b8229a85c1ca3473285"
 
     #BEGIN_CLASS_HEADER
     # Class variables and functions can be defined in this block
     VELVETH = '/kb/module/velvet/velveth'
     VELVETG = '/kb/module/velvet/velvetg'
-    VELVET_DATA = '/kb/module/velvet/data/'
+    #VELVET_DATA = '/kb/module/velvet/data/'
+    VELVET_DATA = '/kb/module/work/tmp'
     PARAM_IN_WS = 'workspace_name'
     PARAM_IN_CS_NAME = 'output_contigset_name'
     PARAM_IN_SEQ = 'sequence_files'
@@ -70,7 +71,7 @@ class Velvet:
         if 'out_folder' not in params:
             raise ValueError('a string reprsenting out_folder parameter is required')
         if 'hash_length' not in params:
-            raise ValueError('an integerreprsenting  hash_length parameter is required')
+            raise ValueError('an integer reprsenting  hash_length parameter is required')
         if 'hash_length' in params:
             if not isinstance(params['hash_length'], int):
                 raise ValueError('hash_length must be of type int')
@@ -82,9 +83,9 @@ class Velvet:
             self.log('Read file channel info :\n' + pformat(rc))
             if 'read_file_info' not in rc:
                 raise ValueError('a read_channel must have a read_file_info dictionary')
-            else:
-                if 'read_file' not in rc['read_file_info'] or rc['read_file_info']['read_file'] == '':
-                    raise ValueError('a non-blank read file name is required')
+            #else:
+                #if 'read_file' not in rc['read_file_info'] or rc['read_file_info']['read_file'] == '':
+                    #raise ValueError('a non-blank read file name is required')
             if 'read_type' not in rc:
                 raise ValueError('a read_type is required')
             if 'file_format' not in rc:
@@ -165,7 +166,7 @@ class Velvet:
                 reads_channels = []
 
         # STEP 1: fetch the reads files and build the reads channel
-        if(params['read_library_ref']):
+        if 'read_library_ref' in params:
                 input_ref = params['read_library_ref']
                 reads_params = {'read_libraries': [input_ref],
                         'interleaved': 'false',
@@ -188,12 +189,12 @@ class Velvet:
                 reads_channels.append({
                         'read_type': 'shortPaired',
                         'file_format': 'fastq',
-                        'reads_file_info': file_info 
+                        'reads_file_info': file_info, 
                         'file_layout': 'separate'
                         })
 
         # STEP 2: build the reads channels from the sequence files
-        if(params['sequence_files']):
+        if 'sequence_files' in params:
                 sq_files = ' '.join(params['sequence_files'])
                 if( sq_files != ''):
                         file_info = {
@@ -222,14 +223,14 @@ class Velvet:
             read_type = rc['read_type']
             vh_cmd.append('-' + read_type)
             if 'read_reference' in rc and rc['read_reference'] == 1:
-                vh_cmd.append(self.VELVET_DATA + rc['read_file_info']['reference_file'])
+                vh_cmd.append(os.path.join(self.VELVET_DATA, rc['read_file_info']['reference_file']))
 
             if 'file_layout' in rc and rc['file_layout'] == 'separate':
                 vh_cmd.append('-' + rc['file_layout'])
-                vh_cmd.append(self.VELVET_DATA + rc['read_file_info']['left_file'])
-                vh_cmd.append(self.VELVET_DATA + rc['read_file_info']['right_file'])
+                vh_cmd.append(os.path.join(self.VELVET_DATA + rc['read_file_info']['left_file']))
+                vh_cmd.append(os.path.join(self.VELVET_DATA + rc['read_file_info']['right_file']))
             else:
-                vh_cmd.append(self.VELVET_DATA + rc['read_file_info']['read_file_name'])
+                vh_cmd.append(os.path.join(self.VELVET_DATA + rc['read_file_info']['read_file_name']))
 
         # STEP 3 return vh_cmd
         return wsname, vh_cmd
@@ -375,17 +376,21 @@ class Velvet:
            velveth input string workspace_name - the name of the workspace
            for input/output string out_folder - the folder name for output
            files int hash_length - an odd integer (if even, it will be
-           decremented) <= 31 list<seq_file_name> sequence_files - sequence
-           files to assemble list<ReadsChannel> reads_channels - a list/an
-           array of ReadsChannel defining {read_type, file_format,
-           {read_file[,...]}[, file_layout, read_reference]}) -> structure:
-           parameter "out_folder" of String, parameter "workspace_name" of
-           String, parameter "hash_length" of Long, parameter
-           "sequence_files" of list of type "seq_file_name" (The workspace
-           object name of a read library file of the KBaseFile type.),
-           parameter "reads_channels" of list of type "ReadsChannel" (Define
-           a structure that mimics the concept of "channel" used by the
-           Velvet program. string read_type - the read type, e.g., -short,
+           decremented) <= 31 read_library_ref - the name of the PE read
+           library (SE library, and other (sam, bam, fasta, etc.) support is
+           provided through the reads_channels input parameter)
+           list<seq_file_name> sequence_files - sequence files to assemble,
+           in case preprocessing is needed list<ReadsChannel> reads_channels
+           - a list/an array of ReadsChannel defining {read_type,
+           file_format, {read_file[,...]}[, file_layout, read_reference]}) ->
+           structure: parameter "out_folder" of String, parameter
+           "workspace_name" of String, parameter "hash_length" of Long,
+           parameter "read_library_ref" of String, parameter "sequence_files"
+           of list of type "seq_file_name" (The workspace object name of a
+           read library file of the KBaseFile type.), parameter
+           "reads_channels" of list of type "ReadsChannel" (Define a
+           structure that mimics the concept of "channel" used by the Velvet
+           program. string read_type - the read type, e.g., -short,
            -shortPaired, short2, shortPaired2, -long, or -longPaired string
            file_format - the format of the input file, e.g., -fasta, -fastq,
            -raw,-fasta.gz, -fastq.gz, -raw.gz, -sam, -bam, -fmtAuto string
@@ -399,7 +404,7 @@ class Velvet:
            required, the rest are optional. e.g., {"reference_file" =>
            "test_reference.fa", "read_file_name" => "mySortedReads.sam",
            "left_file" => "left.fa", "right_file" => "right.fa"}) ->
-           structure: parameter "read_file" of String, parameter
+           structure: parameter "read_file_name" of String, parameter
            "reference_file" of String, parameter "left_file" of String,
            parameter "right_file" of String, parameter "file_layout" of
            String, parameter "read_reference" of type "bool" (A boolean - 0
@@ -526,22 +531,26 @@ class Velvet:
            "VelvethParams" (Arguments for velveth input string workspace_name
            - the name of the workspace for input/output string out_folder -
            the folder name for output files int hash_length - an odd integer
-           (if even, it will be decremented) <= 31 list<seq_file_name>
-           sequence_files - sequence files to assemble list<ReadsChannel>
+           (if even, it will be decremented) <= 31 read_library_ref - the
+           name of the PE read library (SE library, and other (sam, bam,
+           fasta, etc.) support is provided through the reads_channels input
+           parameter) list<seq_file_name> sequence_files - sequence files to
+           assemble, in case preprocessing is needed list<ReadsChannel>
            reads_channels - a list/an array of ReadsChannel defining
            {read_type, file_format, {read_file[,...]}[, file_layout,
            read_reference]}) -> structure: parameter "out_folder" of String,
            parameter "workspace_name" of String, parameter "hash_length" of
-           Long, parameter "sequence_files" of list of type "seq_file_name"
-           (The workspace object name of a read library file of the KBaseFile
-           type.), parameter "reads_channels" of list of type "ReadsChannel"
-           (Define a structure that mimics the concept of "channel" used by
-           the Velvet program. string read_type - the read type, e.g.,
-           -short, -shortPaired, short2, shortPaired2, -long, or -longPaired
-           string file_format - the format of the input file, e.g., -fasta,
-           -fastq, -raw,-fasta.gz, -fastq.gz, -raw.gz, -sam, -bam, -fmtAuto
-           string read_file_info - the hash that holds the details about the
-           read file string file_layout - the layout of the file, e.g.,
+           Long, parameter "read_library_ref" of String, parameter
+           "sequence_files" of list of type "seq_file_name" (The workspace
+           object name of a read library file of the KBaseFile type.),
+           parameter "reads_channels" of list of type "ReadsChannel" (Define
+           a structure that mimics the concept of "channel" used by the
+           Velvet program. string read_type - the read type, e.g., -short,
+           -shortPaired, short2, shortPaired2, -long, or -longPaired string
+           file_format - the format of the input file, e.g., -fasta, -fastq,
+           -raw,-fasta.gz, -fastq.gz, -raw.gz, -sam, -bam, -fmtAuto string
+           read_file_info - the hash that holds the details about the read
+           file string file_layout - the layout of the file, e.g.,
            -interleaved or -separate bool read_reference - indicating if a
            reference file is used) -> structure: parameter "read_type" of
            String, parameter "file_format" of String, parameter
@@ -550,7 +559,7 @@ class Velvet:
            required, the rest are optional. e.g., {"reference_file" =>
            "test_reference.fa", "read_file_name" => "mySortedReads.sam",
            "left_file" => "left.fa", "right_file" => "right.fa"}) ->
-           structure: parameter "read_file" of String, parameter
+           structure: parameter "read_file_name" of String, parameter
            "reference_file" of String, parameter "left_file" of String,
            parameter "right_file" of String, parameter "file_layout" of
            String, parameter "read_reference" of type "bool" (A boolean - 0

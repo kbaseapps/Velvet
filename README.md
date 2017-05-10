@@ -119,48 +119,46 @@ usage:
         wk_folder                       : working directory name
 
 <p>
-- Standard options:
-        -cov_cutoff <floating-point|auto>       : removal of low coverage nodes AFTER tour bus or allow the system to infer it
+Standard options:
+    -    -cov_cutoff <floating-point|auto>       : removal of low coverage nodes AFTER tour bus or allow the system to infer it
                 (default: no removal)
-        -ins_length <integer>           : expected distance between two paired end reads (default: no read pairing)
-        -read_trkg <yes|no>             : tracking of short read positions in assembly (default: no tracking)
-        -min_contig_lgth <integer>      : minimum contig length exported to contigs.fa file (default: hash length * 2)
-        -amos_file <yes|no>             : export assembly to AMOS file (default: no export)
-        -exp_cov <floating point|auto>  : expected coverage of unique regions or allow the system to infer it
+    -    -ins_length <integer>           : expected distance between two paired end reads (default: no read pairing)
+    -    -read_trkg <yes|no>             : tracking of short read positions in assembly (default: no tracking)
+    -    -min_contig_lgth <integer>      : minimum contig length exported to contigs.fa file (default: hash length * 2)
+    -    -amos_file <yes|no>             : export assembly to AMOS file (default: no export)
+    -    -exp_cov <floating point|auto>  : expected coverage of unique regions or allow the system to infer it
                 (default: no long or paired-end read resolution)
-        -long_cov_cutoff <floating-point>: removal of nodes with low long-read coverage AFTER tour bus
+    -    -long_cov_cutoff <floating-point>: removal of nodes with low long-read coverage AFTER tour bus
                 (default: no removal)
 
-- Advanced options:
-        -ins_length* <integer>          : expected distance between two paired-end reads in the respective short-read dataset (default: no read pairing)
-        -ins_length_long <integer>      : expected distance between two long paired-end reads (default: no read pairing)
-        -ins_length*_sd <integer>       : est. standard deviation of respective dataset (default: 10% of corresponding length)
+Advanced options:
+    -    -ins_length* <integer>          : expected distance between two paired-end reads in the respective short-read dataset (default: no read pairing)
+    -    -ins_length_long <integer>      : expected distance between two long paired-end reads (default: no read pairing)
+    -   -ins_length*_sd <integer>       : est. standard deviation of respective dataset (default: 10% of corresponding length)
                 [replace '*' by nothing, '2' or '_long' as necessary]
-        -scaffolding <yes|no>           : scaffolding of contigs used paired end information (default: on)
-        -max_branch_length <integer>    : maximum length in base pair of bubble (default: 100)
-        -max_divergence <floating-point>: maximum divergence rate between two branches in a bubble (default: 0.2)
-        -max_gap_count <integer>        : maximum number of gaps allowed in the alignment of the two branches of a bubble (default: 3)
-        -min_pair_count <integer>       : minimum number of paired end connections to justify the scaffolding of two long contigs (default: 5)
-        -max_coverage <floating point>  : removal of high coverage nodes AFTER tour bus (default: no removal)
-        -coverage_mask <int>    : minimum coverage required for confident regions of contigs (default: 1)
-        -long_mult_cutoff <int>         : minimum number of long reads required to merge contigs (default: 2)
-        -unused_reads <yes|no>          : export unused reads in UnusedReads.fa file (default: no)
-        -alignments <yes|no>            : export a summary of contig alignment to the reference sequences (default: no)
-        -exportFiltered <yes|no>        : export the long nodes which were eliminated by the coverage filters (default: no)
-        -clean <yes|no>                 : remove all the intermediary files which are useless for recalculation (default : no)
-        -very_clean <yes|no>            : remove all the intermediary files (no recalculation possible) (default: no)
-        -paired_exp_fraction <float>   : remove all the paired end connections which less than the specified fraction of the expected count (default: 0.1)
-        -shortMatePaired* <yes|no>      : for mate-pair libraries, indicate that the library might be contaminated with paired-end reads (default no)
-        -conserveLong <yes|no>          : preserve sequences with long reads in them (default no)
+    -    -scaffolding <yes|no>           : scaffolding of contigs used paired end information (default: on)
+    -    -max_branch_length <integer>    : maximum length in base pair of bubble (default: 100)
+    -    -max_divergence <floating-point>: maximum divergence rate between two branches in a bubble (default: 0.2)
+    -    -max_gap_count <integer>        : maximum number of gaps allowed in the alignment of the two branches of a bubble (default: 3)
+    -    -min_pair_count <integer>       : minimum number of paired end connections to justify the scaffolding of two long contigs (default: 5)
+    -    -max_coverage <floating point>  : removal of high coverage nodes AFTER tour bus (default: no removal)
+    -    -coverage_mask <int>    : minimum coverage required for confident regions of contigs (default: 1)
+    -    -long_mult_cutoff <int>         : minimum number of long reads required to merge contigs (default: 2)
+    -    -unused_reads <yes|no>          : export unused reads in UnusedReads.fa file (default: no)
+    -    -alignments <yes|no>            : export a summary of contig alignment to the reference sequences (default: no)
+    -    -exportFiltered <yes|no>        : export the long nodes which were eliminated by the coverage filters (default: no)
+    -    -clean <yes|no>                 : remove all the intermediary files which are useless for recalculation (default : no)
+    -    -very_clean <yes|no>            : remove all the intermediary files (no recalculation possible) (default: no)
+    -    -paired_exp_fraction <float>   : remove all the paired end connections which less than the specified fraction of the expected count (default: 0.1)
+    -    -shortMatePaired* <yes|no>      : for mate-pair libraries, indicate that the library might be contaminated with paired-end reads (default no)
+    -    -conserveLong <yes|no>          : preserve sequences with long reads in them (default no)
 
-- Output:
+Output:
         wk_folder/contigs.fa            : fasta file of contigs longer than twice hash length
         wk_folder/stats.txt             : stats file (tab-spaced) useful for determining appropriate coverage cutoff
         wk_folder/LastGraph             : special formatted file with all the information on the final graph
         wk_folder/velvet_asm.afg        : (if requested) AMOS compatible assembly file
-</p>
 
-<p>    
     Example 1******************************:<br>
         root@a8f57e8985e8:/kb/module# /kb/module/velvet/velvetg /kb/module/work/tmp/velveth_outfolder 
         [0.000000] Reading roadmap file /kb/module/work/tmp/velveth_outfolder/Roadmaps
@@ -264,8 +262,7 @@ usage:
    
     root@a8f57e8985e8:/kb/module# ls /kb/module/work/tmp/velveth_outfolder/
         Graph  LastGraph  Log  PreGraph  Roadmaps  Sequences  contigs.fa  stats.txt
-</p>
-<p>
+<br>
 
     root@a8f57e8985e8:/kb/module# ls -al /kb/module/work/tmp/velveth_outfolder/
         total 16652
@@ -279,6 +276,7 @@ usage:
         -rw-r--r--  1 root root 10063561 May  3 15:06 Sequences
         -rw-r--r--  1 root root   102424 May  3 15:10 contigs.fa
         -rw-r--r--  1 root root      912 May  3 15:10 stats.txt
+
     root@a8f57e8985e8:/kb/module# cat /kb/module/work/tmp/velveth_outfolder/stats.txt 
         ID      lgth    out     in      long_cov        short1_cov      short1_Ocov     short2_cov      short2_Ocov     long_nb short1_nb       short2_nb
         1       23736   2       2       0.000000        18.616153       18.597110       0.000000        0.000000        0       0       0
@@ -294,9 +292,8 @@ usage:
         11      21      1       1       0.000000        1.190476        1.190476        0.000000        0.000000        0       0       0
         12      21      1       1       0.000000        1.190476        1.190476        0.000000        0.000000        0       0       0
         13      21      1       1       0.000000        1.047619        1.047619        0.000000        0.000000        0       0       0
-</p>
 
-<p>
+    
     Example 2******************************:<br>
     root@a8f57e8985e8:/kb/module# /kb/module/velvet/velvetg /kb/module/work/tmp/velveth_outfolder -cov_cutoff 0.1
         [0.000000] Reading graph file /kb/module/work/tmp/velveth_outfolder/Graph

@@ -7,6 +7,7 @@ import time
 import requests
 import shutil
 
+from pprint import pprint, pformat
 from os import environ
 try:
     from ConfigParser import ConfigParser  # py2
@@ -112,7 +113,7 @@ class VelvetTest(unittest.TestCase):
                                           'interleaved': 0, 'wsname': self.getWsName(),
                                           'name': 'test.pe.reads'})['obj_ref']
 
-        new_obj_info = self.ws.get_object_info_new({'objects': [{'ref': paired_end_ref}]})
+        new_obj_info = self.wsClient.get_object_info_new({'objects': [{'ref': paired_end_ref}]})
         self.__class__.pairedEndLibInfo = new_obj_info[0]
         print ('paired reads uploaded:\n')
         pprint (pformat(new_obj_info))
@@ -125,7 +126,7 @@ class VelvetTest(unittest.TestCase):
             '/' + str(object_info[4])
 
     # Uncomment to skip this test
-    #@unittest.skip("skipped test_run_velveth")
+    @unittest.skip("skipped test_run_velveth")
     def test_run_velveth(self):
         # get the test data
         pe_lib_info = self.getPairedEndLibInfo()
@@ -194,44 +195,31 @@ class VelvetTest(unittest.TestCase):
         return result
 
     # Uncomment to skip this test
-    @unittest.skip("skipped test_run_velvet")
+    #@unittest.skip("skipped test_run_velvet")
     def test_run_velvet(self):
-        # velveth parameters
-        rc = {
-            'read_type': 'short',
-            'file_format': 'sam',
-            'file_layout': 'interleaved',
-            'read_file_info' : {
-                                'read_file_name': 'test_reads.sam',
-                                'reference_file': 'test_reference.fa',
-                                'left_file': '',
-                                'right_file': ''
-                               }
-        }
-        h_params = {
-            'workspace_name': self.getWsName(),
-            'out_folder': 'velvet_outfolder',
-            'hash_length': 21,
-            'reads_channels': [rc]
-        }
+        # get the test data
+        pe_lib_info = self.getPairedEndLibInfo()
+        pprint(pe_lib_info)
 
-        # velvetg parameters
-        g_params = {
+        # velvet parameters
+        params = {
             'workspace_name': self.getWsName(),
-            'wk_folder': 'velvet_outfolder',
-            'output_contigset_name': 'Velvet_test_contigset'#, 
+            'output_contigset_name': 'Velvet_test_contigset',
+            'hash_length': 21,
+            'read_libraries':[self.make_ref(pe_lib_info)]
             #'cov_cutoff': 5.2
             #'min_contig_length': 100#,
         }
 
-        params = {'h_params': h_params, 'g_params': g_params}
-
         result = self.getImpl().run_velvet(self.getContext(), params)
 
-        # check the report. We assume that kb_quast and KBaseReport do what they're supposed to do
-        rep = self.wsClient.get_objects2({'objects': [{'ref': result[0]['report_ref']}]})['data'][0]
-        print('REPORT object:')
-        pprint(rep)
+        if not result[0]['report_ref'] is None:
+                # check the report. We assume that kb_quast and KBaseReport do what they're supposed to do
+                rep = self.wsClient.get_objects2({'objects': [{'ref': result[0]['report_ref']}]})['data'][0]
+                print('REPORT object:')
+                pprint(rep)
 
-        self.assertEqual(rep['info'][1].rsplit('_', 1)[0], 'kb_velvet_report')
-        self.assertEqual(rep['info'][2].split('-', 1)[0], 'KBaseReport.Report')
+                self.assertEqual(rep['info'][1].rsplit('_', 1)[0], 'kb_velvet_report')
+                self.assertEqual(rep['info'][2].split('-', 1)[0], 'KBaseReport.Report')
+        else:
+                print('Velvet failed!')

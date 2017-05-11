@@ -11,28 +11,6 @@
     },
     "parameters": [ 
         {
-            "id": "out_folder",
-            "optional": false,
-            "advanced": false,
-            "allow_multiple": false,
-            "default_values": [ "Velvet_outfolder" ],
-            "field_type": "text",
-            "text_options": {
-                "validate_as": "text"
-            }
-        },
-        {
-            "id": "wk_folder",
-            "optional": false,
-            "advanced": false,
-            "allow_multiple": false,
-            "default_values": [ "Velvet_outfolder" ],
-            "field_type": "text",
-            "text_options": {
-                "validate_as": "text"
-            }
-        },
-        {
             "id": "hash_length",
             "optional": false,
             "advanced": false,
@@ -46,7 +24,7 @@
             }
         },
         {
-            "id": "read_library_ref",
+            "id": "read_libraries",
             "optional": false,
             "advanced": false,
             "allow_multiple": false,
@@ -67,54 +45,6 @@
                 "valid_ws_types" : [ "KBaseGenomeAnnotations.Assembly" ],
                 "is_output_name":true
             }
-        },
-        {
-            "id": "ins_length",
-            "optional": false,
-            "advanced": false,
-            "allow_multiple": false,
-            "default_values": [ "400" ],
-            "field_type": "text",
-            "text_options": {
-                "validate_as" : "int",
-                "min_int" : 200
-            }
-        },
-        {
-            "id": "exp_cov",
-            "optional": false,
-            "advanced": false,
-            "allow_multiple": false,
-            "default_values": [ "21.3" ],
-            "field_type": "text",
-            "text_options": {
-                "validate_as" : "int",
-                "min_int" : 0
-            }
-        },
-        {
-            "id": "min_contig_length",
-            "optional": true,
-            "advanced": true,
-            "allow_multiple": false,
-            "default_values": [ "500" ],
-            "field_type": "text",
-            "text_options": {
-                "validate_as" : "int",
-                "min_int" : 200
-            }
-        },
-        {
-            "id": "cov_cutoff",
-            "optional": true,
-            "advanced": true,
-            "allow_multiple": false,
-            "default_values": [ "5.2" ],
-            "field_type": "text",
-            "text_options": {
-                "validate_as" : "int",
-                "min_int" : 0
-            }
         }
     ],
     "behavior": {
@@ -128,17 +58,9 @@
                     "target_property": "workspace_name"
                 },
                 {
-                    "input_parameter": "read_library_ref",
-                    "target_property": "read_library_ref",
+                    "input_parameter": "read_libraries",
+                    "target_property": "read_libraries",
                     "target_type_transform": "resolved-ref"
-                },
-                {
-                    "input_parameter": "out_folder",
-                    "target_property": "out_folder"
-                },
-                {
-                    "input_parameter": "wk_folder",
-                    "target_property": "wk_folder"
                 },
                 {
                     "input_parameter": "hash_length",
@@ -147,22 +69,6 @@
                 {
                     "input_parameter": "output_contigset_name",
                     "target_property": "output_contigset_name"
-                },
-                {
-                    "input_parameter": "min_contig_length",
-                    "target_property": "min_contig_length"
-                },
-                {
-                    "input_parameter": "exp_cov",
-                    "target_property": "exp_cov"
-                },
-                {
-                    "input_parameter": "ins_length",
-                    "target_property": "ins_length"
-                },
-                {
-                    "input_parameter": "cov_cutoff",
-                    "target_property": "cov_cutoff"
                 }
             ],
             "output_mapping": [

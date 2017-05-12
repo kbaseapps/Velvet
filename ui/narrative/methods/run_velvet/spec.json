@@ -128,7 +128,7 @@
                 {
                     "input_parameter": "extra_params",
                     "target_property": "extra_params"
-                }
+                },
                 {
                     "service_method_output_path": [0],
                     "target_property": "Velvet_result"

@@ -57,7 +57,7 @@ class Velvet:
     VELVETH = '/kb/module/velvet/velveth'
     VELVETG = '/kb/module/velvet/velvetg'
     VELVET_DATA = '/kb/module/work/tmp'
-    #VELVET_DATA = '/kb/module/test/data/'
+    #VELVET_DATA = '/kb/module/test/data'
     PARAM_IN_WS = 'workspace_name'
     PARAM_IN_CS_NAME = 'output_contigset_name'
     PARAM_IN_MIN_CONTIG_LENGTH = 'min_contig_length'
@@ -166,10 +166,10 @@ class Velvet:
 
             if 'file_layout' in rc and rc['file_layout'] == 'separate':
                 vh_cmd.append('-' + rc['file_layout'])
-                vh_cmd.append(os.path.join(self.VELVET_DATA + rc['read_file_info']['left_file']))
-                vh_cmd.append(os.path.join(self.VELVET_DATA + rc['read_file_info']['right_file']))
+                vh_cmd.append(os.path.join(self.VELVET_DATA, rc['read_file_info']['left_file']))
+                vh_cmd.append(os.path.join(self.VELVET_DATA, rc['read_file_info']['right_file']))
             else:
-                vh_cmd.append(os.path.join(self.VELVET_DATA + rc['read_file_info']['read_file_name']))
+                vh_cmd.append(os.path.join(self.VELVET_DATA, rc['read_file_info']['read_file_name']))
 
         # STEP 3 return vh_cmd
         print ('Velveth CMD:\n')

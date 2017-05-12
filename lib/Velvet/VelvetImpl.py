@@ -50,7 +50,7 @@ class Velvet:
     ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "https://github.com/kbaseapps/kb_Velvet"
-    GIT_COMMIT_HASH = "ed64d97d16e1330f60893a3ac17a1c2978db2520"
+    GIT_COMMIT_HASH = "3ce9ddd6c5ca76b7c2b801874addc6eae7c0ebd1"
 
     #BEGIN_CLASS_HEADER
     # Class variables and functions can be defined in this block
@@ -390,10 +390,13 @@ class Velvet:
            integer (if even, it will be decremented) <= 31 string
            output_contigset_name - the name of the output contigset
            list<paired_end_lib> read_libraries - Illumina PairedEndLibrary
-           files to assemble) -> structure: parameter "workspace_name" of
-           String, parameter "hash_length" of Long, parameter
-           "read_libraries" of String, parameter "output_contigset_name" of
-           String
+           files to assemble min_contig_length - (optional) integer to filter
+           out contigs with length < min_contig_length from the Velvet
+           output. Default value is 0 implying no filter.) -> structure:
+           parameter "workspace_name" of String, parameter "hash_length" of
+           Long, parameter "read_libraries" of String, parameter
+           "output_contigset_name" of String, parameter "min_contig_length"
+           of Long
         :returns: instance of type "VelvetResults" (Output parameter items
            for run_velvet report_name - the name of the KBaseReport.Report
            workspace object. report_ref - the workspace reference of the
@@ -479,7 +482,7 @@ class Velvet:
 
                 assemblyUtil = AssemblyUtil(self.callbackURL, token=ctx['token'], service_ver='release')
 
-                min_contig_length = params.get('min_contig_length', 0) if params[self.PARAM_IN_MIN_CONTIG_LENGTH] else 0
+                min_contig_length = params.get(self.PARAM_IN_MIN_CONTIG_LENGTH, 0) if params[self.PARAM_IN_MIN_CONTIG_LENGTH] else 0
                 if min_contig_length > 0:
                         assemblyUtil.save_assembly_from_fasta(
                                 {'file': {'path': output_contigs},
@@ -504,8 +507,7 @@ class Velvet:
         #END run_velvet
 
         # At some point might do deeper type checking...
-        if not isinstance(output, dict)::w
-
+        if not isinstance(output, dict):
             raise ValueError('Method run_velvet return value ' +
                              'output is not type dict as required.')
         # return the results

@@ -30,6 +30,8 @@ module Velvet {
         int hash_length - an odd integer (if even, it will be decremented) <= 31
         string output_contigset_name - the name of the output contigset
         list<paired_end_lib> read_libraries - Illumina PairedEndLibrary files to assemble
+        min_contig_length - (optional) integer to filter out contigs with length < min_contig_length
+                     from the Velvet output. Default value is 0 implying no filter.
      */
 
     typedef structure {
@@ -37,6 +39,7 @@ module Velvet {
         int hash_length;
         string read_libraries; 
         string output_contigset_name; 
+        int min_contig_length;
     } VelvetParams;
     
     /* Output parameter items for run_velvet

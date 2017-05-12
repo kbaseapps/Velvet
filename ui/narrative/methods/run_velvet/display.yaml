@@ -39,6 +39,11 @@ parameters :
             Output ContigSet
         short-hint : |
             The name for the resulting ContigSet will be saved in KBase
+    min_contig_length :
+        ui-name : |
+            Minimum Contig Length
+        short-hint : |
+            The shortest contig to accept in the resulting assembly object
 description : |
     <p>This is a simple method designed to run the Velveth and Velvetg program at Version 1.2.10</p>
 

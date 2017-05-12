@@ -496,7 +496,7 @@ class Velvet:
                         assemblyUtil.save_assembly_from_fasta(
                         {'file': {'path': output_contigs},
                         'workspace_name': wsname,
-                        'assembly_name': params['g_params'][self.PARAM_IN_CS_NAME]
+                        'assembly_name': params[self.PARAM_IN_CS_NAME]
                         })
                 # generate report from contigs.fa
                 report_name, report_ref = self.generate_report(output_contigs, params, velvet_out, wsname)

@@ -44,9 +44,6 @@ parameters :
             Minimal contig length
         short-hint : |
             The shortest contig to accept in the resulting assembly object
-    extra_params:
-        ui-name : Advanced assembly parameters
-        short-hint : Enter extra assembly parameters as strings (hash_length=29 auto_insert=False)
 
 description : |
     <p>This is a KBase wrapper for Velvet.</p>

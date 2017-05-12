@@ -57,15 +57,6 @@
                 "validate_as" : "int",
                 "min_int" : 1
             }
-        },
-        {
-            "id" : "extra_params",
-            "optional" : true,
-            "advanced" : true,
-            "allow_multiple" : true,
-            "default_values" : [ "" ],
-            "field_type" : "text",
-            "text_options" : { }
         }
     ],
     "behavior": {
@@ -124,10 +115,6 @@
                 {
                     "input_parameter": "min_contig_length",
                     "target_property": "min_contig_length"
-                },
-                {
-                    "input_parameter": "extra_params",
-                    "target_property": "extra_params"
                 },
                 {
                     "service_method_output_path": [0],

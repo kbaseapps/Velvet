@@ -50,7 +50,7 @@ class Velvet:
     ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "https://github.com/kbaseapps/kb_Velvet"
-    GIT_COMMIT_HASH = "3ce9ddd6c5ca76b7c2b801874addc6eae7c0ebd1"
+    GIT_COMMIT_HASH = "93ee0739d26b2eebcc2608189ce6b4254e106405"
 
     #BEGIN_CLASS_HEADER
     # Class variables and functions can be defined in this block
@@ -256,7 +256,7 @@ class Velvet:
         params_g = {
                 'workspace_name': params[self.PARAM_IN_WS],
                 'output_contigset_name': params[self.PARAM_IN_CS_NAME],
-                'min_contig_length': params[self.PARAM_IN_MIN_CONTIG_LENGTH],
+                'min_contig_length': params[self.PARAM_IN_MIN_CONTIG_LENGTH] if self.PARAM_IN_MIN_CONTIG_LENGTH in params else 0,
                 'out_folder': outdir
         }
 
@@ -390,13 +390,13 @@ class Velvet:
            integer (if even, it will be decremented) <= 31 string
            output_contigset_name - the name of the output contigset
            list<paired_end_lib> read_libraries - Illumina PairedEndLibrary
-           files to assemble min_contig_length - (optional) integer to filter
-           out contigs with length < min_contig_length from the Velvet
-           output. Default value is 0 implying no filter.) -> structure:
-           parameter "workspace_name" of String, parameter "hash_length" of
-           Long, parameter "read_libraries" of String, parameter
-           "output_contigset_name" of String, parameter "min_contig_length"
-           of Long
+           files to assemble min_contig_length - integer to filter out
+           contigs with length < min_contig_length from the Velvet output.
+           Default value is 0 implying no filter. @optional
+           min_contig_length) -> structure: parameter "workspace_name" of
+           String, parameter "hash_length" of Long, parameter
+           "read_libraries" of String, parameter "output_contigset_name" of
+           String, parameter "min_contig_length" of Long
         :returns: instance of type "VelvetResults" (Output parameter items
            for run_velvet report_name - the name of the KBaseReport.Report
            workspace object. report_ref - the workspace reference of the

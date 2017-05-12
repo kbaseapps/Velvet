@@ -56,7 +56,8 @@ class Velvet:
     # Class variables and functions can be defined in this block
     VELVETH = '/kb/module/velvet/velveth'
     VELVETG = '/kb/module/velvet/velvetg'
-    VELVET_DATA = '/kb/module/work/tmp'
+    #VELVET_DATA = '/kb/module/work/tmp'
+    VELVET_DATA = '/kb/module/test/data/'
     PARAM_IN_WS = 'workspace_name'
     PARAM_IN_CS_NAME = 'output_contigset_name'
     PARAM_IN_MIN_CONTIG_LENGTH = 'min_contig_length'
@@ -449,8 +450,6 @@ class Velvet:
 
         self.log('Got reads data from converter:\n' + pformat(reads))
 
-        #phred_type = self.check_reads(params, reads, reftoname)
-
         reads_data = []
         for ref in reads:
             reads_name = reftoname[ref]
@@ -469,28 +468,24 @@ class Velvet:
                 raise ValueError('Something is very wrong with read lib' + reads_name)
 
         # STEP 1: run velveth and velvetg sequentially
-        velvet_out = self.exec_velvet(params, reads_data)#, phred_type)
-        self.log('Velvet output dir: ')
-        print(velvet_out)
+        velvet_out = self.exec_velvet(params, reads_data)
+        self.log('Velvet output dir: ' + str(velvet_out))
 
         # STEP 2: parse the output and save back to KBase, create report in the same time
         if isinstance(velvet_out, str) and velvet_out != '':
-                work_dir = os.path.join(self.scratch, params['g_params']['wk_folder'])
-                self.log('Velvet output folder: ' + work_dir)
-
-                output_contigs = os.path.join(work_dir, 'contigs.fa')
+                output_contigs = os.path.join(velvet_out, 'contigs.fa')
 
                 self.log('Uploading FASTA file to Assembly')
 
                 assemblyUtil = AssemblyUtil(self.callbackURL, token=ctx['token'], service_ver='release')
 
-                min_contig_length = (params['g_params']).get('min_contig_length', 0)
+                min_contig_length = params.get('min_contig_length', 0) if params[self.PARAM_IN_MIN_CONTIG_LENGTH] else 0
                 if min_contig_length > 0:
                         assemblyUtil.save_assembly_from_fasta(
                                 {'file': {'path': output_contigs},
                                 'workspace_name': wsname,
-                                'assembly_name': params['g_params'][self.PARAM_IN_CS_NAME],
-                                'min_contig_length': params['g_params']['min_contig_length']
+                                'assembly_name': params[self.PARAM_IN_CS_NAME],
+                                'min_contig_length': params[self.PARAM_IN_MIN_CONTIG_LENGTH]
                                 })
                 else:
                         assemblyUtil.save_assembly_from_fasta(
@@ -499,7 +494,7 @@ class Velvet:
                         'assembly_name': params['g_params'][self.PARAM_IN_CS_NAME]
                         })
                 # generate report from contigs.fa
-                report_name, report_ref = self.generate_report(output_contigs, params['g_params'], wsname)
+                report_name, report_ref = self.generate_report(output_contigs, params, wsname)
 
                 # STEP 3: contruct the output to send back
                 output = {'report_name': report_name, 'report_ref': report_ref}
@@ -509,7 +504,8 @@ class Velvet:
         #END run_velvet
 
         # At some point might do deeper type checking...
-        if not isinstance(output, dict):
+        if not isinstance(output, dict)::w
+
             raise ValueError('Method run_velvet return value ' +
                              'output is not type dict as required.')
         # return the results

@@ -256,7 +256,7 @@ class Velvet:
         params_g = {
                 'workspace_name': params[self.PARAM_IN_WS],
                 'output_contigset_name': params[self.PARAM_IN_CS_NAME],
-                'min_contig_length': params[self.PARAM_IN_CONTIG_LENGTH],
+                'min_contig_length': params[self.PARAM_IN_MIN_CONTIG_LENGTH],
                 'out_folder': outdir
         }
 

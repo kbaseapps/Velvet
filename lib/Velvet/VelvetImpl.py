@@ -56,8 +56,8 @@ class Velvet:
     # Class variables and functions can be defined in this block
     VELVETH = '/kb/module/velvet/velveth'
     VELVETG = '/kb/module/velvet/velvetg'
-    #VELVET_DATA = '/kb/module/work/tmp'
-    VELVET_DATA = '/kb/module/test/data/'
+    VELVET_DATA = '/kb/module/work/tmp'
+    #VELVET_DATA = '/kb/module/test/data/'
     PARAM_IN_WS = 'workspace_name'
     PARAM_IN_CS_NAME = 'output_contigset_name'
     PARAM_IN_MIN_CONTIG_LENGTH = 'min_contig_length'

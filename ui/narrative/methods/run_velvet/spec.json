@@ -27,7 +27,7 @@
             "id": "read_libraries",
             "optional": false,
             "advanced": false,
-            "allow_multiple": false,
+            "allow_multiple": true,
             "default_values": [ "" ],
             "field_type": "text",
             "text_options": {
@@ -83,6 +83,14 @@
                 {
                     "constant_value": "16",
                     "target_property": "report_window_line_height"
+                },
+                {
+                    "constant_value": "16",
+                    "target_property": "report_window_line_height"
+                },
+                {
+                    "input_parameter": "read_libraries",
+                    "target_property": "input_read_libraries"
                 },
                 {
                     "input_parameter": "output_contigset_name",

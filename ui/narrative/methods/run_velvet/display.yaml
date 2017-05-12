@@ -41,13 +41,19 @@ parameters :
             The name for the resulting ContigSet will be saved in KBase
     min_contig_length :
         ui-name : |
-            Minimum Contig Length
+            Minimal contig length
         short-hint : |
             The shortest contig to accept in the resulting assembly object
+    extra_params:
+        ui-name : Advanced assembly parameters
+        short-hint : Enter extra assembly parameters as strings (hash_length=29 auto_insert=False)
+
 description : |
-    <p>This is a simple method designed to run the Velveth and Velvetg program at Version 1.2.10</p>
+    <p>This is a KBase wrapper for Velvet.</p>
+    <p>Velvet is a classic de-bruijn graph based assembler. Velvet works by efficiently manipulating de Bruijn graphs through simplification and compression. It eliminates errors and resolves repeats by first using an error correction algorithm that merges sequences together. Repeats are then removed from the sequence via the repeat solver that separates paths which share local overlaps. Velvet is fast and robust, although it is no longer in active development.</p>
+    <p><b>Known limitations</b>: Velvet assembly quality is known to be sensitive to the hash length.</p>
 
 publications :
     -
-        display-text: |
-D.R. Zerbino and E. Birney. 2008. Velvet: algorithms for de novoshort read assembly using de Bruijn graphs. Genome Research, 18:821-829
+        display-text : |
+            Zerbino, D. R., Birney, E. (2008) Velvet: Algorithms for de novo short read assembly using de Bruijn graphs. Genome Research, 18(5), 821-829, doi: 10.1101/gr.074492.107

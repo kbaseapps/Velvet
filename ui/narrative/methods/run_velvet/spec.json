@@ -51,11 +51,11 @@
             "optional": false,
             "advanced": true,
             "allow_multiple": false,
-            "default_values": [ "500" ],
+            "default_values": [ "200" ],
             "field_type": "text",
             "text_options": {
                 "validate_as" : "int",
-                "min_int" : 200
+                "min_int" : 1
             }
         }
     ],

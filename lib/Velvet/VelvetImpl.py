@@ -256,8 +256,8 @@ class Velvet:
         params_g = {
                 'workspace_name': params[self.PARAM_IN_WS],
                 'output_contigset_name': params[self.PARAM_IN_CS_NAME],
-                'out_folder': outdir,
-
+                'min_contig_length': params[self.PARAM_IN_CONTIG_LENGTH],
+                'out_folder': outdir
         }
 
         ret = 1
@@ -319,7 +319,7 @@ class Velvet:
             fasta_dict[contig_id] = sequence_len
         return fasta_dict
 
-    def generate_report(self, input_file_name, params, wsname):
+    def generate_report(self, input_file_name, params, out_folder, wsname):
         self.log('Generating and saving report')
 
         fasta_stats = self.load_stats(input_file_name)
@@ -328,7 +328,7 @@ class Velvet:
         assembly_ref = params[self.PARAM_IN_WS] + '/' + params[self.PARAM_IN_CS_NAME]
 
         report = ''
-        report += 'Velvet results saved to: ' + wsname + '/' + params['wk_folder'] + '\n'
+        report += 'Velvet results saved to: ' + wsname + '/' + out_folder + '\n'
         report += 'Assembly saved to: ' + assembly_ref + '\n'
         report += 'Assembled into ' + str(len(lengths)) + ' contigs.\n'
         report += 'Avg Length: ' + str(sum(lengths) / float(len(lengths))) + ' bp.\n'
@@ -482,7 +482,7 @@ class Velvet:
 
                 assemblyUtil = AssemblyUtil(self.callbackURL, token=ctx['token'], service_ver='release')
 
-                min_contig_length = params.get(self.PARAM_IN_MIN_CONTIG_LENGTH, 0) if params[self.PARAM_IN_MIN_CONTIG_LENGTH] else 0
+                min_contig_length = params.get(self.PARAM_IN_MIN_CONTIG_LENGTH, 0) if self.PARAM_IN_MIN_CONTIG_LENGTH in params else 0
                 if min_contig_length > 0:
                         assemblyUtil.save_assembly_from_fasta(
                                 {'file': {'path': output_contigs},
@@ -497,7 +497,7 @@ class Velvet:
                         'assembly_name': params['g_params'][self.PARAM_IN_CS_NAME]
                         })
                 # generate report from contigs.fa
-                report_name, report_ref = self.generate_report(output_contigs, params, wsname)
+                report_name, report_ref = self.generate_report(output_contigs, params, velvet_out, wsname)
 
                 # STEP 3: contruct the output to send back
                 output = {'report_name': report_name, 'report_ref': report_ref}

@@ -234,7 +234,7 @@ class Velvet:
 
         self.log(velvetg_cmd)
         print ('Velvetg CMD:\n')
-        print ' '.join(velvethg_cmd)
+        print ' '.join(velvetg_cmd)
         return p.returncode
 
 

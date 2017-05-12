@@ -191,7 +191,7 @@ class Velvet:
             vg_cmd.append('-ins_length ' + str(params['ins_length']))
         if 'read_trkg' in params:
             vg_cmd.append('-read_trkg ' + str(params['read_trkg']))
-        if 'min_contig_length' in params:
+        if 'min_contig_length' in params and params['min_contig_length'] > 0:
             vg_cmd.append('-min_contig_lgth ' + str(params['min_contig_length']))
         if 'amos_file' in params:
             vg_cmd.append('-amos_file ' + str(params['amos_file']))
@@ -203,6 +203,8 @@ class Velvet:
         # appending the advanced optional inputs--TODO
 
         # STEP 3 return vg_cmd
+        print ('Velvetg CMD:\n')
+        print ' '.join(vg_cmd)
         return vg_cmd
 
     def exec_velveth(self, params):

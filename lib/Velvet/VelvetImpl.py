@@ -20,9 +20,7 @@ from kb_quast.kb_quastClient import kb_quast
 from kb_quast.baseclient import ServerError as QUASTError
 from ReadsUtils.ReadsUtilsClient import ReadsUtils 
 from ReadsUtils.baseclient import ServerError
-#from biokbase.workspace.client import Workspace as workspaceService
 from Workspace.WorkspaceClient import Workspace as workspaceService
-#from kb_Msuite.Utils.DataStagingUtils import DataStagingUtils
 #END_HEADER
 
 
@@ -172,7 +170,7 @@ class Velvet:
                 vh_cmd.append(os.path.join(self.VELVET_DATA, rc['read_file_info']['read_file_name']))
 
         # STEP 3 return vh_cmd
-        print ('Velveth CMD:\n')
+        print ('Velveth CMD:')
         print ' '.join(vh_cmd)
         return vh_cmd
 
@@ -203,7 +201,7 @@ class Velvet:
         # appending the advanced optional inputs--TODO
 
         # STEP 3 return vg_cmd
-        print ('Velvetg CMD:\n')
+        print ('Velvetg CMD:')
         print ' '.join(vg_cmd)
         return vg_cmd
 
@@ -218,9 +216,6 @@ class Velvet:
         if p.returncode != 0:
             raise ValueError('Error running VELVETH, return code: ' + str(retcode) + '\n')
 
-        self.log(velveth_cmd)
-        print('Velveth CMD:\n')
-        print ' '.join(velveth_cmd)
         return p.returncode
 
     def exec_velvetg(self, params):
@@ -234,9 +229,6 @@ class Velvet:
         if p.returncode != 0:
             raise ValueError('Error running VELVETG, return code: ' + str(retcode) + '\n')
 
-        self.log(velvetg_cmd)
-        print ('Velvetg CMD:\n')
-        print ' '.join(velvetg_cmd)
         return p.returncode
 
 
@@ -258,7 +250,7 @@ class Velvet:
         params_g = {
                 'workspace_name': params[self.PARAM_IN_WS],
                 'output_contigset_name': params[self.PARAM_IN_CS_NAME],
-                'min_contig_length': params[self.PARAM_IN_MIN_CONTIG_LENGTH] if self.PARAM_IN_MIN_CONTIG_LENGTH in params else 0,
+                'min_contig_length': params.get(self.PARAM_IN_MIN_CONTIG_LENGTH, 0), 
                 'out_folder': outdir
         }
 
@@ -484,7 +476,7 @@ class Velvet:
 
                 assemblyUtil = AssemblyUtil(self.callbackURL, token=ctx['token'], service_ver='release')
 
-                min_contig_length = params.get(self.PARAM_IN_MIN_CONTIG_LENGTH, 0) if self.PARAM_IN_MIN_CONTIG_LENGTH in params else 0
+                min_contig_length = params.get(self.PARAM_IN_MIN_CONTIG_LENGTH, 0)
                 if min_contig_length > 0:
                         assemblyUtil.save_assembly_from_fasta(
                                 {'file': {'path': output_contigs},

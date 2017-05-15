@@ -221,13 +221,20 @@ class Velvet:
     def exec_velvetg(self, params):
         self.log('Running run_velvetg with params:\n' + pformat(params))
         velvetg_cmd = self.construct_velvetg_cmd(params)
-
-        p = subprocess.Popen(velvetg_cmd, cwd=self.scratch, shell=False)
+        #p = subprocess.Popen(velvetg_cmd, cwd=self.scratch, shell=False)
+        p = subprocess.Popen(velvetg_cmd, cwd=self.scratch, stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)
         retcode = p.wait()
+        pout, perr = p.communicate()
+        if pout:
+                print "ret>", p.returncode
+                print "OK> pout ", pout
+        if perr:
+                print "ret>", p.returncode
+                print "Error> error ", perr.strip()
 
-        self.log('Return code: ' + str(retcode))
+        self.log('Return code: ' + str(p.returncode))
         if p.returncode != 0:
-            raise ValueError('Error running VELVETG, return code: ' + str(retcode) + '\n')
+            raise ValueError('Error running VELVETG, return code: ' + str(p.returncode) + '\n')
 
         return p.returncode
 

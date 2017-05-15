@@ -126,7 +126,7 @@ class VelvetTest(unittest.TestCase):
             '/' + str(object_info[4])
 
     # Uncomment to skip this test
-    #@unittest.skip("skipped test_run_velveth")
+    @unittest.skip("skipped test_run_velveth")
     def test_velveth(self):
         # get the test data
         out_folder = os.path.join(self.scratch, 'velvet_output_dir')
@@ -234,7 +234,7 @@ class VelvetTest(unittest.TestCase):
 
     # Uncomment to skip this test
     @unittest.skip("skipped test_run_velvetg")
-    def test_run_velvetg(self):
+    def test_velvetg(self):
         # run velvetg
         #work_folder = self.velveth()[0]
         #print "Returned work folder from velveth call: " + work_folder
@@ -253,7 +253,7 @@ class VelvetTest(unittest.TestCase):
         return result
 
     # Uncomment to skip this test
-    @unittest.skip("skipped test_run_velvet")
+    #@unittest.skip("skipped test_run_velvet")
     def test_run_velvet(self):
         # get the test data
         pe_lib_info = self.getPairedEndLibInfo()
@@ -264,6 +264,7 @@ class VelvetTest(unittest.TestCase):
             'workspace_name': self.getWsName(),
             'output_contigset_name': 'Velvet_test_contigset',
             'hash_length': 21,
+            'min_contig_length': 100,
             'read_libraries':[self.make_ref(pe_lib_info)]
         }
 

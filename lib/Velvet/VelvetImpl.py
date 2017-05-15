@@ -189,8 +189,8 @@ class Velvet:
             vg_cmd.append('-ins_length ' + str(params['ins_length']))
         if 'read_trkg' in params:
             vg_cmd.append('-read_trkg ' + str(params['read_trkg']))
-        if 'min_contig_length' in params and params['min_contig_length'] > 0:
-            vg_cmd.append('-min_contig_lgth ' + str(params['min_contig_length']))
+        if self.PARAM_IN_MIN_CONTIG_LENGTH in params and params['min_contig_length'] > 0:
+            vg_cmd.append('-min_contig_lgth ' + str(params[self.PARAM_IN_MIN_CONTIG_LENGTH]))
         if 'amos_file' in params:
             vg_cmd.append('-amos_file ' + str(params['amos_file']))
         if 'exp_cov' in params:
@@ -250,7 +250,7 @@ class Velvet:
         params_g = {
                 'workspace_name': params[self.PARAM_IN_WS],
                 'output_contigset_name': params[self.PARAM_IN_CS_NAME],
-                'min_contig_length': params.get(self.PARAM_IN_MIN_CONTIG_LENGTH, 0), 
+                self.PARAM_IN_MIN_CONTIG_LENGTH: params.get(self.PARAM_IN_MIN_CONTIG_LENGTH, 0), 
                 'out_folder': outdir
         }
 
@@ -482,7 +482,7 @@ class Velvet:
                                 {'file': {'path': output_contigs},
                                 'workspace_name': wsname,
                                 'assembly_name': params[self.PARAM_IN_CS_NAME],
-                                'min_contig_length': params[self.PARAM_IN_MIN_CONTIG_LENGTH]
+                                self.PARAM_IN_MIN_CONTIG_LENGTH: params[self.PARAM_IN_MIN_CONTIG_LENGTH]
                                 })
                 else:
                         assemblyUtil.save_assembly_from_fasta(

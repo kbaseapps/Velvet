@@ -183,14 +183,14 @@ class Velvet:
         vg_cmd = [self.VELVETG]
         vg_cmd.append(out_folder)
         #appending the standard optional inputs
+        if self.PARAM_IN_MIN_CONTIG_LENGTH in params and params[self.PARAM_IN_MIN_CONTIG_LENGTH] > 0:
+            vg_cmd.append('-min_contig_lgth ' + str(params[self.PARAM_IN_MIN_CONTIG_LENGTH]))
         if 'cov_cutoff' in params:
             vg_cmd.append('-cov_cutoff ' + str(params['cov_cutoff']))
         if 'ins_length' in params:
             vg_cmd.append('-ins_length ' + str(params['ins_length']))
         if 'read_trkg' in params:
             vg_cmd.append('-read_trkg ' + str(params['read_trkg']))
-        if self.PARAM_IN_MIN_CONTIG_LENGTH in params and params['min_contig_length'] > 0:
-            vg_cmd.append('-min_contig_lgth ' + str(params[self.PARAM_IN_MIN_CONTIG_LENGTH]))
         if 'amos_file' in params:
             vg_cmd.append('-amos_file ' + str(params['amos_file']))
         if 'exp_cov' in params:
@@ -222,12 +222,15 @@ class Velvet:
         self.log('Running run_velvetg with params:\n' + pformat(params))
         velvetg_cmd = self.construct_velvetg_cmd(params)
         #p = subprocess.Popen(velvetg_cmd, cwd=self.scratch, shell=False)
-        p = subprocess.Popen(velvetg_cmd, cwd=self.scratch, stdout=subprocess.PIPE,stderr=subprocess.PIPE, shell=True)
+        p = subprocess.Popen(velvetg_cmd, 
+                             cwd=self.scratch, 
+                             stdout=subprocess.PIPE,
+                             stderr=subprocess.STDOUT, shell=False)
         retcode = p.wait()
         pout, perr = p.communicate()
         if pout:
                 print "ret>", p.returncode
-                print "OK> pout ", pout
+                print "subprocess out: ", pout
         if perr:
                 print "ret>", p.returncode
                 print "Error> error ", perr.strip()
@@ -270,6 +273,7 @@ class Velvet:
             self.log('Velveth raised error:\n')
             print(eh)
         else:#no exception raised by Velveth and Velveth returns 0, then run Velvetg
+            ret = 1 
             try:
                 ret = self.exec_velvetg(params_g)
                 while( ret != 0 ):
@@ -413,8 +417,7 @@ class Velvet:
         wsname = params[self.PARAM_IN_WS]
         self.process_params(params)
 
-        #print pformat(params[self.PARAM_IN_LIB])
-
+        # STEP 0: preprocess the reads in KBase way
         obj_ids = []
         for r in params[self.PARAM_IN_LIB]:
             obj_ids.append({'ref': r if '/' in r else (wsname + '/' + r)})
@@ -473,7 +476,7 @@ class Velvet:
 
         # STEP 1: run velveth and velvetg sequentially
         velvet_out = self.exec_velvet(params, reads_data)
-        self.log('Velvet output dir: ' + str(velvet_out))
+        self.log('Velvet final return: ' + str(velvet_out))
 
         # STEP 2: parse the output and save back to KBase, create report in the same time
         if isinstance(velvet_out, str) and velvet_out != '':
@@ -483,13 +486,13 @@ class Velvet:
 
                 assemblyUtil = AssemblyUtil(self.callbackURL, token=ctx['token'], service_ver='release')
 
-                min_contig_length = params.get(self.PARAM_IN_MIN_CONTIG_LENGTH, 0)
-                if min_contig_length > 0:
+                min_contig_len = params.get(self.PARAM_IN_MIN_CONTIG_LENGTH, 0)
+                if min_contig_len > 0:
                         assemblyUtil.save_assembly_from_fasta(
                                 {'file': {'path': output_contigs},
                                 'workspace_name': wsname,
                                 'assembly_name': params[self.PARAM_IN_CS_NAME],
-                                self.PARAM_IN_MIN_CONTIG_LENGTH: params[self.PARAM_IN_MIN_CONTIG_LENGTH]
+                                'min_contig_length': min_contig_len
                                 })
                 else:
                         assemblyUtil.save_assembly_from_fasta(

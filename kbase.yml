@@ -1,5 +1,5 @@
 module-name:
-    Velvet Assembler
+    Velvet
 
 module-description:
     This is a KBase module that wraps the open source package-Short read de novo assembler using de Bruijn graphs Version 1.2.10

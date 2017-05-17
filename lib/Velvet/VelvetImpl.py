@@ -157,8 +157,7 @@ class Velvet:
 
         for rc in reads_channels:
             vh_cmd.append('-' + rc['file_format'])
-            read_type = rc['read_type']
-            vh_cmd.append('-' + read_type)
+            vh_cmd.append('-' + rc['read_type'])
             if 'read_reference' in rc and rc['read_reference'] == 1:
                 vh_cmd.append(os.path.join(self.VELVET_DATA, rc['read_file_info']['reference_file']))
 
@@ -184,19 +183,26 @@ class Velvet:
         vg_cmd.append(out_folder)
         #appending the standard optional inputs
         if self.PARAM_IN_MIN_CONTIG_LENGTH in params and params[self.PARAM_IN_MIN_CONTIG_LENGTH] > 0:
-            vg_cmd.append('-min_contig_lgth ' + str(params[self.PARAM_IN_MIN_CONTIG_LENGTH]))
+            vg_cmd.append('-min_contig_lgth')
+            vg_cmd.append(str(params[self.PARAM_IN_MIN_CONTIG_LENGTH]))
         if 'cov_cutoff' in params:
-            vg_cmd.append('-cov_cutoff ' + str(params['cov_cutoff']))
+            vg_cmd.append('-cov_cutoff')
+            vg_cmd.append(str(params['cov_cutoff']))
         if 'ins_length' in params:
-            vg_cmd.append('-ins_length ' + str(params['ins_length']))
+            vg_cmd.append('-ins_length')
+            vg_cmd.append(str(params['ins_length']))
         if 'read_trkg' in params:
-            vg_cmd.append('-read_trkg ' + str(params['read_trkg']))
+            vg_cmd.append('-read_trkg')
+            vg_cmd.append(str(params['read_trkg']))
         if 'amos_file' in params:
-            vg_cmd.append('-amos_file ' + str(params['amos_file']))
+            vg_cmd.append('-amos_file')
+            vg_cmd.append(str(params['amos_file']))
         if 'exp_cov' in params:
-            vg_cmd.append('-exp_cov ' + str(params['exp_cov']))
+            vg_cmd.append('-exp_cov')
+            vg_cmd.append(str(params['exp_cov']))
         if 'long_cov_cutoff' in params:
-            vg_cmd.append('-long_cov_cutoff ' + str(params['long_cov_cutoff']))
+            vg_cmd.append('-long_cov_cutoff')
+            vg_cmd.append(str(params['long_cov_cutoff']))
 
         # appending the advanced optional inputs--TODO
 
@@ -221,20 +227,8 @@ class Velvet:
     def exec_velvetg(self, params):
         self.log('Running run_velvetg with params:\n' + pformat(params))
         velvetg_cmd = self.construct_velvetg_cmd(params)
-        #p = subprocess.Popen(velvetg_cmd, cwd=self.scratch, shell=False)
-        p = subprocess.Popen(velvetg_cmd, 
-                             cwd=self.scratch, 
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.STDOUT, shell=False)
+        p = subprocess.Popen(velvetg_cmd, cwd=self.scratch, shell=False)
         retcode = p.wait()
-        pout, perr = p.communicate()
-        if pout:
-                print "ret>", p.returncode
-                print "subprocess out: ", pout
-        if perr:
-                print "ret>", p.returncode
-                print "Error> error ", perr.strip()
-
         self.log('Return code: ' + str(p.returncode))
         if p.returncode != 0:
             raise ValueError('Error running VELVETG, return code: ' + str(p.returncode) + '\n')

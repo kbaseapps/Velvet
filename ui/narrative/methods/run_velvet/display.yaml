@@ -46,32 +46,32 @@ parameters :
             The shortest contig to accept in the resulting assembly object
     cov_cutoff :
         ui-name : |
-            removal of low coverage nodes
+            cov_cutoff
         short-hint : |
             removal of low coverage nodes AFTER tour bus or allow the system to infer it
     ins_length :
         ui-name : |
-            expected distance between two paired end reads
+            ins_length
         short-hint : |
             expected distance between two paired end reads (default: no read pairing)
     read_trkg :
         ui-name : |
-            tracking of short read positions in assembly
+            track short read positions
         short-hint : |
             tracking of short read positions in assembly (default: no tracking)
     amos_file :
         ui-name : |
-            export assembly to AMOS file
+            export AMOS file
         short-hint : |
             export assembly to AMOS file (default: no export)
     exp_cov :
         ui-name : |
-            expected coverage of unique regions or allow the system to infer it
+            expected coverage
         short-hint : |
             expected coverage of unique regions or allow the system to infer it
     long_cov_cutoff :
         ui-name : |
-            removal of nodes with low long-read coverage AFTER tour bus
+            long_cov_cutoff
         short-hint : |
             removal of nodes with low long-read coverage AFTER tour bus (default: no removal)
 

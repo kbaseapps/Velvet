@@ -57,6 +57,78 @@
                 "validate_as" : "int",
                 "min_int" : 1 
             }
+        },
+        {
+            "id": "cov_cutoff",
+            "optional": true,
+            "advanced": true,
+            "allow_multiple": false,
+            "default_values": [ "" ],
+            "field_type": "text",
+            "text_options": {
+                "validate_as" : "float",
+                "min_float" : 0.0
+            }
+        },
+        {
+            "id": "ins_length",
+            "optional": true,
+            "advanced": true,
+            "allow_multiple": false,
+            "default_values": [ "" ],
+            "field_type": "text",
+            "text_options": {
+                "validate_as" : "int",
+                "min_int" : 0 
+            }
+        },
+        {
+            "id": "read_trkg",
+            "optional": true,
+            "advanced": true,
+            "allow_multiple": false,
+            "default_values": [ "0" ],
+            "field_type": "checkbox",
+            "checkbox_options":{
+                "checked_value": 1,
+                "unchecked_value": 0
+            }
+        },
+        {
+            "id": "amos_file",
+            "optional": true,
+            "advanced": true,
+            "allow_multiple": false,
+            "default_values": [ "0" ],
+            "field_type": "checkbox",
+            "checkbox_options":{
+                "checked_value": 1,
+                "unchecked_value": 0
+            }
+        },
+        {
+            "id": "exp_cov",
+            "optional": true,
+            "advanced": true,
+            "allow_multiple": false,
+            "default_values": [ "" ],
+            "field_type": "text",
+            "text_options": {
+                "validate_as" : "float",
+                "min_float" : 0.0
+            }
+        },
+        {
+            "id": "long_cov_cutoff",
+            "optional": true,
+            "advanced": true,
+            "allow_multiple": false,
+            "default_values": [ "" ],
+            "field_type": "text",
+            "text_options": {
+                "validate_as" : "float",
+                "min_float" : 0.0
+            }
         }
     ],
     "behavior": {
@@ -85,6 +157,30 @@
                 {
                     "input_parameter": "min_contig_length",
                     "target_property": "min_contig_length"
+                },
+                {
+                    "input_parameter": "cov_cutoff",
+                    "target_property": "cov_cutoff"
+                },
+                {
+                    "input_parameter": "ins_length",
+                    "target_property": "ins_length"
+                },
+                {
+                    "input_parameter": "read_trkg",
+                    "target_property": "read_trkg"
+                },
+                {
+                    "input_parameter": "amos_file",
+                    "target_property": "amos_file"
+                },
+                {
+                    "input_parameter": "exp_cov",
+                    "target_property": "exp_cov"
+                },
+                {
+                    "input_parameter": "long_cov_cutoff",
+                    "target_property": "long_cov_cutoff"
                 }
             ],
             "output_mapping": [

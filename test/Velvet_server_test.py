@@ -241,7 +241,7 @@ class VelvetTest(unittest.TestCase):
         params = {
             'workspace_name': self.getWsName(),
             'output_contigset_name': 'test_contigset', 
-            'min_contig_length': 100,
+            'min_contig_length': 500,
             'cov_cutoff': 5.2
         }
 
@@ -264,8 +264,13 @@ class VelvetTest(unittest.TestCase):
             'workspace_name': self.getWsName(),
             'output_contigset_name': 'Velvet_test_contigset',
             'hash_length': 21,
-            'min_contig_length': 100,
-            'read_libraries':[self.make_ref(pe_lib_info)]
+            'read_libraries':[self.make_ref(pe_lib_info)],
+            'min_contig_length': 500,
+            'cov_cutoff': 5.2,
+            'read_trkg': 0,
+            'amos_file': 'yes',
+            'exp_cov': 21.3,
+            'ins_length': 400
         }
 
         result = self.getImpl().run_velvet(self.getContext(), params)

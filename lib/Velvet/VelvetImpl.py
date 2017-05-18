@@ -48,7 +48,7 @@ class Velvet:
     ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "https://github.com/kbaseapps/kb_Velvet"
-    GIT_COMMIT_HASH = "93ee0739d26b2eebcc2608189ce6b4254e106405"
+    GIT_COMMIT_HASH = "70cabd6302b7de6ef4bee5ddfac8b7d5ebf59b52"
 
     #BEGIN_CLASS_HEADER
     # Class variables and functions can be defined in this block
@@ -96,6 +96,9 @@ class Velvet:
         if self.PARAM_IN_MIN_CONTIG_LENGTH in params:
             if not isinstance(params[self.PARAM_IN_MIN_CONTIG_LENGTH], int):
                 raise ValueError(self.PARAM_IN_MIN_CONTIG_LENGTH + ' must be of type int')
+        if 'cov_cutoff' in params:
+            if not isinstance(params['cov_cutoff'], float):
+                raise ValueError('cov_cutoff' + ' must be of type float')
 
     def construct_velveth_cmd(self, params):
         if 'reads_channels' in params:
@@ -182,7 +185,7 @@ class Velvet:
         vg_cmd = [self.VELVETG]
         vg_cmd.append(out_folder)
         #appending the standard optional inputs
-        if self.PARAM_IN_MIN_CONTIG_LENGTH in params and params[self.PARAM_IN_MIN_CONTIG_LENGTH] > 0:
+        if self.PARAM_IN_MIN_CONTIG_LENGTH in params:
             vg_cmd.append('-min_contig_lgth')
             vg_cmd.append(str(params[self.PARAM_IN_MIN_CONTIG_LENGTH]))
         if 'cov_cutoff' in params:
@@ -193,10 +196,10 @@ class Velvet:
             vg_cmd.append(str(params['ins_length']))
         if 'read_trkg' in params:
             vg_cmd.append('-read_trkg')
-            vg_cmd.append(str(params['read_trkg']))
+            vg_cmd.append('yes' if (params['read_trkg'] == 1 or str(params['read_trkg']).lower() == 'yes') else 'no')
         if 'amos_file' in params:
             vg_cmd.append('-amos_file')
-            vg_cmd.append(str(params['amos_file']))
+            vg_cmd.append('yes' if (params['amos_file'] == 1 or str(params['amos_file']).lower() == 'yes') else 'no')
         if 'exp_cov' in params:
             vg_cmd.append('-exp_cov')
             vg_cmd.append(str(params['exp_cov']))
@@ -254,9 +257,22 @@ class Velvet:
         params_g = {
                 'workspace_name': params[self.PARAM_IN_WS],
                 'output_contigset_name': params[self.PARAM_IN_CS_NAME],
-                self.PARAM_IN_MIN_CONTIG_LENGTH: params.get(self.PARAM_IN_MIN_CONTIG_LENGTH, 0), 
                 'out_folder': outdir
         }
+        if self.PARAM_IN_MIN_CONTIG_LENGTH in params:
+            params_g[self.PARAM_IN_MIN_CONTIG_LENGTH] = params.get(self.PARAM_IN_MIN_CONTIG_LENGTH, 1)
+        if 'cov_cutoff' in params:
+            params_g['cov_cutoff'] = params['cov_cutoff']
+        if 'ins_length' in params:
+            params_g['ins_length'] = params['ins_length']
+        if 'read_trkg' in params:
+            params_g['read_trkg'] = params['read_trkg']
+        if 'amos_file' in params:
+            params_g['amos_file'] = params['amos_file']
+        if 'exp_cov' in params:
+            params_g['exp_cov'] = params['exp_cov']
+        if 'long_cov_cutoff' in params:
+            params_g['long_cov_cutoff'] = params['long_cov_cutoff']
 
         ret = 1
         try:
@@ -391,11 +407,19 @@ class Velvet:
            list<paired_end_lib> read_libraries - Illumina PairedEndLibrary
            files to assemble min_contig_length - integer to filter out
            contigs with length < min_contig_length from the Velvet output.
-           Default value is 0 implying no filter. @optional
-           min_contig_length) -> structure: parameter "workspace_name" of
-           String, parameter "hash_length" of Long, parameter
-           "read_libraries" of String, parameter "output_contigset_name" of
-           String, parameter "min_contig_length" of Long
+           Default value is 500 (where 0 implies no filter). @optional
+           min_contig_length @optional cov_cutoff @optional ins_length
+           @optional read_trkg @optional amos_file @optional exp_cov
+           @optional long_cov_cutoff) -> structure: parameter
+           "workspace_name" of String, parameter "hash_length" of Long,
+           parameter "read_libraries" of String, parameter
+           "output_contigset_name" of String, parameter "min_contig_length"
+           of Long, parameter "cov_cutoff" of Double, parameter "ins_length"
+           of Long, parameter "read_trkg" of type "bool" (A boolean - 0 for
+           false, 1 for true. @range (0, 1)), parameter "amos_file" of type
+           "bool" (A boolean - 0 for false, 1 for true. @range (0, 1)),
+           parameter "exp_cov" of Double, parameter "long_cov_cutoff" of
+           Double
         :returns: instance of type "VelvetResults" (Output parameter items
            for run_velvet report_name - the name of the KBaseReport.Report
            workspace object. report_ref - the workspace reference of the

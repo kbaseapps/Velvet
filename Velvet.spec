@@ -31,18 +31,30 @@ module Velvet {
         string output_contigset_name - the name of the output contigset
         list<paired_end_lib> read_libraries - Illumina PairedEndLibrary files to assemble
         min_contig_length - integer to filter out contigs with length < min_contig_length
-                     from the Velvet output. Default value is 0 implying no filter.
+                     from the Velvet output. Default value is 500 (where 0 implies no filter).
 
         @optional min_contig_length
-
+        @optional cov_cutoff
+        @optional ins_length
+        @optional read_trkg
+        @optional amos_file
+        @optional exp_cov
+        @optional long_cov_cutoff
      */
 
     typedef structure {
         string workspace_name;
         int hash_length;
         string read_libraries; 
-        string output_contigset_name; 
+        string output_contigset_name;
+ 
         int min_contig_length;
+        float cov_cutoff;
+        int ins_length;
+        bool read_trkg;
+        bool amos_file;
+        float exp_cov;
+        float long_cov_cutoff;
     } VelvetParams;
     
     /* Output parameter items for run_velvet

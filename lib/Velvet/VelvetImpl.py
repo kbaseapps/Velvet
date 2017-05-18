@@ -196,10 +196,10 @@ class Velvet:
             vg_cmd.append(str(params['ins_length']))
         if 'read_trkg' in params:
             vg_cmd.append('-read_trkg')
-            vg_cmd.append('yes' if (params['read_trkg'] == 1 or str(params['read_trkg']).lower() == 'yes') else 'no')
+            vg_cmd.append('yes' if params['read_trkg'] else 'no')
         if 'amos_file' in params:
             vg_cmd.append('-amos_file')
-            vg_cmd.append('yes' if (params['amos_file'] == 1 or str(params['amos_file']).lower() == 'yes') else 'no')
+            vg_cmd.append('yes' if params['amos_file'] else 'no')
         if 'exp_cov' in params:
             vg_cmd.append('-exp_cov')
             vg_cmd.append(str(params['exp_cov']))

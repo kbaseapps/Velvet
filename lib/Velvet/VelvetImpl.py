@@ -98,6 +98,7 @@ class Velvet:
             if not isinstance(params[self.PARAM_IN_MIN_CONTIG_LENGTH], int):
                 raise ValueError(self.PARAM_IN_MIN_CONTIG_LENGTH + ' must be of type int')
         if 'cov_cutoff' in params and not math.isnan(params['cov_cutoff']):
+            print('cov_cutoff value from ui:' + params['cov_cutoff'] + ' and isNaN check:' + math.isnan(params['cov_cutoff']))
             if not isinstance(params['cov_cutoff'], float) and not isinstance(params['cov_cutoff'], int):
                 raise ValueError('cov_cutoff' + ' must be of type float')
 

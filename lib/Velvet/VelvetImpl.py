@@ -203,7 +203,7 @@ class Velvet:
         if 'exp_cov' in params:
             vg_cmd.append('-exp_cov')
             vg_cmd.append(str(params['exp_cov']))
-        if 'long_cov_cutoff' in params:
+        if 'long_cov_cutoff' in params and params['long_cov_cutoff'] > 0.0:
             vg_cmd.append('-long_cov_cutoff')
             vg_cmd.append(str(params['long_cov_cutoff']))
 

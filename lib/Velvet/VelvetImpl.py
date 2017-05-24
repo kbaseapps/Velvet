@@ -12,6 +12,7 @@ from datetime import datetime
 from pprint import pformat, pprint
 import time
 import uuid
+import math
 
 from KBaseReport.KBaseReportClient import KBaseReport
 from KBaseReport.baseclient import ServerError as _RepError
@@ -82,7 +83,7 @@ class Velvet:
             raise ValueError(self.PARAM_IN_LIB + ' must be a list')
         if not params[self.PARAM_IN_LIB]:
             raise ValueError('At least one reads library must be provided')
-        if self.PARAM_IN_HASH_LENGTH not in params:
+        if self.PARAM_IN_HASH_LENGTH not in params or math.isnan(params[self.PARAM_IN_HASH_LENGTH]):
             raise ValueError(self.PARAM_IN_HASH_LENGTH + ' parameter is required')
         if self.PARAM_IN_HASH_LENGTH in params:
             if not isinstance(params['hash_length'], int):
@@ -96,7 +97,7 @@ class Velvet:
         if self.PARAM_IN_MIN_CONTIG_LENGTH in params:
             if not isinstance(params[self.PARAM_IN_MIN_CONTIG_LENGTH], int):
                 raise ValueError(self.PARAM_IN_MIN_CONTIG_LENGTH + ' must be of type int')
-        if 'cov_cutoff' in params:
+        if 'cov_cutoff' in params and not math.isnan(params['cov_cutoff']):
             if not isinstance(params['cov_cutoff'], float) and not isinstance(params['cov_cutoff'], int):
                 raise ValueError('cov_cutoff' + ' must be of type float')
 
@@ -185,13 +186,13 @@ class Velvet:
         vg_cmd = [self.VELVETG]
         vg_cmd.append(out_folder)
         #appending the standard optional inputs
-        if self.PARAM_IN_MIN_CONTIG_LENGTH in params:
+        if self.PARAM_IN_MIN_CONTIG_LENGTH in params and not math.isnan(params[self.PARAM_IN_MIN_CONTIG_LENGTH]):
             vg_cmd.append('-min_contig_lgth')
             vg_cmd.append(str(params[self.PARAM_IN_MIN_CONTIG_LENGTH]))
-        if 'cov_cutoff' in params:
+        if 'cov_cutoff' in params and not math.isnan(params['cov_cutoff']):
             vg_cmd.append('-cov_cutoff')
             vg_cmd.append(str(params['cov_cutoff']))
-        if 'ins_length' in params:
+        if 'ins_length' in params and not math.isnan(params['ins_length']):
             vg_cmd.append('-ins_length')
             vg_cmd.append(str(params['ins_length']))
         if 'read_trkg' in params:
@@ -200,10 +201,10 @@ class Velvet:
         if 'amos_file' in params:
             vg_cmd.append('-amos_file')
             vg_cmd.append('yes' if params['amos_file'] else 'no')
-        if 'exp_cov' in params:
+        if 'exp_cov' in params and not math.isnan(params['exp_cov']):
             vg_cmd.append('-exp_cov')
             vg_cmd.append(str(params['exp_cov']))
-        if 'long_cov_cutoff' in params and params['long_cov_cutoff'] > 0.0:
+        if 'long_cov_cutoff' in params and not math.isnan(params['long_cov_cutoff']) and params['long_cov_cutoff'] > 0.0:
             vg_cmd.append('-long_cov_cutoff')
             vg_cmd.append(str(params['long_cov_cutoff']))
 

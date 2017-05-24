@@ -12,7 +12,6 @@ from datetime import datetime
 from pprint import pformat, pprint
 import time
 import uuid
-import math
 
 from KBaseReport.KBaseReportClient import KBaseReport
 from KBaseReport.baseclient import ServerError as _RepError
@@ -83,10 +82,10 @@ class Velvet:
             raise ValueError(self.PARAM_IN_LIB + ' must be a list')
         if not params[self.PARAM_IN_LIB]:
             raise ValueError('At least one reads library must be provided')
-        if self.PARAM_IN_HASH_LENGTH not in params or math.isnan(params[self.PARAM_IN_HASH_LENGTH]):
+        if self.PARAM_IN_HASH_LENGTH not in params or params[self.PARAM_IN_HASH_LENGTH] is None:
             raise ValueError(self.PARAM_IN_HASH_LENGTH + ' parameter is required')
         if self.PARAM_IN_HASH_LENGTH in params:
-            if not isinstance(params['hash_length'], int):
+            if not isinstance(params[self.PARAM_IN_HASH_LENGTH], int):
                 raise ValueError(self.PARAM_IN_HASH_LENGTH + ' must be of type int')
         if (self.PARAM_IN_CS_NAME not in params or
                 not params[self.PARAM_IN_CS_NAME]):
@@ -183,13 +182,13 @@ class Velvet:
         vg_cmd = [self.VELVETG]
         vg_cmd.append(out_folder)
         #appending the standard optional inputs
-        if self.PARAM_IN_MIN_CONTIG_LENGTH in params and not math.isnan(params[self.PARAM_IN_MIN_CONTIG_LENGTH]):
+        if self.PARAM_IN_MIN_CONTIG_LENGTH in params and not (params[self.PARAM_IN_MIN_CONTIG_LENGTH] is None):
             vg_cmd.append('-min_contig_lgth')
             vg_cmd.append(str(params[self.PARAM_IN_MIN_CONTIG_LENGTH]))
-        if 'cov_cutoff' in params and not math.isnan(params['cov_cutoff']):
+        if 'cov_cutoff' in params and not (params['cov_cutoff'] is None):
             vg_cmd.append('-cov_cutoff')
             vg_cmd.append(str(params['cov_cutoff']))
-        if 'ins_length' in params and not math.isnan(params['ins_length']):
+        if 'ins_length' in params and not (params['ins_length'] is None):
             vg_cmd.append('-ins_length')
             vg_cmd.append(str(params['ins_length']))
         if 'read_trkg' in params:
@@ -198,10 +197,10 @@ class Velvet:
         if 'amos_file' in params:
             vg_cmd.append('-amos_file')
             vg_cmd.append('yes' if params['amos_file'] else 'no')
-        if 'exp_cov' in params and not math.isnan(params['exp_cov']):
+        if 'exp_cov' in params and not (params['exp_cov'] is None):
             vg_cmd.append('-exp_cov')
             vg_cmd.append(str(params['exp_cov']))
-        if 'long_cov_cutoff' in params and not math.isnan(params['long_cov_cutoff']) and params['long_cov_cutoff'] > 0.0:
+        if 'long_cov_cutoff' in params and not (params['long_cov_cutoff'] is None):
             vg_cmd.append('-long_cov_cutoff')
             vg_cmd.append(str(params['long_cov_cutoff']))
 
@@ -257,19 +256,19 @@ class Velvet:
                 'output_contigset_name': params[self.PARAM_IN_CS_NAME],
                 'out_folder': outdir
         }
-        if self.PARAM_IN_MIN_CONTIG_LENGTH in params and not math.isnan(params[self.PARAM_IN_MIN_CONTIG_LENGTH]):
+        if self.PARAM_IN_MIN_CONTIG_LENGTH in params and not (params[self.PARAM_IN_MIN_CONTIG_LENGTH] is None):
             params_g[self.PARAM_IN_MIN_CONTIG_LENGTH] = params.get(self.PARAM_IN_MIN_CONTIG_LENGTH, 1)
-        if 'cov_cutoff' in params and not math.isnan(params['cov_cutoff']):
+        if 'cov_cutoff' in params and not (params['cov_cutoff'] is None):
             params_g['cov_cutoff'] = params['cov_cutoff']
-        if 'ins_length' in params and not math.isnan(params['ins_length']) :
+        if 'ins_length' in params and not (params['ins_length'] is None) :
             params_g['ins_length'] = params['ins_length']
         if 'read_trkg' in params:
             params_g['read_trkg'] = params['read_trkg']
         if 'amos_file' in params:
             params_g['amos_file'] = params['amos_file']
-        if 'exp_cov' in params and not math.isnan(params['exp_cov']):
+        if 'exp_cov' in params and not params['exp_cov']):
             params_g['exp_cov'] = params['exp_cov']
-        if 'long_cov_cutoff' in params and not math.isnan(params['long_cov_cutoff']):
+        if 'long_cov_cutoff' in params and not (params['long_cov_cutoff'] is None):
             params_g['long_cov_cutoff'] = params['long_cov_cutoff']
 
         ret = 1

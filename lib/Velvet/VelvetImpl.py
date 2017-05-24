@@ -97,7 +97,7 @@ class Velvet:
             if not isinstance(params[self.PARAM_IN_MIN_CONTIG_LENGTH], int):
                 raise ValueError(self.PARAM_IN_MIN_CONTIG_LENGTH + ' must be of type int')
         if 'cov_cutoff' in params:
-            if not isinstance(params['cov_cutoff'], float):
+            if not isinstance(params['cov_cutoff'], float) and not isinstance(params['cov_cutoff'], int):
                 raise ValueError('cov_cutoff' + ' must be of type float')
 
     def construct_velveth_cmd(self, params):

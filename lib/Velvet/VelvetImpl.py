@@ -266,7 +266,7 @@ class Velvet:
             params_g['read_trkg'] = params['read_trkg']
         if 'amos_file' in params:
             params_g['amos_file'] = params['amos_file']
-        if 'exp_cov' in params and not params['exp_cov']):
+        if 'exp_cov' in params and not (params['exp_cov'] is None):
             params_g['exp_cov'] = params['exp_cov']
         if 'long_cov_cutoff' in params and not (params['long_cov_cutoff'] is None):
             params_g['long_cov_cutoff'] = params['long_cov_cutoff']

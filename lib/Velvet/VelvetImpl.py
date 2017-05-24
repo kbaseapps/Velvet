@@ -97,10 +97,6 @@ class Velvet:
         if self.PARAM_IN_MIN_CONTIG_LENGTH in params:
             if not isinstance(params[self.PARAM_IN_MIN_CONTIG_LENGTH], int):
                 raise ValueError(self.PARAM_IN_MIN_CONTIG_LENGTH + ' must be of type int')
-        if 'cov_cutoff' in params and not math.isnan(params['cov_cutoff']):
-            print('cov_cutoff value from ui:' + params['cov_cutoff'] + ' and isNaN check:' + math.isnan(params['cov_cutoff']))
-            if not isinstance(params['cov_cutoff'], float) and not isinstance(params['cov_cutoff'], int):
-                raise ValueError('cov_cutoff' + ' must be of type float')
 
     def construct_velveth_cmd(self, params):
         if 'reads_channels' in params:
@@ -261,19 +257,19 @@ class Velvet:
                 'output_contigset_name': params[self.PARAM_IN_CS_NAME],
                 'out_folder': outdir
         }
-        if self.PARAM_IN_MIN_CONTIG_LENGTH in params:
+        if self.PARAM_IN_MIN_CONTIG_LENGTH in params and not math.isnan(params[self.PARAM_IN_MIN_CONTIG_LENGTH]):
             params_g[self.PARAM_IN_MIN_CONTIG_LENGTH] = params.get(self.PARAM_IN_MIN_CONTIG_LENGTH, 1)
-        if 'cov_cutoff' in params:
+        if 'cov_cutoff' in params and not math.isnan(params['cov_cutoff']):
             params_g['cov_cutoff'] = params['cov_cutoff']
-        if 'ins_length' in params:
+        if 'ins_length' in params and not math.isnan(params['ins_length']) :
             params_g['ins_length'] = params['ins_length']
         if 'read_trkg' in params:
             params_g['read_trkg'] = params['read_trkg']
         if 'amos_file' in params:
             params_g['amos_file'] = params['amos_file']
-        if 'exp_cov' in params:
+        if 'exp_cov' in params and not math.isnan(params['exp_cov']):
             params_g['exp_cov'] = params['exp_cov']
-        if 'long_cov_cutoff' in params:
+        if 'long_cov_cutoff' in params and not math.isnan(params['long_cov_cutoff']):
             params_g['long_cov_cutoff'] = params['long_cov_cutoff']
 
         ret = 1

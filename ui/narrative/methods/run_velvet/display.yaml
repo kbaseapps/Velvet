@@ -48,7 +48,9 @@ parameters :
         ui-name : |
             cov_cutoff
         short-hint : |
-            removal of low coverage nodes AFTER tour bus or allow the system to infer it
+            removal of low coverage nodes AFTER tour bus or allow the system to infer it when set it to 'auto' 
+        long-hint : |
+            removal of low coverage nodes AFTER tour bus, it can also be set automatically to half the length weighted median contig coverage depth
     ins_length :
         ui-name : |
             ins_length
@@ -68,7 +70,9 @@ parameters :
         ui-name : |
             expected coverage
         short-hint : |
-            expected coverage of unique regions or allow the system to infer it
+            expected short-read k-mer coverage of unique regions or allow the system to infer it when set it to 'auto'
+        long-hint : |
+            <p>A value of 'auto' will set exp cov to the length weighted median contig coverage, and cov cutoff to half that value (unless you override it with a manual setting), it can also be set automatically to half the length weighted median contig coverage depth.</p>
     long_cov_cutoff :
         ui-name : |
             long_cov_cutoff

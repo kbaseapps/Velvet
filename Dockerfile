@@ -23,6 +23,7 @@ RUN pip install cffi --upgrade \
 #  https://github.com/dzerbino/velvet.git
 #  Download tarball from https://www.ebi.ac.uk/~zerbino/velvet/velvet_latest.tgz
 #  Each time you want to update Velvet, just use the packaged update_velvet.sh script.
+#  defaultL: make && \ meaning 'CATEGORIES=2' and 'MAXKMERLENGTH=31'
 
 WORKDIR /kb/module
 RUN \
@@ -32,7 +33,7 @@ RUN \
   rm -f velvet_latest.tgz && \
   cd velvet && \
   #./update_velvet.sh && \
-  make && \
+  make 'CATEGORIES=57' 'MAXKMERLENGTH=89' && \ 
   cp velvet* /kb/deployment/bin/.  
 
 # For the testing data that comes with the software package, may not need the copying line

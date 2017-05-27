@@ -187,7 +187,7 @@ class Velvet:
             vg_cmd.append(str(params[self.PARAM_IN_MIN_CONTIG_LENGTH]))
         if 'cov_cutoff' in params and not (params['cov_cutoff'] is None):
             vg_cmd.append('-cov_cutoff')
-            vg_cmd.append(str(params['cov_cutoff']))
+            vg_cmd.append(str(params['cov_cutoff']).lower())
         if 'ins_length' in params and not (params['ins_length'] is None):
             vg_cmd.append('-ins_length')
             vg_cmd.append(str(params['ins_length']))
@@ -199,7 +199,7 @@ class Velvet:
             vg_cmd.append('yes' if params['amos_file'] else 'no')
         if 'exp_cov' in params and not (params['exp_cov'] is None):
             vg_cmd.append('-exp_cov')
-            vg_cmd.append(str(params['exp_cov']))
+            vg_cmd.append(str(params['exp_cov']).lower())
         if 'long_cov_cutoff' in params and not (params['long_cov_cutoff'] is None):
             vg_cmd.append('-long_cov_cutoff')
             vg_cmd.append(str(params['long_cov_cutoff']))

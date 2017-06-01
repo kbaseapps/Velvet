@@ -48,7 +48,7 @@ class Velvet:
     ######################################### noqa
     VERSION = "0.0.1"
     GIT_URL = "https://github.com/kbaseapps/kb_Velvet"
-    GIT_COMMIT_HASH = "70cabd6302b7de6ef4bee5ddfac8b7d5ebf59b52"
+    GIT_COMMIT_HASH = "d74b260e2d7a495b7a7fa25f2bfafc64f767dded"
 
     #BEGIN_CLASS_HEADER
     # Class variables and functions can be defined in this block
@@ -409,7 +409,9 @@ class Velvet:
            @optional read_trkg @optional amos_file @optional exp_cov
            @optional long_cov_cutoff) -> structure: parameter
            "workspace_name" of String, parameter "hash_length" of Long,
-           parameter "read_libraries" of String, parameter
+           parameter "read_libraries" of list of type "paired_end_lib" (The
+           workspace object name of a PairedEndLibrary file, whether of the
+           KBaseAssembly or KBaseFile type.), parameter
            "output_contigset_name" of String, parameter "min_contig_length"
            of Long, parameter "cov_cutoff" of Double, parameter "ins_length"
            of Long, parameter "read_trkg" of type "bool" (A boolean - 0 for

@@ -45,7 +45,7 @@ module Velvet {
     typedef structure {
         string workspace_name;
         int hash_length;
-        string read_libraries; 
+        list<paired_end_lib> read_libraries; 
         string output_contigset_name;
  
         int min_contig_length;

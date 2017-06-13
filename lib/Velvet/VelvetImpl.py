@@ -9,7 +9,6 @@ import numpy as np
 from Bio import SeqIO
 from pprint import pprint, pformat
 from datetime import datetime
-from pprint import pformat, pprint
 import time
 import uuid
 

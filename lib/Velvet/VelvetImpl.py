@@ -108,7 +108,7 @@ class Velvet:
                 ftype = reads['type']
                 fwd = reads['fwd_file']
                 pprint('forward: ' + fwd)
-                fext = os.path.splitext(fwd)[1]
+                fext = (os.path.splitext(fwd)[1]).replace(".", "")
                 if ftype == 'single':
                     file_info = {'read_file_name': fwd}
                     reads_channels.append({
@@ -144,7 +144,7 @@ class Velvet:
         if 'sequence_files' in params:
                 sq_files = ' '.join(params['sequence_files'])
                 if( sq_files != ''):
-                        fext = os.path.splitext(params['sequence_files'][0])[1]
+                        fext = (os.path.splitext(params['sequence_files'][0])[1]).replace(".", "")
                         file_info = {
                                 'read_file_name': sq_files
                         }
@@ -203,10 +203,10 @@ class Velvet:
             vg_cmd.append(str(params['ins_length']))
         if params.get('read_trkg', None) is not None:
             vg_cmd.append('-read_trkg')
-            vg_cmd.append('yes' if params['read_trkg']==1 else 'no')
+            vg_cmd.append('yes' if (params['read_trkg']==1 or params['read_trkg'].lower()=='yes') else 'no')
         if params.get('amos_file', None) is not None:
             vg_cmd.append('-amos_file')
-            vg_cmd.append('yes' if params['amos_file']==1 else 'no')
+            vg_cmd.append('yes' if (params['amos_file']==1  or params['amos_file'].lower()=='yes') else 'no')
         if params.get('exp_cov', None) is not None:
             vg_cmd.append('-exp_cov')
             if isinstance(params['exp_cov'], float):

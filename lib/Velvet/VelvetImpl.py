@@ -481,7 +481,9 @@ class Velvet:
                 prefix = se.message.split('.')[0]
                 raise ValueError(
                     prefix + '. Only the types ' +
+                    'KBaseAssembly.SingleEndLibrary ' +
                     'KBaseAssembly.PairedEndLibrary ' +
+                    'KBaseFile.SingleEndLibrary ' +
                     'and KBaseFile.PairedEndLibrary are supported')
             else:
                 raise

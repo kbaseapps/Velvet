@@ -46,8 +46,8 @@ class Velvet:
     # the latter method is running.
     ######################################### noqa
     VERSION = "0.0.1"
-    GIT_URL = "https://github.com/kbaseapps/kb_Velvet"
-    GIT_COMMIT_HASH = "d74b260e2d7a495b7a7fa25f2bfafc64f767dded"
+    GIT_URL = "https://github.com/kbaseapps/kb_Velvet/"
+    GIT_COMMIT_HASH = "6bf7071a438f1284b6169522760ff06dad8c987e"
 
     #BEGIN_CLASS_HEADER
     # Class variables and functions can be defined in this block
@@ -106,30 +106,27 @@ class Velvet:
             #print('Input reads files:' + pformat(params['reads_files']))
             for reads in params['reads_files']:
                 ftype = reads['type']
+                fwd = reads['fwd_file']
+                pprint('forward: ' + fwd)
+                fext = os.path.splitext(fwd)[1]
                 if ftype == 'single':
-                    fwd = reads['fwd_file']
-                    pprint('forward: ' + fwd)
                     file_info = {'read_file_name': fwd}
                     reads_channels.append({
                         'read_type': 'short',
-                        'file_format': 'fastq',
-                        'read_file_info': file_info, 
+                        'file_format': fext,
+                        'read_file_info': file_info,
                         'file_layout': ''
                         })
-                elif ftype == 'interleaved':
-                    fwd = reads['fwd_file']
-                    pprint('forward: ' + fwd)
+                elif ftype == 'paired':
                     file_info = {'read_file_name': fwd}
                     reads_channels.append({
                         'read_type': 'shortPaired',
-                        'file_format': 'fastq',
-                        'read_file_info': file_info, 
+                        'file_format': fext,
+                        'read_file_info': file_info,
                         'file_layout': ''
                         })
-                elif ftype == 'separated': 
-                    fwd = reads['fwd_file']
+                elif ftype == 'separated':
                     rev = reads['rev_file']
-                    pprint('forward: ' + fwd)
                     pprint('reverse: ' + rev)
                     file_info = {
                         'read_file_name': fwd,
@@ -138,8 +135,8 @@ class Velvet:
                     }
                     reads_channels.append({
                         'read_type': 'shortPaired',
-                        'file_format': 'fastq',
-                        'read_file_info': file_info, 
+                        'file_format': fext,
+                        'read_file_info': file_info,
                         'file_layout': 'separate'
                         })
 
@@ -147,12 +144,13 @@ class Velvet:
         if 'sequence_files' in params:
                 sq_files = ' '.join(params['sequence_files'])
                 if( sq_files != ''):
+                        fext = os.path.splitext(params['sequence_files'][0])[1]
                         file_info = {
                                 'read_file_name': sq_files
                         }
                         reads_channels.append({
                                 'read_type': 'short',
-                                'file_format': 'fastq',
+                                'file_format': fext,
                                 'read_file_info': file_info
                         })
 
@@ -425,9 +423,9 @@ class Velvet:
            @optional read_trkg @optional amos_file @optional exp_cov
            @optional long_cov_cutoff) -> structure: parameter
            "workspace_name" of String, parameter "hash_length" of Long,
-           parameter "read_libraries" of list of type "paired_end_lib" (The
-           workspace object name of a PairedEndLibrary file, whether of the
-           KBaseAssembly or KBaseFile type.), parameter
+           parameter "read_libraries" of list of type "read_lib" (The
+           workspace object name of a SingleEndLibrary or PairedEndLibrary
+           file, whether of the KBaseAssembly or KBaseFile type.), parameter
            "output_contigset_name" of String, parameter "min_contig_length"
            of Long, parameter "cov_cutoff" of Double, parameter "ins_length"
            of Long, parameter "read_trkg" of type "bool" (A boolean - 0 for
@@ -500,7 +498,7 @@ class Velvet:
                                    'seq_tech': seq_tech})
             elif f['type'] == 'paired':
                 reads_data.append({'fwd_file': f['fwd'], 'rev_file': f['rev'],
-                                   'type':'separated', 'seq_tech': seq_tech})
+                                   'type':'paired', 'seq_tech': seq_tech})
             elif f['type'] == 'single':
                 reads_data.append({'fwd_file': f['fwd'], 'type':'single',
                                    'seq_tech': seq_tech})

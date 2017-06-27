@@ -18,10 +18,10 @@ module Velvet {
     */
     typedef int bool;
 
-    /* The workspace object name of a PairedEndLibrary file, whether of the
+    /* The workspace object name of a SingleEndLibrary or PairedEndLibrary file, whether of the
        KBaseAssembly or KBaseFile type.
     */
-    typedef string paired_end_lib;
+    typedef string read_lib;
 
     /* 
         Arguments for run_velvet
@@ -45,7 +45,7 @@ module Velvet {
     typedef structure {
         string workspace_name;
         int hash_length;
-        list<paired_end_lib> read_libraries; 
+        list<read_lib> read_libraries; 
         string output_contigset_name;
  
         int min_contig_length;

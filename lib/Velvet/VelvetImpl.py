@@ -203,10 +203,10 @@ class Velvet:
             vg_cmd.append(str(params['ins_length']))
         if params.get('read_trkg', None) is not None:
             vg_cmd.append('-read_trkg')
-            vg_cmd.append('yes' if (params['read_trkg']==1 or params['read_trkg'].lower()=='yes') else 'no')
+            vg_cmd.append('yes' if (params['read_trkg']==1 or str(params['read_trkg']).lower()=='yes') else 'no')
         if params.get('amos_file', None) is not None:
             vg_cmd.append('-amos_file')
-            vg_cmd.append('yes' if (params['amos_file']==1  or params['amos_file'].lower()=='yes') else 'no')
+            vg_cmd.append('yes' if (params['amos_file']==1  or str(params['amos_file']).lower()=='yes') else 'no')
         if params.get('exp_cov', None) is not None:
             vg_cmd.append('-exp_cov')
             if isinstance(params['exp_cov'], float):

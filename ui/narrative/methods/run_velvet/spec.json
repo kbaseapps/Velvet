@@ -20,7 +20,7 @@
             "text_options": {
                 "validate_as": "int",
                 "min_int" : 0,
-                "max_int": 89
+                "max_int": 127
             }
         },
         {
@@ -63,7 +63,7 @@
             "optional": true,
             "advanced": true,
             "allow_multiple": false,
-            "default_values": [ "" ],
+            "default_values": [ "auto" ],
             "field_type": "text",
             "text_options": {
                 "validate_as" : ["float","text"],
@@ -111,7 +111,7 @@
             "optional": true,
             "advanced": true,
             "allow_multiple": false,
-            "default_values": [ "" ],
+            "default_values": [ "auto" ],
             "field_type": "text",
             "text_options": {
                 "validate_as" : ["float","text"],

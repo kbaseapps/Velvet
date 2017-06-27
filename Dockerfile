@@ -33,7 +33,7 @@ RUN \
   rm -f velvet_latest.tgz && \
   cd velvet && \
   #./update_velvet.sh && \
-  make 'MAXKMERLENGTH=127' && \ 
+  make 'CATEGORIES=57' 'MAXKMERLENGTH=127' 'OPENMP=1' && \ 
   cp velvet* /kb/deployment/bin/.  
 
 # For the testing data that comes with the software package, may not need the copying line

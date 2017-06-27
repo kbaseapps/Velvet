@@ -97,21 +97,31 @@ class Velvet:
                 raise ValueError(self.PARAM_IN_MIN_CONTIG_LENGTH + ' must be of type int')
 
     def construct_velveth_cmd(self, params):
-        if 'reads_channels' in params:
+        if params.get('reads_channels', None) is not None:
                 reads_channels = params['reads_channels']
         else:
                 reads_channels = []
         # STEP 1: fetch the reads files and build the reads channel
-        if 'reads_files' in params:
+        if params.get('reads_files', None) is not None:
             #print('Input reads files:' + pformat(params['reads_files']))
             for reads in params['reads_files']:
                 ftype = reads['type']
-                if ftype == 'interleaved' or ftype == 'single':
+                if ftype == 'single':
                     fwd = reads['fwd_file']
                     pprint('forward: ' + fwd)
                     file_info = {'read_file_name': fwd}
                     reads_channels.append({
                         'read_type': 'short',
+                        'file_format': 'fastq',
+                        'read_file_info': file_info, 
+                        'file_layout': ''
+                        })
+                elif ftype == 'interleaved':
+                    fwd = reads['fwd_file']
+                    pprint('forward: ' + fwd)
+                    file_info = {'read_file_name': fwd}
+                    reads_channels.append({
+                        'read_type': 'shortPaired',
                         'file_format': 'fastq',
                         'read_file_info': file_info, 
                         'file_layout': ''
@@ -181,25 +191,32 @@ class Velvet:
         vg_cmd = [self.VELVETG]
         vg_cmd.append(out_folder)
         #appending the standard optional inputs
-        if self.PARAM_IN_MIN_CONTIG_LENGTH in params and not (params[self.PARAM_IN_MIN_CONTIG_LENGTH] is None):
+        if (params.get(self.PARAM_IN_MIN_CONTIG_LENGTH, None) is not None and
+                isinstance(params[self.PARAM_IN_MIN_CONTIG_LENGTH], int)):
             vg_cmd.append('-min_contig_lgth')
             vg_cmd.append(str(params[self.PARAM_IN_MIN_CONTIG_LENGTH]))
-        if 'cov_cutoff' in params and not (params['cov_cutoff'] is None):
+        if (params.get('cov_cutoff', None) is not None and
+                isinstance(params['cov_cutoff'], float)):
             vg_cmd.append('-cov_cutoff')
             vg_cmd.append(str(params['cov_cutoff']).lower())
-        if 'ins_length' in params and not (params['ins_length'] is None):
+        if (params.get('ins_length', None) is not None and
+                isinstance(params['ins_length'], int)):
             vg_cmd.append('-ins_length')
             vg_cmd.append(str(params['ins_length']))
-        if 'read_trkg' in params:
+        if params.get('read_trkg', none) is not None:
             vg_cmd.append('-read_trkg')
-            vg_cmd.append('yes' if params['read_trkg'] else 'no')
-        if 'amos_file' in params:
+            vg_cmd.append('yes' if params['read_trkg']==1 else 'no')
+        if params.get('amos_file', None) is not None:
             vg_cmd.append('-amos_file')
-            vg_cmd.append('yes' if params['amos_file'] else 'no')
-        if 'exp_cov' in params and not (params['exp_cov'] is None):
+            vg_cmd.append('yes' if params['amos_file']==1 else 'no')
+        if params.get('exp_cov', None) is not None:
             vg_cmd.append('-exp_cov')
-            vg_cmd.append(str(params['exp_cov']).lower())
-        if 'long_cov_cutoff' in params and not (params['long_cov_cutoff'] is None):
+            if isinstance(params['exp_cov'], float):
+                vg_cmd.append(str(params['exp_cov']).lower())
+            else:
+                vg_cmd.append('auto')
+        if (params.get('long_cov_cutoff', None) is not None and 
+                isinstance(params['long_cov_cutoff'], float)):
             vg_cmd.append('-long_cov_cutoff')
             vg_cmd.append(str(params['long_cov_cutoff']))
 

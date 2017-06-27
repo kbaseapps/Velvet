@@ -267,7 +267,7 @@ class VelvetTest(unittest.TestCase):
             'read_libraries':[self.make_ref(pe_lib_info)],
             'min_contig_length': 500,
             'cov_cutoff': 5.2,
-            'read_trkg': 0,
+            'read_trkg': '',
             'amos_file': 'yes',
             'exp_cov': 21.3,
             'ins_length': 400

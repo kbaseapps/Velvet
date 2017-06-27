@@ -203,7 +203,7 @@ class Velvet:
                 isinstance(params['ins_length'], int)):
             vg_cmd.append('-ins_length')
             vg_cmd.append(str(params['ins_length']))
-        if params.get('read_trkg', none) is not None:
+        if params.get('read_trkg', None) is not None:
             vg_cmd.append('-read_trkg')
             vg_cmd.append('yes' if params['read_trkg']==1 else 'no')
         if params.get('amos_file', None) is not None:

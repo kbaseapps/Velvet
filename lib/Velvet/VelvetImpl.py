@@ -472,7 +472,7 @@ class Velvet:
                    'KBaseAssembly.PairedEndLibrary')
         try:
             reads = readcli.download_reads({'read_libraries': reads_params,
-                                            'interleaved': 'false',
+                                            'interleaved': 'true',
                                             'gzipped': None
                                             })['files']
         except ServerError as se:

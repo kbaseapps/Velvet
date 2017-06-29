@@ -120,7 +120,7 @@ class Velvet:
                 elif ftype == 'paired':
                     rev = reads['rev_file']                                                                    
                     file_info = { 
-                        'read_file_name': fwd 
+                        'read_file_name': fwd, 
                         'left_file': fwd,
                         'right_file': rev 
                     }   

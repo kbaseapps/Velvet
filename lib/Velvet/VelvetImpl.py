@@ -118,27 +118,28 @@ class Velvet:
                         'file_layout': ''
                         })
                 elif ftype == 'paired':
-                    file_info = {'read_file_name': fwd}
-                    reads_channels.append({
-                        'read_type': 'shortPaired',
-                        'file_format': fext,
-                        'read_file_info': file_info,
-                        'file_layout': ''
-                        })
-                elif ftype == 'separated':
-                    rev = reads['rev_file']
-                    pprint('reverse: ' + rev)
-                    file_info = {
-                        'read_file_name': fwd,
+                    rev = reads['rev_file']                                                                    
+                    file_info = { 
+                        'read_file_name': fwd 
                         'left_file': fwd,
-                        'right_file': rev
-                    }
+                        'right_file': rev 
+                    }   
                     reads_channels.append({
                         'read_type': 'shortPaired',
                         'file_format': fext,
                         'read_file_info': file_info,
                         'file_layout': 'separate'
-                        })
+                    })  
+                elif ftype == 'interleaved':
+                    file_info = {
+                        'read_file_name': fwd
+                    }
+                    reads_channels.append({
+                        'read_type': 'shortPaired',
+                        'file_format': fext,
+                        'read_file_info': file_info,
+                        'file_layout': ''
+                    })
 
         # STEP 2: build the reads channels from the sequence files
         if 'sequence_files' in params:

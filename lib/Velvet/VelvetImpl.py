@@ -17,7 +17,7 @@ from KBaseReport.baseclient import ServerError as _RepError
 from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
 from kb_quast.kb_quastClient import kb_quast
 from kb_quast.baseclient import ServerError as QUASTError
-from ReadsUtils.ReadsUtilsClient import ReadsUtils 
+from ReadsUtils.ReadsUtilsClient import ReadsUtils
 from ReadsUtils.baseclient import ServerError
 from Workspace.WorkspaceClient import Workspace as workspaceService
 #END_HEADER
@@ -139,7 +139,7 @@ class Velvet:
                         'file_format': fext,
                         'read_file_info': file_info,
                         'file_layout': ''
-                        })
+                    })
 
         # STEP 2: build the reads channels from the sequence files
         if 'sequence_files' in params:
@@ -472,7 +472,7 @@ class Velvet:
                    'KBaseAssembly.PairedEndLibrary')
         try:
             reads = readcli.download_reads({'read_libraries': reads_params,
-                                            'interleaved': 'false',
+                                            'interleaved': 'true',
                                             'gzipped': None
                                             })['files']
         except ServerError as se:

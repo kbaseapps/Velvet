@@ -107,7 +107,7 @@ class Velvet:
             for reads in params['reads_files']:
                 ftype = reads['type']
                 fwd = reads['fwd_file']
-                pprint('forward: ' + fwd)
+                pprint('forward: ' + fwd + ' of file type ' + ftype)
                 fext = (os.path.splitext(fwd)[1]).replace(".", "")
                 if ftype == 'single':
                     file_info = {'read_file_name': fwd}
@@ -472,7 +472,7 @@ class Velvet:
                    'KBaseAssembly.PairedEndLibrary')
         try:
             reads = readcli.download_reads({'read_libraries': reads_params,
-                                            'interleaved': 'true',
+                                            'interleaved': 'false',
                                             'gzipped': None
                                             })['files']
         except ServerError as se:

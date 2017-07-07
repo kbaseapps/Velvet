@@ -471,10 +471,7 @@ class Velvet:
                    'KBaseAssembly.SingleEndLibrary ' +
                    'KBaseAssembly.PairedEndLibrary')
         try:
-            reads = readcli.download_reads({'read_libraries': reads_params,
-                                            'interleaved': 'false',
-                                            'gzipped': None
-                                            })['files']
+            reads = readcli.download_reads({'read_libraries': reads_params})['files']
         except ServerError as se:
             self.log('logging stacktrace from dynamic client error')
             self.log(se.data)

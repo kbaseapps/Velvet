@@ -464,7 +464,7 @@ class Velvet:
             obj_name = wsi[1]
             reftoname[ref] = wsi[7] + '/' + obj_name
 
-        readcli = ReadsUtils(self.callbackURL, token=ctx['token'])
+        readcli = ReadsUtils(self.callbackURL, token=token])
 
         typeerr = ('Supported types: KBaseFile.SingleEndLibrary ' +
                    'KBaseFile.PairedEndLibrary ' +

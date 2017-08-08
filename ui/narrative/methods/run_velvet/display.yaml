@@ -82,6 +82,7 @@ parameters :
 description : |
     <p>This is a KBase wrapper for Velvet.</p>
     <p>Velvet is a classic de-bruijn graph based assembler. Velvet works by efficiently manipulating de Bruijn graphs through simplification and compression. It eliminates errors and resolves repeats by first using an error correction algorithm that merges sequences together. Repeats are then removed from the sequence via the repeat solver that separates paths which share local overlaps. Velvet is fast and robust, although it is no longer in active development.</p>
+    <p><b>NOTE that Velvet is not deterministic</b> See https://www.biostars.org/p/86907/ and https://www.researchgate.net/post/Does_velvet_generate_different_assemblies_from_the_same_input_data_and_same_velvet_parameters</p>
     <p><b>Known limitations</b>: Velvet assembly quality is known to be sensitive to the hash length.</p>
 
 publications :

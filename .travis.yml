@@ -22,7 +22,7 @@ install:
     - docker images
     - export PATH=$(pwd)/bin:$PATH
     - cd ../
-    - git clone https://github.com/kbaseapps/kb_Velnet.git
+    - git clone https://github.com/kbaseapps/kb_Velvet.git
     - cd kb_Velvet
     # run the kb-sdk test command once to build test_local dir and populate the .ignore files
     - kb-sdk test -s || true

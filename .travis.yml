@@ -14,17 +14,15 @@ before_install:
     - python --version
 
 install:
+    - pushd ..
     - git clone https://github.com/kbase/jars
     - git clone https://github.com/kbase/kb_sdk
     - cd kb_sdk
-    - make
+    - make bin
     - make sdkbase
-    - docker images
     - export PATH=$(pwd)/bin:$PATH
-    - cd ../
-    - git clone https://github.com/kbaseapps/kb_Velvet.git
-    - cd kb_Velvet
-    # run the kb-sdk test command once to build test_local dir and populate the .ignore files
+    - source src/sh/sdk-completion.sh
+    - popd
     - kb-sdk test -s || true
 
 script:

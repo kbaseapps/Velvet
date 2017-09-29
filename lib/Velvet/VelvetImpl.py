@@ -448,10 +448,11 @@ class Velvet:
         token = ctx['token']
         wsname = params[self.PARAM_IN_WS]
         self.process_params(params)
+        input_reads_refs = params[self.PARAM_IN_LIB]
 
         # STEP 0: preprocess the reads in KBase way
         obj_ids = []
-        for r in params[self.PARAM_IN_LIB]:
+        for r in input_reads_refs:
             obj_ids.append({'ref': r if '/' in r else (wsname + '/' + r)})
         ws = workspaceService(self.workspaceURL, token=token)
         ws_info = ws.get_object_info_new({'objects': obj_ids})
@@ -489,7 +490,7 @@ class Velvet:
         self.log('Got reads data from converter:\n' + pformat(reads))
 
         reads_data = []
-        for ref in reads:
+        for ref in input_reads_refs:
             reads_name = reftoname[ref]
             f = reads[ref]['files']
             seq_tech = reads[ref]["sequencing_tech"]

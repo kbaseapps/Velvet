@@ -295,7 +295,7 @@ class Velvet:
             self.log('Velveth raised error:\n')
             print(eh)
         else:#no exception raised by Velveth and Velveth returns 0, then run Velvetg
-            ret = 1 
+            ret = 1
             try:
                 ret = self.exec_velvetg(params_g)
                 while( ret != 0 ):
@@ -490,6 +490,7 @@ class Velvet:
         self.log('Got reads data from converter:\n' + pformat(reads))
 
         reads_data = []
+        reads_name = ''
         for ref in input_reads_refs:
             reads_name = reftoname[ref]
             f = reads[ref]['files']
@@ -508,12 +509,16 @@ class Velvet:
 
         # STEP 1: run velveth and velvetg sequentially
         velvet_out = self.exec_velvet(params, reads_data)
-        self.log('Velvet final return: ' + str(velvet_out))
+        #self.log('Velvet final return: ' + str(velvet_out))
 
         # STEP 2: parse the output and save back to KBase, create report in the same time
         if isinstance(velvet_out, str) and velvet_out != '':
-                output_contigs = os.path.join(velvet_out, 'contigs.fa')
-
+            output_contigs = os.path.join(velvet_out, 'contigs.fa')
+            if (os.path.isfile(output_contigs) and os.path.getsize(output_contigs) == 0):
+                report_text = 'Velvet could not find any contig in the input reads libary'
+                self.log(report_text)
+                output = {'report_name': report_text, 'report_ref': None}
+            elif (os.path.isfile(output_contigs) and os.path.getsize(output_contigs) > 0):
                 self.log('Uploading FASTA file to Assembly')
 
                 assemblyUtil = AssemblyUtil(self.callbackURL, token=ctx['token'], service_ver='release')
@@ -537,8 +542,10 @@ class Velvet:
 
                 # STEP 3: contruct the output to send back
                 output = {'report_name': report_name, 'report_ref': report_ref}
+            else:
+                output = {'report_name': 'Velvet failed to generate contigs.fa file.', 'report_ref': None}
         else:
-            output = {'report_name': 'Velvet failed', 'report_ref': None}
+            output = {'report_name': 'Velvet aborted!', 'report_ref': None}
 
         #END run_velvet
 

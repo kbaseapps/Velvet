@@ -100,15 +100,17 @@ class VelvetTest(unittest.TestCase):
             return self.__class__.pairedEndLibInfo
         # 1) upload files to shock
         shared_dir = "/kb/module/work/tmp"
-        forward_data_file = 'data/small.forward.fq'
+        #forward_data_file = '../work/small.forward.fq'
+        forward_data_file = '../work/GW456A_trim_reads_unpaired_rev.single.fastq'
         forward_file = os.path.join(shared_dir, os.path.basename(forward_data_file))
         shutil.copy(forward_data_file, forward_file)
-        reverse_data_file = 'data/small.reverse.fq'
+        reverse_data_file = '../work/small.reverse.fq'
         reverse_file = os.path.join(shared_dir, os.path.basename(reverse_data_file))
         shutil.copy(reverse_data_file, reverse_file)
 
         ru = ReadsUtils(os.environ['SDK_CALLBACK_URL'])
-        paired_end_ref = ru.upload_reads({'fwd_file': forward_file, 'rev_file': reverse_file,
+        paired_end_ref = ru.upload_reads({'fwd_file': forward_file,
+                                          #'rev_file': reverse_file,
                                           'sequencing_tech': 'artificial reads',
                                           'interleaved': 0, 'wsname': self.getWsName(),
                                           'name': 'test.pe.reads'})['obj_ref']
@@ -265,7 +267,7 @@ class VelvetTest(unittest.TestCase):
             'output_contigset_name': 'Velvet_test_contigset',
             'hash_length': 21,
             'read_libraries':[self.make_ref(pe_lib_info)],
-            'min_contig_length': 500,
+            'min_contig_length': 300,
             'cov_cutoff': 5.2,
             'read_trkg': '',
             'amos_file': 'yes',

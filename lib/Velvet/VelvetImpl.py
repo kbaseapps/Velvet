@@ -543,7 +543,7 @@ class Velvet:
                 # STEP 3: contruct the output to send back
                 output = {'report_name': report_name, 'report_ref': report_ref}
             else:
-                output = {'report_name': 'Velvet failed to generate contigs file', 'report_ref': None}
+                output = {'report_name': 'Velvet found empty contig file', 'report_ref': None}
         else:
             output = {'report_name': 'Velvet aborted', 'report_ref': None}
 

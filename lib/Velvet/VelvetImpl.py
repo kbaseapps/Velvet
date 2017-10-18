@@ -514,6 +514,7 @@ class Velvet:
         # STEP 2: parse the output and save back to KBase, create report in the same time
         if isinstance(velvet_out, str) and velvet_out != '':
             output_contigs = os.path.join(velvet_out, 'contigs.fa')
+            min_contig_len = params.get(self.PARAM_IN_MIN_CONTIG_LENGTH, 0)
             if (os.path.isfile(output_contigs) and os.path.getsize(output_contigs) == 0):
                 self.log('Given the minimal contig length of {} kbps, Velvet could not find any contig of the input reads libary.'.format(str(min_contig_len)))
                 output = {'report_name': 'Empty contigs', 'report_ref': None}
@@ -522,7 +523,6 @@ class Velvet:
 
                 assemblyUtil = AssemblyUtil(self.callbackURL, token=ctx['token'], service_ver='release')
 
-                min_contig_len = params.get(self.PARAM_IN_MIN_CONTIG_LENGTH, 0)
                 if min_contig_len > 0:
                         assemblyUtil.save_assembly_from_fasta(
                                 {'file': {'path': output_contigs},

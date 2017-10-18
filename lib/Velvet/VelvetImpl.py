@@ -515,7 +515,7 @@ class Velvet:
         if isinstance(velvet_out, str) and velvet_out != '':
             output_contigs = os.path.join(velvet_out, 'contigs.fa')
             if (os.path.isfile(output_contigs) and os.path.getsize(output_contigs) == 0):
-                self.log('Velvet could not find any contig in the input reads libary')
+                self.log('Given the minimal contig length of {} kbps, Velvet could not find any contig of the input reads libary.'.format(str(min_contig_len))
                 output = {'report_name': 'Empty contigs', 'report_ref': None}
             elif (os.path.isfile(output_contigs) and os.path.getsize(output_contigs) > 0):
                 self.log('Uploading FASTA file to Assembly')

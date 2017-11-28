@@ -1,12 +1,12 @@
 #
 # define display information
 #
-name: Velvet Assembler, Version 1.2.10 
+name: Velvet Assembler - v1.2.10 
 tooltip: |
       Velvet consists of two main parts - Velveth and Velvetg
 screenshots: []
 
-icon: null
+icon: velvet-blue.png
 
 #
 # define a set of similar methods that might be useful to the user

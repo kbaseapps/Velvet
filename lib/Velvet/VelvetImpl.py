@@ -45,8 +45,8 @@ class Velvet:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "0.0.1"
-    GIT_URL = "https://github.com/kbaseapps/kb_Velvet/"
+    VERSION = "1.0.0"
+    GIT_URL = "https://github.com/kbaseapps/kb_Velvet"
     GIT_COMMIT_HASH = "6bf7071a438f1284b6169522760ff06dad8c987e"
 
     #BEGIN_CLASS_HEADER

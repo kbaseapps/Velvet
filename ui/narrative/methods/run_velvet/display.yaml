@@ -1,7 +1,7 @@
 #
 # define display information
 #
-name: Velvet Assembler - v1.2.10 
+name: Velvet Assembler - v1.2.10
 tooltip: |
       Velvet consists of two main parts - Velveth and Velvetg
 screenshots: []
@@ -31,7 +31,7 @@ parameters :
         ui-name : Read Libraries
         short-hint : Read libraries (only KBase PairedEnd Libs are input through this parameter)
     hash_length :
-        ui-name : hash_length 
+        ui-name : hash_length
         short-hint : |
             An integer for length of hash
     output_contigset_name :
@@ -48,7 +48,7 @@ parameters :
         ui-name : |
             cov_cutoff
         short-hint : |
-            removal of low coverage nodes AFTER tour bus or allow the system to infer it when set it to 'auto' 
+            removal of low coverage nodes AFTER tour bus or allow the system to infer it when set it to 'auto'
         long-hint : |
             removal of low coverage nodes AFTER tour bus, it can also be set automatically to half the length weighted median contig coverage depth
     ins_length :
@@ -88,4 +88,5 @@ description : |
 publications :
     -
         display-text : |
-            Zerbino, D. R., Birney, E. (2008) Velvet: Algorithms for de novo short read assembly using de Bruijn graphs. Genome Research, 18(5), 821-829, doi: 10.1101/gr.074492.107
+            Zerbino DR, Birney E. Velvet: Algorithms for de novo short read assembly using de Bruijn graphs. Genome Res. 2008; doi:10.1101/gr.074492.107
+        link: https://genome.cshlp.org/content/early/2008/04/07/gr.074492.107

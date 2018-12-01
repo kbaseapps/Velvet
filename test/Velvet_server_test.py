@@ -101,10 +101,12 @@ class VelvetTest(unittest.TestCase):
         # 1) upload files to shock
         shared_dir = "/kb/module/work/tmp"
         #forward_data_file = '../work/small.forward.fq'
-        forward_data_file = '../work/GW456A_trim_reads_unpaired_rev.single.fastq'
+        forward_data_file = 'data/small.forward.fq'
+        #forward_data_file = '../work/GW456A_trim_reads_unpaired_rev.single.fastq'
         forward_file = os.path.join(shared_dir, os.path.basename(forward_data_file))
         shutil.copy(forward_data_file, forward_file)
-        reverse_data_file = '../work/small.reverse.fq'
+        #reverse_data_file = '../work/small.reverse.fq'
+        reverse_data_file = 'data/small.reverse.fq'
         reverse_file = os.path.join(shared_dir, os.path.basename(reverse_data_file))
         shutil.copy(reverse_data_file, reverse_file)
 
@@ -255,7 +257,7 @@ class VelvetTest(unittest.TestCase):
         return result
 
     # Uncomment to skip this test
-    #@unittest.skip("skipped test_run_velvet")
+    # HIDE @unittest.skip("skipped test_run_velvet")
     def test_run_velvet(self):
         # get the test data
         pe_lib_info = self.getPairedEndLibInfo()

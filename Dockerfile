@@ -1,4 +1,4 @@
-FROM kbase/kbase:sdkbase.latest
+FROM kbase/kbase:sdkbase2.latest
 MAINTAINER KBase Developer
 # -----------------------------------------
 # In this section, you can install any system dependencies required
@@ -8,14 +8,6 @@ MAINTAINER KBase Developer
 
 #RUN apt-get update
 RUN pip install --upgrade pip
-
-# update security libraries in the base image
-RUN pip install cffi --upgrade \
-    && pip install pyopenssl --upgrade \
-    && pip install ndg-httpsclient --upgrade \
-    && pip install pyasn1 --upgrade \
-    && pip install requests --upgrade \
-    && pip install 'requests[security]' --upgrade
 
 ###### Velvet installation
 #  Directions from https://www.ebi.ac.uk/~zerbino/velvet/

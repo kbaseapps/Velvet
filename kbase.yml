@@ -5,17 +5,16 @@ module-description:
     This is a KBase module that wraps the open source package-Short read de novo assembler using de Bruijn graphs Version 1.2.10
     References--
     'https://github.com/dzerbino/velvet
-    https://github.com/dzerbino/velvet/blob/master/Columbus_manual.pdf'    
+    https://github.com/dzerbino/velvet/blob/master/Columbus_manual.pdf'
 
 service-language:
     python
 
 module-version:
-    1.0.0
+    1.0.1
 
 owners:
     [qzhang]
 
 #data-version:
     #1.0
-   

@@ -1,28 +1,21 @@
 # -*- coding: utf-8 -*-
-import unittest
 import os  # noqa: F401
 import os.path
-import json  # noqa: F401
-import time
-import requests
 import shutil
-
-from pprint import pprint, pformat
+import time
+import unittest
+from configparser import ConfigParser
 from os import environ
-try:
-    from ConfigParser import ConfigParser  # py2
-except:
-    from configparser import ConfigParser  # py3
-
+from pprint import pformat
 from pprint import pprint  # noqa: F401
-from biokbase.AbstractHandle.Client import AbstractHandle as HandleService
 
 from Velvet.VelvetImpl import Velvet
 from Velvet.VelvetServer import MethodContext
 from Velvet.authclient import KBaseAuth as _KBaseAuth
-from Workspace.WorkspaceClient import Workspace as workspaceService
-from ReadsUtils.baseclient import ServerError
-from ReadsUtils.ReadsUtilsClient import ReadsUtils
+from installed_clients.ReadsUtilsClient import ReadsUtils
+from installed_clients.WorkspaceClient import Workspace as workspaceService
+from installed_clients.baseclient import ServerError
+
 
 class VelvetTest(unittest.TestCase):
 

@@ -1,3 +1,6 @@
+### Version 1.0.3
+- updated to Python 3
+
 ### Version 1.0.2
 - updated base image to sdkbase2
 

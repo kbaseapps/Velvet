@@ -3,23 +3,19 @@
 # The header block is where all import statments should live
 import os
 import re
-import shutil
 import subprocess
-import numpy as np
-from Bio import SeqIO
-from pprint import pprint, pformat
-from datetime import datetime
 import time
 import uuid
+from pprint import pprint, pformat
 
-from KBaseReport.KBaseReportClient import KBaseReport
-from KBaseReport.baseclient import ServerError as _RepError
-from AssemblyUtil.AssemblyUtilClient import AssemblyUtil
-from kb_quast.kb_quastClient import kb_quast
-from kb_quast.baseclient import ServerError as QUASTError
-from ReadsUtils.ReadsUtilsClient import ReadsUtils
-from ReadsUtils.baseclient import ServerError
-from Workspace.WorkspaceClient import Workspace as workspaceService
+import numpy as np
+
+from installed_clients.AssemblyUtilClient import AssemblyUtil
+from installed_clients.KBaseReportClient import KBaseReport
+from installed_clients.ReadsUtilsClient import ReadsUtils
+from installed_clients.WorkspaceClient import Workspace as workspaceService
+from installed_clients.baseclient import ServerError
+from installed_clients.kb_quastClient import kb_quast
 #END_HEADER
 
 
@@ -45,9 +41,9 @@ class Velvet:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "1.0.0"
-    GIT_URL = "https://github.com/kbaseapps/kb_Velvet"
-    GIT_COMMIT_HASH = "6bf7071a438f1284b6169522760ff06dad8c987e"
+    VERSION = "1.0.2"
+    GIT_URL = "https://github.com/kbaseapps/kb_Velvet.git"
+    GIT_COMMIT_HASH = "626d1bbf79cf3f74ee87d3ccee99cbd2c821b3a4"
 
     #BEGIN_CLASS_HEADER
     # Class variables and functions can be defined in this block
@@ -177,8 +173,8 @@ class Velvet:
                 vh_cmd.append(os.path.join(self.VELVET_DATA, rc['read_file_info']['read_file_name']))
 
         # STEP 3 return vh_cmd
-        print ('Velveth CMD:')
-        print ' '.join(vh_cmd)
+        print('Velveth CMD:')
+        print(' '.join(vh_cmd))
         return vh_cmd
 
     def construct_velvetg_cmd(self, params):
@@ -222,8 +218,8 @@ class Velvet:
         # appending the advanced optional inputs--TODO
 
         # STEP 3 return vg_cmd
-        print ('Velvetg CMD:')
-        print ' '.join(vg_cmd)
+        print('Velvetg CMD:')
+        print(' '.join(vg_cmd))
         return vg_cmd
 
     def exec_velveth(self, params):
@@ -249,7 +245,6 @@ class Velvet:
             raise ValueError('Error running VELVETG, return code: ' + str(p.returncode) + '\n')
 
         return p.returncode
-
 
     def exec_velvet(self, params, reads_data):
         outdir = os.path.join(self.scratch, 'velvet_output_dir')
@@ -289,7 +284,7 @@ class Velvet:
         ret = 1
         try:
             ret = self.exec_velveth(params_h)
-            while( ret != 0 ):
+            while ret != 0:
                 time.sleep(1)
         except ValueError as eh:
             self.log('Velveth raised error:\n')
@@ -298,7 +293,7 @@ class Velvet:
             ret = 1
             try:
                 ret = self.exec_velvetg(params_g)
-                while( ret != 0 ):
+                while ret != 0:
                     time.sleep(1)
             except ValueError as eg:
                 self.log('Velvetg raised error:\n')
@@ -324,7 +319,7 @@ class Velvet:
             # Pattern for replacing white space
             pattern = re.compile(r'\s+')
             for current_line in input_file_handle:
-                if (current_line[0] == '>'):
+                if current_line[0] == '>':
                     # found a header line
                     # Wrap up previous fasta sequence
                     if not first_header_found:
@@ -516,7 +511,8 @@ class Velvet:
             output_contigs = os.path.join(velvet_out, 'contigs.fa')
             min_contig_len = params.get(self.PARAM_IN_MIN_CONTIG_LENGTH, 0)
             if (os.path.isfile(output_contigs) and os.path.getsize(output_contigs) == 0):
-                self.log('Given the minimal contig length of {} bp, Velvet could not find any contig of the input reads libary.'.format(str(min_contig_len)))
+                self.log('Given the minimal contig length of {} bp, Velvet could not find any '
+                         'contig of the input reads libary.'.format(str(min_contig_len)))
                 output = {'report_name': 'Empty contigs', 'report_ref': None}
             elif (os.path.isfile(output_contigs) and os.path.getsize(output_contigs) > 0):
                 self.log('Uploading FASTA file to Assembly')

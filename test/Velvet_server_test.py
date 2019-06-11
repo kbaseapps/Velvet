@@ -1,28 +1,21 @@
 # -*- coding: utf-8 -*-
-import unittest
 import os  # noqa: F401
 import os.path
-import json  # noqa: F401
-import time
-import requests
 import shutil
-
-from pprint import pprint, pformat
+import time
+import unittest
+from configparser import ConfigParser
 from os import environ
-try:
-    from ConfigParser import ConfigParser  # py2
-except:
-    from configparser import ConfigParser  # py3
-
+from pprint import pformat
 from pprint import pprint  # noqa: F401
-from biokbase.AbstractHandle.Client import AbstractHandle as HandleService
 
 from Velvet.VelvetImpl import Velvet
 from Velvet.VelvetServer import MethodContext
 from Velvet.authclient import KBaseAuth as _KBaseAuth
-from Workspace.WorkspaceClient import Workspace as workspaceService
-from ReadsUtils.baseclient import ServerError
-from ReadsUtils.ReadsUtilsClient import ReadsUtils
+from installed_clients.ReadsUtilsClient import ReadsUtils
+from installed_clients.WorkspaceClient import Workspace as workspaceService
+from installed_clients.baseclient import ServerError
+
 
 class VelvetTest(unittest.TestCase):
 
@@ -101,10 +94,12 @@ class VelvetTest(unittest.TestCase):
         # 1) upload files to shock
         shared_dir = "/kb/module/work/tmp"
         #forward_data_file = '../work/small.forward.fq'
-        forward_data_file = '../work/GW456A_trim_reads_unpaired_rev.single.fastq'
+        forward_data_file = 'data/small.forward.fq'
+        #forward_data_file = '../work/GW456A_trim_reads_unpaired_rev.single.fastq'
         forward_file = os.path.join(shared_dir, os.path.basename(forward_data_file))
         shutil.copy(forward_data_file, forward_file)
-        reverse_data_file = '../work/small.reverse.fq'
+        #reverse_data_file = '../work/small.reverse.fq'
+        reverse_data_file = 'data/small.reverse.fq'
         reverse_file = os.path.join(shared_dir, os.path.basename(reverse_data_file))
         shutil.copy(reverse_data_file, reverse_file)
 
@@ -255,7 +250,7 @@ class VelvetTest(unittest.TestCase):
         return result
 
     # Uncomment to skip this test
-    #@unittest.skip("skipped test_run_velvet")
+    # HIDE @unittest.skip("skipped test_run_velvet")
     def test_run_velvet(self):
         # get the test data
         pe_lib_info = self.getPairedEndLibInfo()

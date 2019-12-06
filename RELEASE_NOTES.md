@@ -1,3 +1,6 @@
+### Version 1.0.4
+- Bugfix on report name assignment to prevent invalid characters
+
 ### Version 1.0.3
 - updated to Python 3
 

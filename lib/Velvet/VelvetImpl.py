@@ -538,7 +538,7 @@ class Velvet:
                 # STEP 3: contruct the output to send back
                 output = {'report_name': report_name, 'report_ref': report_ref}
             else:
-                output = {'report_name': 'velvet_found_empty_contig_file' + str(uuid.uuid4()), 'report_ref': None}
+                output = {'report_name': 'velvet_found_empty_contig_file_' + str(uuid.uuid4()), 'report_ref': None}
         else:
             output = {'report_name': 'velvet_aborted_' + str(uuid.uuid4()), 'report_ref': None}
 

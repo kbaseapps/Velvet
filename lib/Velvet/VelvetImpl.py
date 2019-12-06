@@ -41,9 +41,9 @@ class Velvet:
     # state. A method could easily clobber the state set by another while
     # the latter method is running.
     ######################################### noqa
-    VERSION = "1.0.2"
-    GIT_URL = "https://github.com/kbaseapps/kb_Velvet.git"
-    GIT_COMMIT_HASH = "626d1bbf79cf3f74ee87d3ccee99cbd2c821b3a4"
+    VERSION = "1.0.4"
+    GIT_URL = "https://github.com/kbaseapps/kb_Velvet"
+    GIT_COMMIT_HASH = "8acfabe13452a4b837bd18f47604681f179e6682"
 
     #BEGIN_CLASS_HEADER
     # Class variables and functions can be defined in this block
@@ -513,7 +513,7 @@ class Velvet:
             if (os.path.isfile(output_contigs) and os.path.getsize(output_contigs) == 0):
                 self.log('Given the minimal contig length of {} bp, Velvet could not find any '
                          'contig of the input reads libary.'.format(str(min_contig_len)))
-                output = {'report_name': 'Empty contigs', 'report_ref': None}
+                output = {'report_name': 'empty_contigs_' + str(uuid.uuid4()), 'report_ref': None}
             elif (os.path.isfile(output_contigs) and os.path.getsize(output_contigs) > 0):
                 self.log('Uploading FASTA file to Assembly')
 
@@ -538,9 +538,9 @@ class Velvet:
                 # STEP 3: contruct the output to send back
                 output = {'report_name': report_name, 'report_ref': report_ref}
             else:
-                output = {'report_name': 'Velvet found empty contig file', 'report_ref': None}
+                output = {'report_name': 'velvet_found_empty_contig_file_' + str(uuid.uuid4()), 'report_ref': None}
         else:
-            output = {'report_name': 'Velvet aborted', 'report_ref': None}
+            output = {'report_name': 'velvet_aborted_' + str(uuid.uuid4()), 'report_ref': None}
 
         #END run_velvet
 

@@ -3,7 +3,7 @@
 #
 name: Velvet Assembler - v1.2.10
 tooltip: |
-      Velvet consists of two main parts - Velveth and Velvetg
+      Assemble reads using Velvet. Velvet consists of two main parts - Velveth and Velvetg.
 screenshots: []
 
 icon: velvet-blue.png
@@ -28,62 +28,62 @@ suggestions:
 #
 parameters :
     read_libraries :
-        ui-name : Read Libraries
-        short-hint : Read libraries (only KBase PairedEnd Libs are input through this parameter)
+        ui-name : ReadsLibrary
+        short-hint : The ReadsLibrary to be assembled.
     hash_length :
-        ui-name : hash_length
+        ui-name : Hast Length
         short-hint : |
-            An integer for length of hash
+            Select an integer for the length of hash.
     output_contigset_name :
         ui-name : |
-            Output ContigSet
+            Output ContigSet Name
         short-hint : |
-            The name for the resulting ContigSet will be saved in KBase
+            The name for the resulting assembly (ContigSet) object that will be saved in the Narrative.
     min_contig_length :
         ui-name : |
-            Minimal contig length
+            Minimal Contig Length
         short-hint : |
-            The shortest contig to accept in the resulting assembly object
+            The shortest length of a contig that can be accepted int he resulting set of Contigs.
     cov_cutoff :
         ui-name : |
-            cov_cutoff
+            Coverage Cutoff
         short-hint : |
-            removal of low coverage nodes AFTER tour bus or allow the system to infer it when set it to 'auto'
-        long-hint : |
-            removal of low coverage nodes AFTER tour bus, it can also be set automatically to half the length weighted median contig coverage depth
+            Removal of low coverage nodes. We recommend the parameter to be left to the default value of "auto." For the manual setting of this parameter, we recommend a thorough read of Velvet's publication.
     ins_length :
         ui-name : |
             ins_length
         short-hint : |
-            expected distance between two paired end reads (default: no read pairing)
+            The expected distance between two paired-end reads (default is no read pairing).
     read_trkg :
         ui-name : |
-            track short read positions
+            Track Short Read Positions
         short-hint : |
-            tracking of short read positions in assembly (default: no tracking)
+            The tracking of short read positions in assembly (default is no tracking).
     amos_file :
         ui-name : |
-            export AMOS file
+            Export AMOS File
         short-hint : |
-            export assembly to AMOS file (default: no export)
+            Export the Assembly to an AMOS file (default is no export).
     exp_cov :
         ui-name : |
-            expected coverage
+            Expected Coverage
         short-hint : |
-            expected short-read k-mer coverage of unique regions or allow the system to infer it when set it to 'auto'
-        long-hint : |
-            <p>A value of 'auto' will set exp cov to the length weighted median contig coverage, and cov cutoff to half that value (unless you override it with a manual setting), it can also be set automatically to half the length weighted median contig coverage depth.</p>
+            A value of "auto" will set the expected coverage to the length weighted median contig coverage, and coverage cutoff to half that value (unless you override it with a manual setting). It can also be set automatically to half the length weighted median contig coverage depth.
     long_cov_cutoff :
         ui-name : |
-            long_cov_cutoff
+            Long Coverage Cutoff
         short-hint : |
-            removal of nodes with low long-read coverage AFTER tour bus (default: no removal)
+            Select to remove nodes with low long-read coverage. We recommend the parameter to be left to the default value of "auto" per user manual recommendation. For the manual setting of this parameter, we recommend a thorough read of Velvet's publication. Default is no removal.
 
 description : |
-    <p>This is a KBase wrapper for Velvet.</p>
-    <p>Velvet is a classic de-bruijn graph based assembler. Velvet works by efficiently manipulating de Bruijn graphs through simplification and compression. It eliminates errors and resolves repeats by first using an error correction algorithm that merges sequences together. Repeats are then removed from the sequence via the repeat solver that separates paths which share local overlaps. Velvet is fast and robust, although it is no longer in active development.</p>
-    <p><b>NOTE that Velvet is not deterministic</b> See https://www.biostars.org/p/86907/ and https://www.researchgate.net/post/Does_velvet_generate_different_assemblies_from_the_same_input_data_and_same_velvet_parameters</p>
+    <p>This is a KBase wrapper for <a href=”https://www.ebi.ac.uk/~zerbino/velvet/”>Velvet 1.2.10</a>. This App takes a ReadsLibrary as input and produces an Assembly with a QUAST (Quality Assessment Tool for Genome Assemblies) report.</p>
+
+    <p>Velvet is a classic <a href=”https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5531759/”>de-bruijn graph</a> based assembler. Velvet works by efficiently manipulating de Bruijn graphs through simplification and compression. It eliminates errors and resolves repeats by first using an error correction algorithm that merges sequences together. Repeats are then removed from the sequence via the repeat solver that separates paths which share local overlaps. Velvet is fast and robust, although it is no longer in active development. As a result of a successful run, the App will output an Assembly data object in the Data Panel and produce a QUAST (Quality Assessment Tool for Genome Assemblies) report. For details on how to interpret the report please refer to the <a href=”https://narrative.kbase.us/#catalog/apps/kb_quast/run_QUAST_app/release”>QUAST App documentation</a>. For more details about Velvet, please refer to the developer’s <a href=”https://github.com/dzerbino/velvet/blob/master/Manual.pdf”>manual</a>.</p>
+
+    <p><b>Note that Velvet is not deterministic, and the results might differ when re-running an analysis.</b> For further explanation, click <a href=”https://www.biostars.org/p/86907/”>here</a> and <a href=”https://www.researchgate.net/post/Does_velvet_generate_different_assemblies_from_the_same_input_data_and_same_velvet_parameters”>here</a>.</p>
+
     <p><b>Known limitations</b>: Velvet assembly quality is known to be sensitive to the hash length.</p>
+
 
 publications :
     -
